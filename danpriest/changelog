@@ -1,0 +1,92 @@
+(The last four on Bar 6 you have to set yourself under the Common. Keys)
+
+Written by Sleepyshot (thanks again)
+
+
+To-do:
+- Improve PvP (Think it works pretty well atm, goal is to be able to win over people in duels outside orgrimmar :) This can always be improved :D )
+- Make it detect elites and waste more mana on them
+- Improve the add-control even more, spam mindflay when at range after the psychic scream.
+- Shackle undead
+- Fade
+- Support for more racial spells, but for this I need help from people who play those races. Please post a description of how you would like it to work, and I'll see if I can implement it
+- BE racials. (know how they work)
+- Your suggestions here!
+- Sure there is more, but can't think of anything right now.
+
+
+
+Additional notes:
+[B]I`ve made a mailing list now, since there is maybe an update to this class once a week or once a month, you wont be checking in all day. Therefore I`ve made a free mailinglist so I can send you all a mail when there is a update, so you wont need to check in on this thread all the time.
+Subscribe here: [url]http://server.com/WebApps/mail-list-subscribe.cgi?list=82184[/url] 
+Unsubscribe here: [url]http://server.com/WebApps/mail-list-unsubscribe.cgi?list=82184[/url] [/B]
+[I]I do not take responsibility if this list sends out some some additional advertisment, though I highly doubt it will. It looks pretty OK. An there is even a unsubscribe thingie! This is the first time I`ve tried it, but I hope it works fine!
+What I can guaranty you is that I wont send out any advertisment myself or abuse your information by selling my lis to other third-parties. But hey, this list wont be big enough to be worth more than a few bucks... You can feel safe that I wont abuse it!
+
+EDIT: It turned out that they gave me a premium account for 1 day. As I'm not willing to pay money for it, it means three things. A banner in each mail I think. Dunno size or anything, havn't sent out anything yet. Some adds on subscribe site. And mails will be sent out by midnight. Meaning that after a update you will have a mail right after midnight. This is what they say about it, haven't tested yet though[/I]
+
+
+
+
+
+Special Thanks to:
+- Thew0rst for helping me update while I was away :) cheers!
+- silentj - for the basecodes of this class, taken from JSPriest
+- dante020 - for LeetLock which I'm using for my lock at this moment, and which have given me inspiriration
+- RAGE - for GConfig.dll
+- Mercury - for Glider, default-priest-class, and the custom-class-support of glider
+-Sleepyshot for help via msn :)
+
+
+
+--------------------------------------How to update--------------------------
+[list=1]
+[*]Download the newest edition
+[*]Extract it to the same place as the old files (overwrite it all, though Gconfig.dll is not necessary  to overwrite, it doesn't hurt you)
+[*]Open the class tab in the glider options, check the new one (or if the name is the same, press Test Compile)
+[*]Delete the old .cs file (if you like... it doesn't really matter)
+[*]Open the options menu and fill in anything that is new and check that it looks OK
+[*]Start gliding!
+[/list]
+
+
+------------------------------------------Patch notes ----------------------------------
+
+1.1.0:
+- Improved the PvP
+- Added potion
+- Added different healing policy when in shadowform
+- Improved wanding to stay close enough and face target
+- Improved silence - checks more often and a option DropWandForSilence, if set to false, it will only silence if it is not wanding
+- Added option to avoid adds
+- Improved code to find buff ID, shouldn't be any difference.
+- Added check for other playertag and if monster is valid in pullsequence!
+- Improved PvP
+    -Will now detect if the target is a pet, and attack the owner
+    -Will now cast psychic scream if ANY attacker is close if target is a ranged class
+- Will now wand even though target hp is above 80%
+- Will now only cast Touch of Weakness before PW:Shield, to avoid interupting spirit tap
+- Fixed pulldistance, finally!
+- Check for PW:Shield buff ID!
+- Detects PW:Shield and Weakened Soul buff IDs
+- Added support for mounting
+- Should now prioritize pvp if attacked by player and mob
+- Some of the config options are replaced, and new thing are added. Nothing is removed, so if there is something you don't find, look good
+- Shadow Protection
+- Added an option for active PvP, will attack any player closer than 40 yard while running (good for BGs) Thanks, dante (LeetLock)
+- Will now only cast wand / mind flay and protective spells if target hp is below the threshold you set
+
+1.0.0 BETA:
+- Fixed the "mob health is not dropping" bug (?)
+- Moved the casting of Shadow Fiend to the start of the pull sequence
+- Will now cast Shadowfiend if it is ready and mana is below your setting for it, when an add arrives
+- Added support for items (trinkets for instance)
+- Added aditional spells for pull sequence
+- Added add cast sequence
+- Reworked add casting
+- Added option to cast ManaBurn instead of Mind Blast when target got mana
+- Reworked the code to find buff IDs to be more flexible and less repeated code( so if you get problems with finding buff IDs, probably because I made small mistake during this)
+- It now checks for targets hp before casting spells even in
+- Made shadowform code less repeated
+- Improved healing (Taken from the default priest :) )
+- Added a config help file, should be read for greater understanding of the options
