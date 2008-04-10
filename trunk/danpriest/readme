@@ -1,0 +1,142 @@
+[size=25] [Center]DanPriest 1.1.0[/Center] [/size]
+[size=+2]  [center] Last update: 25th July 2007 [/size]  [/center]
+
+
+This is only for version 1.1.0 and up! There is pretty big changes in version 1 compared to the beta. So I made this new thread. And it is easier to have a thread with less than 24 pages of replies (for now)
+
+[size=5]Features:[/size]
+[size=3]
+- All variables is configured through a options menu (no need to edit code)
+- Fully configurable pull cast-sequence (with up to seven spells)
+- Improved add-control.
+- Fully configurable add cast-sequence (with up to seven spell)
+- support for trinkets or other items
+- Checks for resisted debuffs and recasts
+- Should (in theory, never tested) use WillOfTheForsaken if you are undead
+- Checks for Power Word: Fortitude before buffing, so you wont waste mana each time you start the glide
+- Have a PanicScream option, which will Psychic Scream and heal yourself if hp gets real low.
+- Under pull actions it instantly taps the next key if the last spell had casting time, improving the speed of the casting!
+- [size +1]Can mount between kills[/size]
+- [size +1]Detects if target is a pet of a player, and attacks player instead[/size]
+- Have an option to activate active PvP being aggresive against players
+- Can use Shadow Protection
+[/size]
+
+
+Howto:
+[list=1]
+[*]Download the attachment
+[*]Unzip it to your classes folder in your glider folder (so all three files is right inside the classes folder)
+[*]Start glider (if you havn't already)
+[*]Open your glider settings
+[*]Press the "Classes" tab
+[*]Check DanPriest
+[*]Click the "general" tab
+[*]On the classes dropdown menu choose DanPriest 1.1.0 (this will of course change when there is new versions)
+[*]Press the options button under the class dropdownmenu
+[*]Modify the settings for your liking
+[*]Open your keys.xml file in your glider folder (if it doesn't exist, you have to open glider -> click options -> click keys -> press save keys)
+[*]Add the keys for this class (listed below)
+[*]Configure your new keys (you should know how to do this)
+  [B]EDIT:[/B] For version 1.0 and up, there are default keys you can use. And in 1.1.0 and up, I have added a keys.xml file that you can use. For editing, I would recommend this program http://vforums.mmoglider.com/showthread.php?t=75086
+[*]Open the glider options once again, and press the keys tab
+[*]Press Load Keys
+[*]Make sure your keys is correct ingame too
+[*]Start to glide
+[*]Go back here and post you result, questions, bugs and suggestions
+[/list]
+
+As of eating and bandaging, I'm just using the internal code, and I think that would be find, I see no need to do it myself. Just go to options - limits and adjust the values there
+
+[B]It is really important that you do not have any special spell on the Common.CooldownProbe (which is by default key 2 on the combat bar) as my class often look at that key to determine if global cooldown is done, if you have a spell with no global cooldown or a spell with a long cooldown there (imagine a 5min cooldown spell...) please edit the Common.CooldowProbe to another key, or place a better spell on combat bar, button 2[/B]
+
+
+
+
+
+[size=4][B]Keys for version 1.1.0:[/B][/size]
+
+<Key KeyName="DP.CooldownProbe" BarState="Bar5" ShiftState="None" Char="2" />
+<Key KeyName="DP.ApplyBandage" BarState="Bar4" ShiftState="None" Char="7" />
+<Key KeyName="DP.CureDisease" BarState="Bar6" ShiftState="Alt" Char="5" />
+<Key KeyName="DP.Dispel" BarState="Bar6" ShiftState="Alt" Char="3" />
+<Key KeyName="DP.Fade" BarState="Bar4" ShiftState="Alt" Char="6" />
+<Key KeyName="DP.FlashHeal" BarState="Bar5" ShiftState="Alt" Char="6" />
+<Key KeyName="DP.FlashHealOther" BarState="Bar5" ShiftState="None" Char="6" />
+<Key KeyName="DP.InnerFire" BarState="Bar6" ShiftState="None" Char="2" />
+<Key KeyName="DP.MindBlast" BarState="Bar5" ShiftState="None" Char="1" />
+<Key KeyName="DP.MindFlay" BarState="Bar5" ShiftState="None" Char="2" />
+<Key KeyName="DP.PWFort" BarState="Bar6" ShiftState="Alt" Char="1" />
+<Key KeyName="DP.PWFortOther" BarState="Bar6" ShiftState="None" Char="1" />
+<Key KeyName="DP.Renew" BarState="Bar5" ShiftState="Alt" Char="5" />
+<Key KeyName="DP.RenewOther" BarState="Bar5" ShiftState="None" Char="5" />
+<Key KeyName="DP.RestHeal" BarState="Bar6" ShiftState="Alt" Char="4" />
+<Key KeyName="DP.RestHealOther" BarState="Bar6" ShiftState="None" Char="4" />
+<Key KeyName="DP.Shadowform" BarState="Bar5" ShiftState="None" Char="9" />
+<Key KeyName="DP.Shield" BarState="Bar5" ShiftState="Alt" Char="4" />
+<Key KeyName="DP.ShieldOther" BarState="Bar5" ShiftState="None" Char="4" />
+<Key KeyName="DP.SWPain" BarState="Bar5" ShiftState="None" Char="3" />
+<Key KeyName="DP.Wand" BarState="Bar5" ShiftState="None" Char="7" />
+<Key KeyName="DP.Shadowfiend" BarState="Bar4" ShiftState="None" Char="8" />
+<Key KeyName="DP.SWDeath" BarState="Bar4" ShiftState="None" Char="9" />
+<Key KeyName="DP.VampiricEmbrace" BarState="Bar4" ShiftState="None" Char="4" />
+<Key KeyName="DP.VampiricTouch" BarState="Bar4" ShiftState="None" Char="5" />
+<Key KeyName="DP.DevouringPlague" BarState="Bar4" ShiftState="None" Char="1" />
+<Key KeyName="DP.DesperatePrayer" BarState="Bar4" ShiftState="None" Char="1" />
+<Key KeyName="DP.FearWard" BarState="Bar4" ShiftState="None" Char="3" />
+<Key KeyName="DP.Shadowmeld" BarState="Bar4" ShiftState="None" Char="3" />
+<Key KeyName="DP.TouchOfWeakness" BarState="Bar4" ShiftState="None" Char="3" />
+<Key KeyName="DP.Shadowguard" BarState="Bar4" ShiftState="None" Char="3" />
+<Key KeyName="DP.PsychicScream" BarState="Bar4" ShiftState="None" Char="2" />
+<Key KeyName="DP.WillOfTheForsaken" BarState="Bar4" ShiftState="None" Char="0" />
+<Key KeyName="DP.Silence" BarState="Bar5" ShiftState="None" Char="0" />
+<Key KeyName="DP.Item1" BarState="Bar6" ShiftState="None" Char="6" />
+<Key KeyName="DP.Item2" BarState="Bar6" ShiftState="None" Char="7" />
+<Key KeyName="DP.ManaBurn" BarState="Bar5" ShiftState="None" Char="=" />
+<Key KeyName="DP.Potion" BarState="Bar5" ShiftState="None" Char="-" />
+<Key KeyName="DP.Mount" BarState="Bar6" ShiftState="None" Char="-" />
+<Key KeyName="DP.ShadowProtection" BarState="Bar4" ShiftState="None" Char="-" />
+
+[B]Default keys: (for version 1.0 and up [U]only![/U])[/B]
+
+Bar 4:
+1 - Devouring Plague/Desperate Prayer
+2 - Psychic Scream
+3 - Touch of Weakness/Shadowmeld/Shadowguard/Fear Ward
+4 - Vampiric Embrace
+5 - Vampiric Touch
+6 - Fade
+7 - Bandage
+8 - Shadow Fiend
+9 - SW: Death
+0 - Will of the Forsaken (UD Only)
+
+Bar 5:
+1 - Mind Blast
+2 - Mind Flay (CooldownProbe[Spell here must NOT have a cooldown, but gcd must apply])
+3 - SW: Pain
+4 - PW: Shield
+5 - Renew
+6 - Flash Heal
+7 - Wand
+8 - Inner Focus
+9 - Shadow Form
+0 - Silence
+- - Potion
+= - Mana Burn
+
+Bar 6:
+1 - PW: Fortitude
+2 - Inner Fire
+3 - Dispel Magic
+4 - Greater Heal
+5 - Cure Disease
+6 - Item 1
+7 - Item 2
+8 - Bandage
+9 - Eat
+0 - Drink
+- - Mount
+= - HS
+
+
