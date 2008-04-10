@@ -12,4 +12,4 @@ Add your content here.  Format your content with:
   * Automatic links to other wiki pages
 
 = Change Log =
-  * DanPriest has now been parsed into multiple files and rejoined by the batch file (DanPriest.ba_ which needs to be renamed to DanPriest.bat). Then the file DanPriest.cs can be used as the custom class.
+  * DanPriest has now been parsed into multiple files and rejoined by the batch file (DanPriest.ba(underscore) which needs to be renamed to DanPriest.bat). Then the file DanPriest.cs created by the batch can be used as the custom class.
