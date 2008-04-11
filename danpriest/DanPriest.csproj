@@ -30,7 +30,7 @@
   <ItemGroup>
     <Reference Include="GRefs, Version=0.1.5.8, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\GRefs.dll</HintPath>
+      <HintPath>.\GRefs.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -43,7 +43,10 @@
     <Compile Include="DanPriestHelpers.cs" />
     <Compile Include="DanPriestKillTarget.cs" />
     <Compile Include="DanPriestPvP.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="DanPriestThreads.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,0 +1,1 @@
+copy /B /Y DanPriestHeader.cs+DanPriestConfig.cs+DanPriestGliderOverrides.cs+DanPriestHelpers.cs+DanPriestKillTarget.cs+DanPriestPvP.cs  DanPriest.cs

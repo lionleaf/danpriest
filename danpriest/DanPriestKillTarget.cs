@@ -1,6 +1,5 @@
 
-#if usingNamespaces
-#else
+#if !usingNamespaces
 using System;
 using System.Threading;
 using Glider.Common.Objects;
@@ -10,7 +9,6 @@ using System.Reflection;
 namespace Glider.Common.Objects
 {
 
-
     public partial class DanPriest
     {
         #region KillTarget
@@ -18,6 +16,7 @@ namespace Glider.Common.Objects
         {
             #region pull
             Context.Log("KillTarget invoked");
+
 
             if (LookForOwner(Target))
                 return GCombatResult.Success;
@@ -45,33 +44,9 @@ namespace Glider.Common.Objects
                 return GCombatResult.Success;
             if (Monster.IsTagged && !Monster.IsMine && !IsAmbush)
                 return GCombatResult.OtherPlayerTag;
-            if (Ability("Touch of Weakness") && ToW.IsReady)
+            if (Ability("Touch of Weakness") && ToW.IsReady && !HasBuff("Touch of Weakness", true))
             {
-                if (TouchOfWeaknessSpellID == 0)
-                {
-                    //We dont know the Spell ID of TOW yet, so lets guss it.
-                    Context.Log(DateTime.Now.ToString() + ": " + "Guessing Touch Of Weakness Spell ID");
-                    CastSpell("DP.TouchOfWeakness");
-                    GSpellTimer FutileTOW = new GSpellTimer(5000, false);
-
-                    while (!FutileTOW.IsReadySlow)
-                    {
-                        TouchOfWeaknessSpellID = BuffID("touch of", "weakness");
-
-                        if (TouchOfWeaknessSpellID != 0)
-                            break;
-                    }
-
-                    if (TouchOfWeaknessSpellID == 0) //Couldn't find it.
-                    {
-                        Context.Log(DateTime.Now.ToString() + ": " + "Never found Touch of Weakness buff, going with the timer.");
-                        TouchOfWeaknessSpellID = -1;
-                    }
-
-                    else
-                        Context.Log(DateTime.Now.ToString() + ": " + "Touch Of Weakness Spell ID found: 0x" + TouchOfWeaknessSpellID.ToString("x"));
-
-                }
+                CastSpell("Touch of Weakness");
             }
             CheckPWShield(Target, false);
 
@@ -113,10 +88,24 @@ namespace Glider.Common.Objects
             bool IsClose = false;
             #endregion
             #region Combat loop
+            // Start the healing process hehe
+            HealingLogTimer.Reset();
+            count = 0;
+
             while (true)
             {
+                if (HealingLogTimer.IsReady)
+                {
+                    HealingLogTimer.Reset();
+                    count = 0;
+                }
+                else if (HealingLogTimer > (500 * count))
+                {
+                    LogHealth();
+                    count++;
+                }
                 Thread.Sleep(101);
-
+                #region Important checks
                 CommonResult = Context.CheckCommonCombatResult(Monster, IsAmbush);
 
                 if (CommonResult != GCombatResult.Unknown)
@@ -129,10 +118,19 @@ namespace Glider.Common.Objects
                     return GCombatResult.Success;
                 }
 
+                if (Me.Health < Target.Health && IsShadowform())
+                    CheckHealthStuffShadowform(Target);
+                else
+                    CheckHealthCombat(Target);
+
                 LookForOwner(Target);
 
                 if (Target.DistanceToSelf <= Context.MeleeDistance)
                     IsClose = true;
+                #endregion
+                #region Important combat-checks
+                if (!Interface.IsKeyFiring("DP.Wand") && !Me.IsMeleeing && UseMelee)
+                    Context.SendKey("DP.Melee");
 
                 if (LowManaScream && PsychicScream.IsReady && Me.Mana < LowManaScreamAt && Monster.DistanceToSelf < 8 && Monster.Health > .18)
                 {
@@ -147,11 +145,43 @@ namespace Glider.Common.Objects
                     continue;
                 }
 
-                if (Target.DistanceToSelf > Context.MeleeDistance && IsClose && FlayRunners)
+                if (Target.DistanceToSelf > Context.MeleeDistance && IsClose && HandleRunners != "Nothing")
                 {
+                    Context.Log("We got a runner, dealing with it");
                     IsClose = false;
-                    StopWand();
-                    Context.CastSpell("Priest.MindFlay");
+                    switch (HandleRunners)
+                    {
+                        case "Mind Flay":
+                            StopWand();
+                            Context.CastSpell("DP.MindFlay");
+                            break;
+                        case "Mind Blast":
+                            StopWand();
+                            Context.CastSpell("DP.MindBlast");
+                            break;
+                        case "Smite":
+                            StopWand();
+                            Context.CastSpell("DP.Smite");
+                            break;
+                        case "Holy Fire":
+                            StopWand();
+                            Context.CastSpell("DP.HolyFire");
+                            break;
+                        case "Shadow Word: Death":
+                            StopWand();
+                            Context.CastSpell("DP.SWDeath");
+                            break;
+                        case "Melee-chase":
+                            Target.Approach(Context.MeleeDistance);
+                            IsClose = true;
+                            break;
+                        case "Wand":
+                            StartWand(Target);
+                            break;
+                        default:
+                            Context.Log("Unknown chase spell: " + HandleRunners);
+                            break;
+                    }
                     continue;
                 }
 
@@ -164,9 +194,8 @@ namespace Glider.Common.Objects
                 if (Target.Health > .2 && AvoidAdds)
                     ConsiderAvoidAdds();
 
-                if (UseSWDeath && Monster.Health <= SWDeathAtPercent && Monster.Health > .1)
+                if (UseSWDeath && Monster.Health <= SWDeathAtPercent && Monster.Health > SWDeathAtPercent)
                 {
-                    Context.Log(DateTime.Now.ToString() + ": " + "Casting: Shadow Word: Death as a finisher.");
                     CastSpell("DP.SWDeath");
                     SWDeath.Reset();
                     continue;
@@ -182,17 +211,8 @@ namespace Glider.Common.Objects
                     }
 
                 }
-
-
-                if (!UseSWDeath && MindBlast.IsReady && Monster.Health < .20 && Monster.Health > .5)
-                {
-                    Context.Log(DateTime.Now.ToString() + ": " + "Casting Finisher: Mind Blast");
-
-                    CastSpell("DP.MindBlast");
-                    MindBlast.Reset();
-                    continue;
-                }
-
+                #endregion
+                #region If Target health is below LowestHpToCast or we are low on mana (MinManaToCast)
                 if (Target.Health < LowestHpToCast || Me.Mana < MinManaToCast)
                 {
                     if (Me.Health < Target.Health && IsShadowform())
@@ -202,7 +222,8 @@ namespace Glider.Common.Objects
                     if (Me.Mana > .08)
                         CheckPWShield(Target, true);
 
-                    if (SpamMindFlay > 0 && Me.Mana > MinManaToCast)
+                    if (SpamMindFlay > 0 && Me.Mana > MinManaToCast && (HasBuff("Power Word: Shield") || FlayWithoutShield)
+                    && ((Target.IsInMeleeRange && !MeleeFlay) || MeleeFlay))
                     {
 
                         Monster.Face();
@@ -229,14 +250,8 @@ namespace Glider.Common.Objects
                     continue;
                 }
 
-
-                if (PanicScream && Me.Health <= PanicHealth) //This is bad! Panic situation!
-                {
-                    Context.Log("Low hp, panic screaming");
-                    PanicHeal(Target);
-                    continue;
-                }
-
+                #endregion
+                #region Nothing is critical, continue normal combat
 
                 if (IsShadowform())
                     CheckHealthStuffShadowform(Target);
@@ -274,7 +289,7 @@ namespace Glider.Common.Objects
                 }
 
 
-                if (RecastSWP && !HasBuff("Shadow Word: Pain", true, Target) && (bahbah == true || bahbah == false) && Target.Health >= LowestHpToCast)
+                if (UseSWPain && !HasBuff("Shadow Word: Pain", true, Target) && (bahbah == true || bahbah == false) && Target.Health >= LowestHpToCast)
                 {
                     CastSpell("DP.SWPain");
                     bahbah = true;
@@ -298,11 +313,6 @@ namespace Glider.Common.Objects
                     continue;
                 }
                 Charge(Target, false);
-
-                //Finishers & Specials
-
-
-
 
                 Monster.Refresh(true);
                 if (CommonResult == GCombatResult.Success && Added)
@@ -328,7 +338,8 @@ namespace Glider.Common.Objects
 
 
 
-                if (SpamMindFlay > 0)
+                if (SpamMindFlay > 0 && (HasBuff("Power Word: Shield") || FlayWithoutShield)
+                    && ((Target.IsInMeleeRange && !MeleeFlay) || MeleeFlay))
                 {
 
                     Monster.Face();
@@ -356,9 +367,12 @@ namespace Glider.Common.Objects
                     StartWand(Target);
                     continue;
                 }
+                else if (UseMelee)
+                    if (!Me.IsMeleeing)
+                        Context.SendKey("DP.Melee");
             }
+                #endregion
             #endregion
-
         }
 
         #endregion
