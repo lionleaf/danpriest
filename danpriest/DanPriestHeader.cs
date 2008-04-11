@@ -19,7 +19,6 @@ namespace Glider.Common.Objects
         #region non-config variables
         const double AVOID_ADD_HEADING_TOLERANCE = 1.04;
 
-        public static int FRIEND_SIZE = 200;                       // May need to be tweaked
         int COMBAT_RANGE = 30;
         double Fear_Range = 8.0;
         Random ran = new Random();
@@ -31,7 +30,6 @@ namespace Glider.Common.Objects
         long AddedGUID;
         bool UseFort = true;                        //Toggle whether to use Fort for a buff
         bool SkipLoot;
-        public int count = 0;
         //Leave this next one as they are set.
         #endregion
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -70,72 +68,6 @@ namespace Glider.Common.Objects
             { 6386,14752,14818,14819,14820,16875,25312,25313,27841,27843,39234,
               33174,33182 //Improved
             };
-                String[] CC_Array =
-            {
-                //Possible additions:
-                // hamstring, piercing howl, charge/intercept
-                // cheap shot (ignoring because kidney usually follows and is ultimately the one we use trinket)
-                // Hammer of Justice I'm questioning, usually I wait that out since Pally suck at dps
-                // Wing Clip, Feral Charge (once your hit your screwed anyways)
-                "Intimidating", "Terror", "Fear", "Seduc", "Sap", "Kidney", "Blind", "Gouge",               //0-7
-                "Mind", "Psychic", "Hammer", "Repentance", "Frost", "Polymorph", "Concussive",  "Scatter",  //8-15
-                "Freezing", "Entangling", "Cyclone"                                                         //16-18
-            };
-        bool[] CC_Array_Dispellable =
-            {
-                false, false, false, false, false, false, false, false,
-                false, false, false, false, true, false, false, false,
-                true, true, false
-            };
-
-
-
-        #endregion
-        //Delays
-
-        #region EventWaitHandles
-
-        public static EventWaitHandle CC_WaitHandle = new AutoResetEvent(false);
-        public static EventWaitHandle Friends_WaitHandle = new AutoResetEvent(false);
-
-
-        #endregion
-
-        #region Structs
-
-
-        public struct Trinket
-        {
-            public string utility;
-            public GSpellTimer timer;
-        };
-
- 
-
-        public struct Friend
-        {
-            public GPlayer      player;             // Player's Unique ID
-            public double       health;             // Player's Health   
-            public double       mtDeath;            // Mean Time To Death
-            public GPlayerClass pClass;             // Player's class
-            public GSpellTimer  timer;              // A timer to see if this friend has expired
-            public bool         nearMe;             // Dirty flag set if player goes too far
-            public double[]     healthHist;         // A sampling history of this person's health 
-
-        };
-
-
-
-
-        public Trinket Trinket1;
-        public Trinket Trinket2;
-        public static Friend[] friends = new Friend[FRIEND_SIZE];
-        public static double[] myHealthHistory = new double[20];
-        public static int healIndex = 0;
-
-
-        #endregion
-
 
         #endregion
         //Delays
@@ -159,19 +91,15 @@ namespace Glider.Common.Objects
         GSpellTimer Shadowmeld = new GSpellTimer(10 * 1000);
         GSpellTimer PsychicScream;      // Duration set by config
         GSpellTimer Renew = new GSpellTimer(15 * 1000);
-        GSpellTimer RenewOther = new GSpellTimer(15 * 1000);
         GSpellTimer Shadowguard = new GSpellTimer(5 * 1000 * 60);
         GSpellTimer TouchOfWeakness = new GSpellTimer(3 * 1000 * 60);
         GSpellTimer ToW = new GSpellTimer(10 * 1000);
         GSpellTimer Silence = new GSpellTimer(45 * 1000);
-        GSpellTimer FlashHeal = new GSpellTimer(2 * 1000); // We don't want Flash Heal Spamming
+        GSpellTimer FlashHeal = new GSpellTimer(10 * 1000); // We don't want Flash Heal Spamming
         GSpellTimer Potion = new GSpellTimer(2 * 60 * 1000);
         GSpellTimer ShadowProt = new GSpellTimer(10 * 60 * 1000);
         GSpellTimer RecentFort = new GSpellTimer(30 * 1000); // Received fort within last thirty seconds
         GSpellTimer Heals = new GSpellTimer(10 * 1000); // Prevent heals from stopping combat when low on mana
-        GSpellTimer GreaterHeal = new GSpellTimer(2 * 1000); 
-        GSpellTimer LesserHeal = new GSpellTimer(2 * 1000);
-        GSpellTimer HealingLogTimer = new GSpellTimer(60 * 1000); 
         GSpellTimer MountTimer = new GSpellTimer(10 * 1000);
 
         #endregion
@@ -194,8 +122,7 @@ namespace Glider.Common.Objects
         bool UseVampiricTouch = false;               //Enable if you have Vampiric Embrace  
         bool UseShadowform = false;                  //Enable if you want to use Shadowform.     
         bool HandleAdd = true;                      //Enable if you want to DOT adds.
-        bool UseInnerFocus = false;                  //Enable if you want to use Inner Focus set to false if you dont.
-        bool UsePsychicScream = true;               //Set to true if you want to fear adds, or even players.
+        bool UseInnerFocus = false;                  //Enable if you want to use Inner Focus set to false if you don't
         bool UseRenew = false;                      //Choose if you want to use renew, will not drop shadowform to use.
         bool CureDisease = false;                   //Chose to curse diseases. Will drop shadow form to cure also.
         bool UseSilence = false;                   //Set true if you have Silence and wish to use it
@@ -220,11 +147,6 @@ namespace Glider.Common.Objects
         bool RestHealInCombat = true;
         double MinHPShieldRecast = 0.1;
         bool ActivePvP = false;
-        double distanceToHelp = 30;
-        double panicMTD = 4;
-        double moderateMTD = 8;
-        double nonSeriousMTD = 12;
-
         string[] RacialAbilities = {
         "None",
         "None",
@@ -258,10 +180,14 @@ namespace Glider.Common.Objects
         double PvPRange = 20;
         string HandleRunners = "Nothing"; //"Nothing","Mind Blast", "Mind Flay", "Smite", "Holy Fire", "Shadow Word: Death", "Melee-chase", "Wand"
         bool MeleeFlay = false;
-
-        #region new variables
-
         double MindFlayRange = 20.0;
+        int AddsToScream = 2;
+
+        #region new variables  // Keep all variables that needs to be added to the config box here
+        /*bool RandomPull = true;
+        int PullLock = 1; */
+
+        #endregion
         #endregion
         #endregion
 
