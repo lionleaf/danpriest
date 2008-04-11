@@ -1,6 +1,5 @@
 
-#if usingNamespaces
-#else
+#if !usingNamespaces
 using System;
 using System.Threading;
 using Glider.Common.Objects;
@@ -15,8 +14,6 @@ namespace Glider.Common.Objects
 
         public override string DisplayName { get { return "DanPriest " + version; } }
 
-
-
         public override int PullDistance
         {
             get
@@ -30,11 +27,13 @@ namespace Glider.Common.Objects
         public override void Startup()
         {
             Context.CombatLog += new GContext.GCombatLogHandler(Context_CombatLog);
+            base.Startup();
         }
 
         public override void Shutdown()
         {
             Context.CombatLog -= new GContext.GCombatLogHandler(Context_CombatLog);
+            base.Shutdown();
         }
 
         //Combat Log watcher to discover resisted spells and reset timer
@@ -99,6 +98,11 @@ namespace Glider.Common.Objects
 
         }
 
+        public override void OnStopGlide()
+        {
+            base.OnStopGlide();
+        }
+
         public override void OnStartGlide()
         {
             Context.Debug("OnStartGlide");
@@ -113,62 +117,7 @@ namespace Glider.Common.Objects
             }
 
             CheckFort();
-            if (Ability("Shadowguard"))
-            {
-                if (ShadowguardSpellID == 0)
-                {
-                    //We don't know the Spell ID yet, so lets guess it.
-                    Context.Log(DateTime.Now.ToString() + ": " + "Guessing Shadowguard Spell ID");
-                    CastSpell("DP.Shadowguard");
-                    GSpellTimer FutileSG = new GSpellTimer(5000, false);
-
-                    while (!FutileSG.IsReadySlow)
-                    {
-                        ShadowguardSpellID = BuffID("shadow", "guard");
-
-                        if (ShadowguardSpellID != 0)
-                            break;
-                    }
-
-                    if (ShadowguardSpellID == 0) //Didn't find it.
-                    {
-                        Context.Log(DateTime.Now.ToString() + ": " + "Never found Shadowguard buff, going with timer.");
-                        ShadowguardSpellID = -1;
-                    }
-
-                    else
-                        Context.Log(DateTime.Now.ToString() + ": " + "Shadowguard Spell ID found: 0x" + ShadowguardSpellID.ToString("x"));
-                }
-            }
-
-            if (Ability("Touch of Weakness"))
-            {
-                if (TouchOfWeaknessSpellID == 0)
-                {
-                    //We dont know the Spell ID of TOW yet, so lets guss it.
-                    Context.Log(DateTime.Now.ToString() + ": " + "Guessing Touch Of Weakness Spell ID");
-                    CastSpell("DP.TouchOfWeakness");
-                    GSpellTimer FutileTOW = new GSpellTimer(5000, false);
-
-                    while (!FutileTOW.IsReadySlow)
-                    {
-                        TouchOfWeaknessSpellID = BuffID("touch", "weakness");
-
-                        if (TouchOfWeaknessSpellID != 0)
-                            break;
-                    }
-
-                    if (TouchOfWeaknessSpellID == 0) //Couldn't find it.
-                    {
-                        Context.Log(DateTime.Now.ToString() + ": " + "Never found Touch of Weakness buff, going with the timer.");
-                        TouchOfWeaknessSpellID = -1;
-                    }
-
-                    else
-                        Context.Log(DateTime.Now.ToString() + ": " + "Touch Of Weakness Spell ID found: 0x" + TouchOfWeaknessSpellID.ToString("x"));
-
-                }
-            }
+            base.OnStartGlide();
 
         }
 
@@ -193,36 +142,6 @@ namespace Glider.Common.Objects
                 ShadowProt.Reset();
             }
 
-
-            if (Ability("Shadowguard"))
-            {
-                if (ShadowguardSpellID == 0)
-                {
-                    //We don't know the Spell ID yet, so lets guess it.
-                    Context.Log(DateTime.Now.ToString() + ": " + "Guessing Shadowguard Spell ID");
-                    CastSpell("DP.Shadowguard");
-                    GSpellTimer FutileSG = new GSpellTimer(5000, false);
-
-                    while (!FutileSG.IsReadySlow)
-                    {
-                        ShadowguardSpellID = BuffID("shadow", "guard");
-
-                        if (ShadowguardSpellID != 0)
-                            break;
-                    }
-
-                    if (ShadowguardSpellID == 0) //Didn't find it.
-                    {
-                        Context.Log(DateTime.Now.ToString() + ": " + "Never found Shadowguard buff, going with timer.");
-                        ShadowguardSpellID = -1;
-                    }
-
-                    else
-                        Context.Log(DateTime.Now.ToString() + ": " + "Shadowguard Spell ID found: 0x" + ShadowguardSpellID.ToString("x"));
-                }
-            }
-
-
             return base.Rest();
         }
 
@@ -239,16 +158,9 @@ namespace Glider.Common.Objects
             //Checks for Shadowguard (all ranks) and casts if it can't find anything.
             if (Ability("Shadowguard"))
             {
-                if (ShadowguardSpellID > 0 && !Me.HasBuff(ShadowguardSpellID))
+                if (!HasBuff("Shadowguar"))
                 {
                     CastSpell("DP.Shadowguard");
-                    return;
-                }
-
-                if (ShadowguardSpellID <= 0 && Shadowguard.IsReady)
-                {
-                    CastSpell("DP.Shadowguard");
-                    Shadowguard.Reset();
                     return;
                 }
             }
@@ -269,7 +181,7 @@ namespace Glider.Common.Objects
             //Checks for Fear Ward if your a Dwarf or Draenei and enabled your race it will cast Fear Ward.
             if (Ability("Fear") && !Me.HasBuff(6346) && Me.Mana > .3 && FearWard.IsReady && Interface.IsKeyReady("DP.FearWard"))
             {
-                Context.Log(DateTime.Now.ToString() + ": " + "Buffing: Fear Ward");
+                Context.Log("Buffing: Fear Ward");
                 if (IsShadowform())
                     CastSpell("DP.Shadowform");
                 CastSpell("DP.FearWard");
@@ -294,12 +206,12 @@ namespace Glider.Common.Objects
                 ActivePVP();
             if (RecentFort.IsReady)
                 CheckFort();
-            if (Mount && !Mounted && !NearbyEnemy(MountDistance, ActivePvP) && !NearbyLoot(30))
+            if (Mount && !IsMounted() && !NearbyEnemy(MountDistance, ActivePvP) && /*!NearbyLoot(MountDistance) &&*/ MountTimer.IsReady && !Me.IsInCombat)
             {
                 Context.ReleaseSpinRun();
                 Context.Log("Mounting up");
                 Context.CastSpell("DP.Mount");
-                Mounted = true;
+                MountTimer.Reset();
                 return;
             }
             if (ActivePvP)
@@ -311,31 +223,8 @@ namespace Glider.Common.Objects
         {
             if (Ability("Touch of Weakness"))
             {
-                if (TouchOfWeaknessSpellID == 0)
-                {
-                    //We dont know the Spell ID of TOW yet, so lets guss it.
-                    Context.Log(DateTime.Now.ToString() + ": " + "Guessing Touch Of Weakness Spell ID");
+                if (!HasBuff("Touch of Weakness"))
                     CastSpell("DP.TouchOfWeakness");
-                    GSpellTimer FutileTOW = new GSpellTimer(5000, false);
-
-                    while (!FutileTOW.IsReadySlow)
-                    {
-                        TouchOfWeaknessSpellID = BuffID("touch of", "weakness");
-
-                        if (TouchOfWeaknessSpellID != 0)
-                            break;
-                    }
-
-                    if (TouchOfWeaknessSpellID == 0) //Couldn't find it.
-                    {
-                        Context.Log(DateTime.Now.ToString() + ": " + "Never found Touch of Weakness buff, going with the timer.");
-                        TouchOfWeaknessSpellID = -1;
-                    }
-
-                    else
-                        Context.Log(DateTime.Now.ToString() + ": " + "Touch Of Weakness Spell ID found: 0x" + TouchOfWeaknessSpellID.ToString("x"));
-                    ToW.Reset();
-                }
             }
 
             Context.Log("ApproachingTarget invoked");
@@ -348,7 +237,7 @@ namespace Glider.Common.Objects
             CheckPWShield();
 
         }
-
         #endregion
+
     }
 }

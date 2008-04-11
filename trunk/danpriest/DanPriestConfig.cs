@@ -1,6 +1,5 @@
 
-#if usingNamespaces
-#else
+#if !usingNamespaces
 using System;
 using System.Threading;
 using Glider.Common.Objects;
@@ -11,13 +10,16 @@ namespace Glider.Common.Objects
 {
     partial class DanPriest
     {
+
+
+
         #region Config Window
 
         public override void CreateDefaultConfig()
         {
             Context.Log("Creating Default Config.");
 
-            Context.SetConfigValue("DanPriest.PullDistance", "30", false);
+            Context.SetConfigValue("DanPriest.PullDistance", COMBAT_RANGE.ToString(), false);
             Context.SetConfigValue("DanPriest.CureDisease", CureDisease.ToString(), false);
             Context.SetConfigValue("DanPriest.HandleAdd", HandleAdd.ToString(), false);
             Context.SetConfigValue("DanPriest.MBlast", "15", false);
@@ -73,7 +75,6 @@ namespace Glider.Common.Objects
             Context.SetConfigValue("DanPriest.Racial1", RacialAbilities[0], false);
             Context.SetConfigValue("DanPriest.Racial2", RacialAbilities[1], false);
             Context.SetConfigValue("DanPriest.Racial3", RacialAbilities[2], false);
-            Context.SetConfigValue("DanPriest.FlayRunners", FlayRunners.ToString(), false);
             Context.SetConfigValue("DanPriest.AvoidAdds", AvoidAdds.ToString(), false);
             Context.SetConfigValue("DanPriest.AvoidAddDistance", AvoidAddDistance.ToString(), false);
             Context.SetConfigValue("DanPriest.DropWandToSilence", DropWandToSilence.ToString(), false);
@@ -90,17 +91,17 @@ namespace Glider.Common.Objects
             //Context.SetConfigValue("DanPriest.FriendBuffing", FriendBuffing.ToString(), false);
             Context.SetConfigValue("DanPriest.UseInnerFire", UseInnerFire.ToString(), false);
             //Context.SetConfigValue("DanPriest.UseFearWard", UseFearWard.ToString(), false);
-            //Context.SetConfigValue("DanPriest.UseSWPain", UseSWPain.ToString(), false);
-            //Context.SetConfigValue("DanPriest.UseMelee", UseMelee.ToString(), false);
+            Context.SetConfigValue("DanPriest.UseSWPain", UseSWPain.ToString(), false);
+            Context.SetConfigValue("DanPriest.UseMelee", UseMelee.ToString(), false);
             //Context.SetConfigValue("DanPriest.Debug", Debug.ToString(), false);
             //Context.SetConfigValue("DanPriest.UseDispel", UseDispel.ToString(), false);
             Context.SetConfigValue("DanPriest.FlayWithoutShield", FlayWithoutShield.ToString(), false);
             Context.SetConfigValue("DanPriest.MinManaToCast", "25", false);
             Context.SetConfigValue("DanPriest.PvPRange", "42", false);
+            Context.SetConfigValue("DanPriest.HandleRunners", HandleRunners.ToString(), false);
+            Context.SetConfigValue("DanPriest.MeleeFlay", MeleeFlay.ToString(), false);
+            Context.SetConfigValue("DanPriest.MindFlayRange", MindFlayRange.ToString(), false);
             /*Context.SetConfigValue("DanPriest.HERE", HERE.ToString(), false);
-            Context.SetConfigValue("DanPriest.HERE", HERE.ToString(), false);
-            Context.SetConfigValue("DanPriest.HERE", HERE.ToString(), false);
-            Context.SetConfigValue("DanPriest.HERE", HERE.ToString(), false);
             Context.SetConfigValue("DanPriest.HERE", HERE.ToString(), false);
             Context.SetConfigValue("DanPriest.HERE", HERE.ToString(), false);
             Context.SetConfigValue("DanPriest.HERE", HERE.ToString(), false);
@@ -126,13 +127,12 @@ namespace Glider.Common.Objects
 
         }
 
-
         //Load all custom config values from Glider.config.xml
         public override void LoadConfig()
         {
 
             Context.Log("Loading Config info.");
-            COMBAT_RANGE = Context.GetConfigInt("DanPriest.COMBAT_RANGE");
+            COMBAT_RANGE = Context.GetConfigInt("DanPriest.PullDistance");
             CureDisease = Context.GetConfigBool("DanPriest.CureDisease");
             HandleAdd = Context.GetConfigBool("DanPriest.HandleAdd");
             MindBlast = new GSpellTimer(Context.GetConfigInt("DanPriest.MBlast") * 1000, true);
@@ -187,7 +187,6 @@ namespace Glider.Common.Objects
             RacialAbilities[0] = Context.GetConfigString("DanPriest.Racial1");
             RacialAbilities[1] = Context.GetConfigString("DanPriest.Racial2");
             RacialAbilities[2] = Context.GetConfigString("DanPriest.Racial3");
-            FlayRunners = Context.GetConfigBool("DanPriest.FlayRunners");
             AvoidAdds = Context.GetConfigBool("DanPriest.AvoidAdds");
             AvoidAddDistance = Context.GetConfigInt("DanPriest.AvoidAddDistance");
             DropWandToSilence = Context.GetConfigBool("DanPriest.DropWandToSilence");
@@ -205,17 +204,17 @@ namespace Glider.Common.Objects
             //FriendBuffing = Context.GetConfigBool("DanPriest.FriendBuffing");
             UseInnerFire = Context.GetConfigBool("DanPriest.UseInnerFire");
             //UseFearWard = Context.GetConfigBool("DanPriest.UseFearWard");
-            //UseSWPain = Context.GetConfigBool("DanPriest.UseSWPain");
-            //UseMelee = Context.GetConfigBool("DanPriest.UseMelee");
+            UseSWPain = Context.GetConfigBool("DanPriest.UseSWPain");
+            UseMelee = Context.GetConfigBool("DanPriest.UseMelee");
             //Debug = Context.GetConfigBool("DanPriest.Debug");
             //UseDispel = Context.GetConfigBool("DanPriest.UseDispel");
             FlayWithoutShield = Context.GetConfigBool("DanPriest.FlayWithoutShield");
             MinManaToCast = Context.GetConfigInt("DanPriest.MinManaToCast") / 100;
             PvPRange = Context.GetConfigDouble("DanPriest.PvPRange");
+            HandleRunners = Context.GetConfigString("DanPriest.HandleRunners");
+            MeleeFlay = Context.GetConfigBool("DanPriest.MeleeFlay");
+            MindFlayRange = Context.GetConfigDouble("DanPriest.MindFlayRange");
             /*HERE = Context.GetConfigBool("DanPriest.HERE");
-            HERE = Context.GetConfigBool("DanPriest.HERE");
-            HERE = Context.GetConfigBool("DanPriest.HERE");
-            HERE = Context.GetConfigBool("DanPriest.HERE");
             HERE = Context.GetConfigBool("DanPriest.HERE");
             HERE = Context.GetConfigBool("DanPriest.HERE");
             HERE = Context.GetConfigBool("DanPriest.HERE");*/
@@ -276,7 +275,6 @@ namespace Glider.Common.Objects
                 Context.Log("Racial #1: " + RacialAbilities[0].ToString());
                 Context.Log("Racial #2: " + RacialAbilities[1].ToString());
                 Context.Log("Racial #3: " + RacialAbilities[2].ToString());
-                Context.Log("FlayRunners: " + FlayRunners.ToString());
                 Context.Log("AvoidAdds: " + AvoidAdds.ToString());
                 Context.Log("AvoidAddDistance: " + AvoidAddDistance.ToString());
                 Context.Log("(Will of the) Forsaken: " + Ability("Forsaken").ToString());
@@ -300,16 +298,16 @@ namespace Glider.Common.Objects
                 //Context.Log("FriendBuffing: " + FriendBuffing.ToString());
                 //Context.Log("UseInnerFire: " + UseInnerFire.ToString());
                 //Context.Log("UseFearWard: " + UseFearWard.ToString());
-                //Context.Log("UseSWPain: " + UseSWPain.ToString());
-                //Context.Log("UseMelee: " + UseMelee.ToString());
+                Context.Log("UseSWPain: " + UseSWPain.ToString());
+                Context.Log("UseMelee: " + UseMelee.ToString());
                 //Context.Log("Debug: " + Debug.ToString());
                 //Context.Log("UseDispel: " + UseDispel.ToString());
                 Context.Log("FlayWithoutShield: " + FlayWithoutShield.ToString());
                 Context.Log("MinManaToCast: " + MinManaToCast.ToString());
                 Context.Log("PvPRange: " + PvPRange.ToString());
-                //Context.Log("HERE: " + HERE.ToString());
-                //Context.Log("HERE: " + HERE.ToString());
-                //Context.Log("HERE: " + HERE.ToString());
+                Context.Log("HandleRunners: " + HandleRunners.ToString());
+                Context.Log("MeleeFlay: " + MeleeFlay.ToString());
+                Context.Log("MindFlayRange: " + MindFlayRange.ToString());
                 //Context.Log("HERE: " + HERE.ToString());
                 //Context.Log("HERE: " + HERE.ToString());
                 //Context.Log("HERE: " + HERE.ToString());
@@ -380,7 +378,7 @@ namespace Glider.Common.Objects
                     MethodInfo showDialogMethod = loadedType.GetMethod("ShowDialog", new Type[] { });
                     Type type = configDialog.GetType();
 
-                    SetConfigValue(configDialog, "DanPriest.COMBAT_RANGE", Context.GetConfigString("DanPriest.COMBAT_RANGE"));
+                    SetConfigValue(configDialog, "DanPriest.PullDistance", Context.GetConfigString("DanPriest.PullDistance"));
                     SetConfigValue(configDialog, "DanPriest.CureDisease", Context.GetConfigString("DanPriest.CureDisease"));
                     SetConfigValue(configDialog, "DanPriest.HandleAdd", Context.GetConfigString("DanPriest.HandleAdd"));
                     SetConfigValue(configDialog, "DanPriest.MBlast", Context.GetConfigString("DanPriest.MBlast"));
@@ -436,7 +434,6 @@ namespace Glider.Common.Objects
                     SetConfigValue(configDialog, "DanPriest.Racial1", Context.GetConfigString("DanPriest.Racial1"));
                     SetConfigValue(configDialog, "DanPriest.Racial2", Context.GetConfigString("DanPriest.Racial2"));
                     SetConfigValue(configDialog, "DanPriest.Racial3", Context.GetConfigString("DanPriest.Racial3"));
-                    SetConfigValue(configDialog, "DanPriest.FlayRunners", Context.GetConfigString("DanPriest.FlayRunners"));
                     SetConfigValue(configDialog, "DanPriest.AvoidAdds", Context.GetConfigString("DanPriest.AvoidAdds"));
                     SetConfigValue(configDialog, "DanPriest.AvoidAddDistance", Context.GetConfigString("DanPriest.AvoidAddDistance"));
                     SetConfigValue(configDialog, "DanPriest.DropWandToSilence", Context.GetConfigString("DanPriest.DropWandToSilence"));
@@ -453,16 +450,16 @@ namespace Glider.Common.Objects
                     //SetConfigValue(configDialog, "DanPriest.FriendBuffing", Context.GetConfigString("DanPriest.FriendBuffing"));
                     SetConfigValue(configDialog, "DanPriest.UseInnerFire", Context.GetConfigString("DanPriest.UseInnerFire"));
                     //SetConfigValue(configDialog, "DanPriest.UseFearWard", Context.GetConfigString("DanPriest.UseFearWard"));
-                    //SetConfigValue(configDialog, "DanPriest.UseSWPain", Context.GetConfigString("DanPriest.UseSWPain"));
-                    //SetConfigValue(configDialog, "DanPriest.UseMelee", Context.GetConfigString("DanPriest.UseMelee"));
+                    SetConfigValue(configDialog, "DanPriest.UseSWPain", Context.GetConfigString("DanPriest.UseSWPain"));
+                    SetConfigValue(configDialog, "DanPriest.UseMelee", Context.GetConfigString("DanPriest.UseMelee"));
                     //SetConfigValue(configDialog, "DanPriest.Debug", Context.GetConfigString("DanPriest.Debug"));
                     //SetConfigValue(configDialog, "DanPriest.UseDispel", Context.GetConfigString("DanPriest.UseDispel"));
                     SetConfigValue(configDialog, "DanPriest.FlayWithoutShield", Context.GetConfigString("DanPriest.FlayWithoutShield"));
                     SetConfigValue(configDialog, "DanPriest.MinManaToCast", Context.GetConfigString("DanPriest.MinManaToCast"));
                     SetConfigValue(configDialog, "DanPriest.PvPRange", Context.GetConfigString("DanPriest.PvPRange"));
-                    //SetConfigValue(configDialog, "DanPriest.HERE", Context.GetConfigString("DanPriest.HERE"));
-                    //SetConfigValue(configDialog, "DanPriest.HERE", Context.GetConfigString("DanPriest.HERE"));
-                    //SetConfigValue(configDialog, "DanPriest.HERE", Context.GetConfigString("DanPriest.HERE"));
+                    SetConfigValue(configDialog, "DanPriest.HandleRunners", Context.GetConfigString("DanPriest.HandleRunners"));
+                    SetConfigValue(configDialog, "DanPriest.MeleeFlay", Context.GetConfigString("DanPriest.MeleeFlay"));
+                    SetConfigValue(configDialog, "DanPriest.MindFlayRange", Context.GetConfigString("DanPriest.MindFlayRange"));
                     //SetConfigValue(configDialog, "DanPriest.HERE", Context.GetConfigString("DanPriest.HERE"));
                     //SetConfigValue(configDialog, "DanPriest.HERE", Context.GetConfigString("DanPriest.HERE"));
                     //SetConfigValue(configDialog, "DanPriest.HERE", Context.GetConfigString("DanPriest.HERE"));
@@ -483,7 +480,7 @@ namespace Glider.Common.Objects
                     if ((int)modalResult == 1)
                     {
                         //Get Current Values
-                        Context.SetConfigValue("DanPriest.COMBAT_RANGE", GetConfigValue(configDialog, "DanPriest.COMBAT_RANGE"), true);
+                        Context.SetConfigValue("DanPriest.PullDistance", GetConfigValue(configDialog, "DanPriest.PullDistance"), true);
                         Context.SetConfigValue("DanPriest.CureDisease", GetConfigValue(configDialog, "DanPriest.CureDisease"), true);
                         Context.SetConfigValue("DanPriest.HandleAdd", GetConfigValue(configDialog, "DanPriest.HandleAdd"), true);
                         Context.SetConfigValue("DanPriest.MBlast", GetConfigValue(configDialog, "DanPriest.MBlast"), true);
@@ -539,7 +536,6 @@ namespace Glider.Common.Objects
                         Context.SetConfigValue("DanPriest.Racial1", GetConfigValue(configDialog, "DanPriest.Racial1"), true);
                         Context.SetConfigValue("DanPriest.Racial2", GetConfigValue(configDialog, "DanPriest.Racial2"), true);
                         Context.SetConfigValue("DanPriest.Racial3", GetConfigValue(configDialog, "DanPriest.Racial3"), true);
-                        Context.SetConfigValue("DanPriest.FlayRunners", GetConfigValue(configDialog, "DanPriest.FlayRunners"), true);
                         Context.SetConfigValue("DanPriest.AvoidAdds", GetConfigValue(configDialog, "DanPriest.AvoidAdds"), true);
                         Context.SetConfigValue("DanPriest.AvoidAddDistance", GetConfigValue(configDialog, "DanPriest.AvoidAddDistance"), true);
                         Context.SetConfigValue("DanPriest.DropWandToSilence", GetConfigValue(configDialog, "DanPriest.DropWandToSilence"), true);
@@ -556,17 +552,17 @@ namespace Glider.Common.Objects
                         //Context.SetConfigValue("DanPriest.FriendBuffing", GetConfigValue(configDialog, "DanPriest.FriendBuffing"), true);
                         Context.SetConfigValue("DanPriest.UseInnerFire", GetConfigValue(configDialog, "DanPriest.UseInnerFire"), true);
                         //Context.SetConfigValue("DanPriest.UseFearWard", GetConfigValue(configDialog, "DanPriest.UseFearWard"), true);
-                        //Context.SetConfigValue("DanPriest.UseSWPain", GetConfigValue(configDialog, "DanPriest.UseSWPain"), true);
-                        //Context.SetConfigValue("DanPriest.UseMelee", GetConfigValue(configDialog, "DanPriest.UseMelee"), true);
+                        Context.SetConfigValue("DanPriest.UseSWPain", GetConfigValue(configDialog, "DanPriest.UseSWPain"), true);
+                        Context.SetConfigValue("DanPriest.UseMelee", GetConfigValue(configDialog, "DanPriest.UseMelee"), true);
                         //Context.SetConfigValue("DanPriest.Debug", GetConfigValue(configDialog, "DanPriest.Debug"), true);
                         //Context.SetConfigValue("DanPriest.UseDispel", GetConfigValue(configDialog, "DanPriest.UseDispel"), true);
                         Context.SetConfigValue("DanPriest.FlayWithoutShield", GetConfigValue(configDialog, "DanPriest.FlayWithoutShield"), true);
                         Context.SetConfigValue("DanPriest.MinManaToCast", GetConfigValue(configDialog, "DanPriest.MinManaToCast"), true);
                         Context.SetConfigValue("DanPriest.PvPRange", GetConfigValue(configDialog, "DanPriest.PvPRange"), true);
+                        Context.SetConfigValue("DanPriest.HandleRunners", GetConfigValue(configDialog, "DanPriest.HandleRunners"), true);
+                        Context.SetConfigValue("DanPriest.MeleeFlay", GetConfigValue(configDialog, "DanPriest.MeleeFlay"), true);
+                        Context.SetConfigValue("DanPriest.MindFlayRange", GetConfigValue(configDialog, "DanPriest.MindFlayRange"), true);
                         /*Context.SetConfigValue("DanPriest.HERE", GetConfigValue(configDialog, "DanPriest.HERE"), true);
-                        Context.SetConfigValue("DanPriest.HERE", GetConfigValue(configDialog, "DanPriest.HERE"), true);
-                        Context.SetConfigValue("DanPriest.HERE", GetConfigValue(configDialog, "DanPriest.HERE"), true);
-                        Context.SetConfigValue("DanPriest.HERE", GetConfigValue(configDialog, "DanPriest.HERE"), true);
                         Context.SetConfigValue("DanPriest.HERE", GetConfigValue(configDialog, "DanPriest.HERE"), true);
                         Context.SetConfigValue("DanPriest.HERE", GetConfigValue(configDialog, "DanPriest.HERE"), true);
                         Context.SetConfigValue("DanPriest.HERE", GetConfigValue(configDialog, "DanPriest.HERE"), true);

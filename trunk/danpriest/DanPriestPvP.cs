@@ -1,6 +1,5 @@
 
-#if usingNamespaces
-#else
+#if !usingNamespaces
 using System;
 using System.Threading;
 using Glider.Common.Objects;
@@ -11,9 +10,7 @@ namespace Glider.Common.Objects
 {
     partial class DanPriest
     {
-
-        #region PvP-functions
-
+        #region PVP Functions
         GCombatResult KillPlayer(GPlayer Target, GLocation Anchor)
         {
             GCombatResult result;
@@ -186,6 +183,8 @@ namespace Glider.Common.Objects
         }
 
 
+
+        #region PvP-functions
         GCombatResult CheckCombatStuff(GUnit Target)
         {
 
@@ -266,9 +265,9 @@ namespace Glider.Common.Objects
             return Best;
 
         }
-
-
-
         #endregion
+        #endregion
+
     }
 }
+
