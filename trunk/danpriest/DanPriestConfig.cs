@@ -4,7 +4,7 @@ using System;
 using System.Threading;
 using Glider.Common.Objects;
 using System.Reflection;
-#endif 
+#endif
 
 namespace Glider.Common.Objects
 {
@@ -42,7 +42,7 @@ namespace Glider.Common.Objects
             Context.SetConfigValue("DanPriest.UseInnerFocus", UseInnerFocus.ToString(), false);
             Context.SetConfigValue("DanPriest.UseMindBlast", UseMindBlast.ToString(), false);
             Context.SetConfigValue("DanPriest.UseMindFlay", UseMindFlay.ToString(), false);
-            Context.SetConfigValue("DanPriest.UsePsychicScream", UsePsychicScream.ToString(), false);
+            Context.SetConfigValue("DanPriest.AddsToScream", AddsToScream.ToString(), false);
             Context.SetConfigValue("DanPriest.UsePWShield", UsePWShield.ToString(), false);
             Context.SetConfigValue("DanPriest.UseRenew", UseRenew.ToString(), false);
             Context.SetConfigValue("DanPriest.UseShadowfiend", UseShadowfiend.ToString(), false);
@@ -154,7 +154,7 @@ namespace Glider.Common.Objects
             UseInnerFocus = Context.GetConfigBool("DanPriest.UseInnerFocus");
             UseMindBlast = Context.GetConfigBool("DanPriest.UseMindBlast");
             UseMindFlay = Context.GetConfigBool("DanPriest.UseMindFlay");
-            UsePsychicScream = Context.GetConfigBool("DanPriest.UsePsychicScream");
+            AddsToScream = Context.GetConfigInt("DanPriest.AddsToScream");
             UsePWShield = Context.GetConfigBool("DanPriest.UsePWShield");
             UseRenew = Context.GetConfigBool("DanPriest.UseRenew");
             UseShadowfiend = Context.GetConfigBool("DanPriest.UseShadowfiend");
@@ -242,7 +242,7 @@ namespace Glider.Common.Objects
                 Context.Log("UseInnerFocus: " + UseInnerFocus.ToString());
                 Context.Log("UseMindBlast: " + UseMindBlast.ToString());
                 Context.Log("UseMindFlay: " + UseMindFlay.ToString());
-                Context.Log("UsePsychicScream: " + UsePsychicScream.ToString());
+                Context.Log("AddsToScream: " + AddsToScream.ToString());
                 Context.Log("UsePWShield: " + UsePWShield.ToString());
                 Context.Log("UseRenew: " + UseRenew.ToString());
                 Context.Log("UseShadowfiend: " + UseShadowfiend.ToString());
@@ -400,7 +400,7 @@ namespace Glider.Common.Objects
                     SetConfigValue(configDialog, "DanPriest.UseInnerFocus", Context.GetConfigString("DanPriest.UseInnerFocus"));
                     SetConfigValue(configDialog, "DanPriest.UseMindBlast", Context.GetConfigString("DanPriest.UseMindBlast"));
                     SetConfigValue(configDialog, "DanPriest.UseMindFlay", Context.GetConfigString("DanPriest.UseMindFlay"));
-                    SetConfigValue(configDialog, "DanPriest.UsePsychicScream", Context.GetConfigString("DanPriest.UsePsychicScream"));
+                    SetConfigValue(configDialog, "DanPriest.AddsToScream", Context.GetConfigString("DanPriest.AddsToScream"));
                     SetConfigValue(configDialog, "DanPriest.UsePWShield", Context.GetConfigString("DanPriest.UsePWShield"));
                     SetConfigValue(configDialog, "DanPriest.UseRenew", Context.GetConfigString("DanPriest.UseRenew"));
                     SetConfigValue(configDialog, "DanPriest.UseShadowfiend", Context.GetConfigString("DanPriest.UseShadowfiend"));
@@ -502,7 +502,7 @@ namespace Glider.Common.Objects
                         Context.SetConfigValue("DanPriest.UseInnerFocus", GetConfigValue(configDialog, "DanPriest.UseInnerFocus"), true);
                         Context.SetConfigValue("DanPriest.UseMindBlast", GetConfigValue(configDialog, "DanPriest.UseMindBlast"), true);
                         Context.SetConfigValue("DanPriest.UseMindFlay", GetConfigValue(configDialog, "DanPriest.UseMindFlay"), true);
-                        Context.SetConfigValue("DanPriest.UsePsychicScream", GetConfigValue(configDialog, "DanPriest.UsePsychicScream"), true);
+                        Context.SetConfigValue("DanPriest.AddsToScream", GetConfigValue(configDialog, "DanPriest.AddsToScream"), true);
                         Context.SetConfigValue("DanPriest.UsePWShield", GetConfigValue(configDialog, "DanPriest.UsePWShield"), true);
                         Context.SetConfigValue("DanPriest.UseRenew", GetConfigValue(configDialog, "DanPriest.UseRenew"), true);
                         Context.SetConfigValue("DanPriest.UseShadowfiend", GetConfigValue(configDialog, "DanPriest.UseShadowfiend"), true);

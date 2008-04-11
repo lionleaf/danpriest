@@ -73,24 +73,6 @@ namespace Glider.Common.Objects
 
         }
 
-        int HasBuff(String[] buffs)
-        {
-            int buffIndex = 0;              // Buff index in array
-            Me.Refresh(true);
-            GBuff[] Buffs = Me.GetBuffSnapshot();
-            foreach (string buff in buffs)
-            {
-                foreach (GBuff Buff in Buffs)
-                {
-                    if (Buff.SpellName.ToLower().Contains(buff.ToLower()))
-                        return buffIndex;
-                }
-                buffIndex++;
-            }
-            return -1;
-        }
-
-
         bool HasBuff(String buff, bool exact)
         {
 
@@ -205,195 +187,10 @@ namespace Glider.Common.Objects
             return false;
 
         }
-
-
-        public void LogHealth()
-        {
-            if (healIndex == 20)
-                healIndex = 0;
-
-            myHealthHistory[healIndex++] = Me.Health;
-        }
-
-        public double calculateMyMTD()
-        {
-            if (healIndex == 0)
-                return 0;           // No data, report back w/ ZERO 
-
-            double  totalSlope = 0,
-                    avgSlope = 0,
-                    b = friends[0].healthHist[0],
-                    count = 0;
-
-            int j = 0;
-
-
-            for (j = 0; j < 20; j++)
-            {
-                if (myHealthHistory[j] != 0)
-                    totalSlope += myHealthHistory[j];
-                count++;
-            }
-
-            avgSlope = totalSlope / count;
-
-            if (avgSlope == 0)
-                return 0;
-            else
-                return (Math.Ceiling((double)(0 - b) / avgSlope)); // we have an approximation of death
-
-        }
-
-        // If we're in shadowform then we don't do a thing until specified time.. defaulted to panicMTD
-        public bool checkMyHealing(GUnit Target)
-        {
-
-            double myMTD=0;
-
-            // Have any history to work with?
-            // Do we even need to be healed?
-            if ((myMTD = calculateMyMTD()) == 0)
-                return CheckHealthCombat(Target); // No history we'll have to work w/ standard algorithms
-
-
-            if (myMTD < panicMTD ) // Oh noes, shield and flash heal we are certainly dead (recommended 3-5)
-            {
-
-                // Do a fear if possible we need to run and fear at this point we HAVE to stop them from attacking
-                 if (Target.DistanceToSelf <= Fear_Range && PsychicScream.IsReady)
-                {
-                     CastSpell("DP.PsychicScream");
-                     PsychicScream.Reset();
-                }
-                if (isCaster((GPlayer)Target) && Silence.IsReady)
-                {
-                    CastSpell("DP.Silence");
-                    Silence.Reset();
-                }
-
-                CheckPWShield();
-
-/*
-                if (Trinket1.utility == "Heal" && Trinket1.timer.IsReady)
-                {
-                    CastSpell("DP.Item1");
-                    Trinket1.timer.Reset();
-                }
-*/
-                // This is crunch time. If we can't get the flash heal off then do something
-                if (FlashHeal.IsReady)
-                {
-                    CastSpell("DP.FlashHeal");
-                    FlashHeal.Reset();
-                }
-                else (LesserHeal.IsReady)
-                {
-                    CastSpell("DP.LesserHeal");
-                    LesserHeal.Reset();
-                }
-
-                // Always slap on a renew.. if we're being hit hard we'll hopefully be back in this section again soon
-                if (Renew.IsReady)
-                {
-                    CastSpell("DP.Renew");
-                    Renew.Reset();
-                }
-                return true;
-            }
-            else if (myMTD < moderateMTD && !IsShadowform())  
-                                            // This is not immediate death but should start taking things into consideration
-            {                               // I recommend taking panic's top end and adding 2 seconds (i.e. if PanicHeal is set to 4
-                                            // then 2 seconds is 4 more so this would be 8
-
-                //Who is attacking us? Can we fear/silence them?
-                if (Target.IsPlayer && Target.DistanceToSelf <= Fear_Range && PsychicScream.IsReady)
-                {
-                    CastSpell("DP.PsychicScream");
-                    PsychicScream.Reset();
-                }
-                else if (isCaster((GPlayer)Target) && Silence.IsReady)
-                {
-                    CastSpell("DP.Silence");
-                    Silence.Reset();
-                }
-                else
-                {
-                    //If we can't fear/silence, then it's time to switch strategies to more panicky
-                    CheckPWShield();
-
-                    if (GreaterHeal.IsReady)
-                    {
-                        CastSpell("DP.GreaterHeal");
-                        GreaterHeal.Reset();
-                    }
-
-                    // Always slap on a renew..
-                    if (Renew.IsReady)
-                    {
-                        CastSpell("DP.Renew");
-                        Renew.Reset();
-                    }
-                    return true;
-
-                }
-
-                // We have successfully feared/or silenced our attacker save the shield for panic
-
-
-                 if (GreaterHeal.IsReady)
-                 {
-                    CastSpell("DP.GreaterHeal");
-                    GreaterHeal.Reset();
-                 }
-
-
-                // Always slap on a renew.. if ready
-                if (Renew.IsReady)
-                {
-                    CastSpell("DP.Renew");
-                    Renew.Reset();
-                }
-
-            }
-            else if (myMTD < nonSeriousMTD && !IsShadowform())
-            {
-                // Well we're hurt but there's no real reason for alarm quite yet
-                // so we'll skip the shield and slap on the renew immediately 
-                if (Renew.IsReady)
-                {
-                    CastSpell("DP.Renew");
-                    Renew.Reset();
-                }
-                return true;
-            }
-
-            // We have a super high MTD and are not imminently going to die.
-
-
-
-            return false;
-        }
-
-/*
-        public bool checkHealingFriend(int index )
-        {
-
-        }
- */
-        public bool isCaster(GPlayer Target)
-        {
-                    if(Target.PlayerClass.ToString().ToLower() == "mage" ||
-                    Target.PlayerClass.ToString().ToLower() == "warlock" ||
-                    Target.PlayerClass.ToString().ToLower() == "priest")
-                        return true;
-            return false;
-        }
-
         public bool CheckHealthCombat(GUnit Target) //Copied from Mercury
         {
             if (IsShadowform())
                 return CheckHealthStuffShadowform(Target);
-
             if (!Heals.IsReady)
             {
                 return false;
@@ -441,7 +238,6 @@ namespace Glider.Common.Objects
             }
             return false;
         }
-
 
         public bool CheckHealthStuffShadowform(GUnit Target)
         {
@@ -546,6 +342,12 @@ namespace Glider.Common.Objects
 
             bool Fast = false;
             Interface.WaitForReady("DP.CooldownProbe");
+
+
+            /*int[] used;
+            string[] Sleft = Spells;    //parts of my random cast-sequence attempt. I'll just comment this out
+            int left = Spells.Length;*/
+
             for (int i = 0; i < Spells.Length; i++)
             {
                 GUnit Closest = GObjectList.GetNearestAttacker(Me.GUID);
@@ -578,6 +380,11 @@ namespace Glider.Common.Objects
                         Silence.Reset();
                     }
                 }
+
+                /* Random rSpell = new Random(i, left);
+                 string Spell = Spells[rSpell.Next()];            //parts of my random cast-sequence attempt. I'll just comment this out
+
+                 left = Spells.Length - i;*/
                 switch (Spells[i])
                 {
                     case "Mind Blast":
@@ -615,7 +422,7 @@ namespace Glider.Common.Objects
                         break;
                     case "Mind Flay":
                         if ((HasBuff("Power Word: Shield") || FlayWithoutShield)
-                    && ((Target.IsInMeleeRange && !MeleeFlay) || MeleeFlay))
+                    && ((!Target.IsInMeleeRange && !MeleeFlay) || MeleeFlay))
                         {
                             Charge(Target, true);
                             CastPull("DP.MindFlay", Fast);
@@ -818,6 +625,14 @@ namespace Glider.Common.Objects
             }
             return false;
         }
+
+        protected int GetNumAdds()
+        {
+            GObjectList.SetCacheDirty();
+            int Extras = GObjectList.GetAttackers().Length - 1;
+            return Extras;
+        }
+
         bool NearbyEnemy(int yards, bool PvP)
         {
 
@@ -868,8 +683,8 @@ namespace Glider.Common.Objects
 
         bool CheckPWShield(GUnit Target, bool InCombat)
         {
-            if (((InCombat && (RecastShield || Me.Health < 0.1) && UsePWShield) || (!InCombat && UsePWShield)
-                 || GotExtraAttacker(Target)) && Target.Health >= MinHPShieldRecast)
+            if (((InCombat && (RecastShield || Me.Health < 0.2) && UsePWShield) || (!InCombat && UsePWShield)
+                 || GotExtraAttacker(Target)) && (Target.Health >= MinHPShieldRecast || GotExtraAttacker(Target)))
             {
                 if (!Me.HasBuff(PW_SHIELD) && !Me.HasBuff(WEAKENEDSOUL))
                 {
@@ -922,20 +737,20 @@ namespace Glider.Common.Objects
             }
             return null;   // Never found it.
         }
-
         bool CheckPWShield()
         {
-            if (UsePWShield && !Me.HasBuff(PW_SHIELD) && !Me.HasBuff(WEAKENEDSOUL))
+            if (UsePWShield)
             {
+                if (!Me.HasBuff(PW_SHIELD) && !Me.HasBuff(WEAKENEDSOUL))
+                {
                     if (UseInnerFocus && InnerFocus.IsReady)
                     {
                         CastSpell("DP.InnerFocus");
                         InnerFocus.Reset();
                     }
- 
                     CastSpell("DP.Shield");
                     return true;
-               
+                }
 
             }
             return false;
@@ -1143,15 +958,31 @@ namespace Glider.Common.Objects
         }
         #endregion
 
-
+        int AttackersInRange(double pRangeToCheck)
+        {
+            int vrtn = 0;
+            GObjectList.SetCacheDirty();
+            GUnit[] attackers = GObjectList.GetAttackers();
+            foreach (GUnit attacker in attackers)
+                if (attacker.DistanceToSelf < pRangeToCheck) vrtn++;
+            return vrtn;
+        }
 
         // See if we have an extra attacker and should do something about it.  If something was
         // done, returns True.  Otherwise, False.
         bool CheckAdd(GMonster OriginalTarget)
         {
+            if ((GetNumAdds() >= AddsToScream && PsychicScream.IsReady))
+            {
+                if (AttackersInRange(8.0) > 0)
+                {
+                    CastSpell("DP.PsychicScream");
+                    PsychicScream.Reset();
+                }
+            }
             if (Added || !HandleAdd)
                 return false;
-
+            GObjectList.SetCacheDirty();
             GUnit Add = GObjectList.GetNearestAttacker(OriginalTarget.GUID);
 
             if (Add == null)
@@ -1173,14 +1004,6 @@ namespace Glider.Common.Objects
                 GPlayer player = (GPlayer)Add;
                 KillPlayer(player, Me.Location);
                 return true;
-            }
-
-
-            if (UsePsychicScream && PsychicScream.IsReady && Add.DistanceToSelf < 8)
-            {
-                Context.Log("Add within Scream range, casting Psychic Scream");
-                CastSpell("DP.PsychicScream");
-                PsychicScream.Reset();
             }
 
             if (UseShadowfiend && Shadowfiend.IsReady && Me.Mana <= ShadowfiendAtPercent)
