@@ -1,9 +1,10 @@
-#define PPather
+#define PPath
 #define usingNamespaces
 #if PPather
 //!Reference: PPather.dll
 #endif
 
+//test
 using System;
 using System.Threading;
 using Glider.Common.Objects;
@@ -1664,7 +1665,12 @@ namespace Glider.Common.Objects
 
         GCombatResult CastSequence(GUnit Target, string[] Spells)
         {
-            checkMyHealing(Target);
+
+            if (Me.Health < Target.Health && IsShadowform())
+                CheckHealthStuffShadowform(Target);
+            else
+                CheckHealthCombat(Target);
+            //checkMyHealing(Target);
 
             bool Fast = false;
             Interface.WaitForReady("DP.CooldownProbe");
@@ -1689,7 +1695,11 @@ namespace Glider.Common.Objects
 
 
                 }
-                checkMyHealing(Target);
+                if (Me.Health < Target.Health && IsShadowform())
+                    CheckHealthStuffShadowform(Target);
+                else
+                    CheckHealthCombat(Target);
+                //checkMyHealing(Target);
                 CheckPWShield(Target, false);
                 if (Me.Mana < MinManaToCast)
                 {
@@ -2308,8 +2318,11 @@ namespace Glider.Common.Objects
             GObjectList.SetCacheDirty();
             GUnit Add = GObjectList.GetNearestAttacker(OriginalTarget.GUID);
 
-
-            checkMyHealing(OriginalTarget);
+            if (IsShadowform())
+                CheckHealthStuffShadowform(OriginalTarget);
+            else
+                CheckHealthCombat(OriginalTarget);
+            //checkMyHealing(OriginalTarget);
             if (Add == null)
                 return false;
 
@@ -2338,7 +2351,11 @@ namespace Glider.Common.Objects
             }
 
             CastSequence(Add, AddSpells);
-            checkMyHealing(OriginalTarget);
+            if (IsShadowform())
+                CheckHealthStuffShadowform(OriginalTarget);
+            else
+                CheckHealthCombat(OriginalTarget);
+            //checkMyHealing(OriginalTarget);
             Context.Log("Finished dotting add.");
             Added = true;
             AddedGUID = Add.GUID;
@@ -2496,6 +2513,7 @@ namespace Glider.Common.Objects
                     CheckHealthStuffShadowform(Target);
                 else
                     CheckHealthCombat(Target);
+                //checkMyHealing(Target);
 
                 LookForOwner(Target);
 
@@ -2593,6 +2611,7 @@ namespace Glider.Common.Objects
                         CheckHealthStuffShadowform(Target);
                     else
                         CheckHealthCombat(Target);
+                    //checkMyHealing(Target);
                     if (Me.Mana > .08)
                         CheckPWShield(Target, true);
 
