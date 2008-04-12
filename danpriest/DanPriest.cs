@@ -1,15 +1,17 @@
-
+#define PPather
 #define usingNamespaces
-
+#if PPather
+//!Reference: PPather.dll
+#endif
 
 using System;
 using System.Threading;
 using Glider.Common.Objects;
 using System.Reflection;
 using System.Timers;
-
-
-
+#if PPather
+using Pather;
+#endif
 namespace Glider.Common.Objects
 {
 
@@ -22,7 +24,11 @@ namespace Glider.Common.Objects
         int COMBAT_RANGE = 30;
         double Fear_Range = 8.0;
         Random ran = new Random();
-        string version = "1.2 RC4";
+        string version = "1.2 RC4"
+#if PPather
+            +" PPather"
+#endif
+            ;
         int SleepAfterReady = 300;
         int SleepBeforeCheck = 15;
         bool ShowVariables = false;
@@ -872,7 +878,11 @@ using System.Reflection;
 
 namespace Glider.Common.Objects
 {
+#if PPather
+    partial class DanPriest : PPather
+#else
     partial class DanPriest : GGameClass
+#endif
     {
         #region GGameClass overrides
 

@@ -24,7 +24,11 @@ namespace Glider.Common.Objects
         int COMBAT_RANGE = 30;
         double Fear_Range = 8.0;
         Random ran = new Random();
-        string version = "1.2 RC4";
+        string version = "1.2 RC4"
+#if PPather
+            +" PPather"
+#endif
+            ;
         int SleepAfterReady = 300;
         int SleepBeforeCheck = 15;
         bool ShowVariables = false;
