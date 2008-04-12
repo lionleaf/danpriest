@@ -1,24 +1,28 @@
 
 #define usingNamespaces
 
+
 using System;
 using System.Threading;
 using Glider.Common.Objects;
 using System.Reflection;
+using System.Timers;
+
+
 
 namespace Glider.Common.Objects
 {
 
     public partial class DanPriest
     {
-        #region Variables
         #region non-config variables
         const double AVOID_ADD_HEADING_TOLERANCE = 1.04;
 
+        public static int FRIEND_SIZE = 200;                       // May need to be tweaked
         int COMBAT_RANGE = 30;
         double Fear_Range = 8.0;
         Random ran = new Random();
-        string version = "1.2 RC3 Wannabe-stable PPather";
+        string version = "1.2 RC4";
         int SleepAfterReady = 300;
         int SleepBeforeCheck = 15;
         bool ShowVariables = false;
@@ -26,6 +30,7 @@ namespace Glider.Common.Objects
         long AddedGUID;
         bool UseFort = true;                        //Toggle whether to use Fort for a buff
         bool SkipLoot;
+        public int count = 0;
         //Leave this next one as they are set.
         #endregion
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -82,12 +87,16 @@ namespace Glider.Common.Objects
                 true, true, false
             };
 
+
+
         #endregion
         //Delays
 
         #region EventWaitHandles
 
         public static EventWaitHandle CC_WaitHandle = new AutoResetEvent(false);
+        public static EventWaitHandle Friends_WaitHandle = new AutoResetEvent(false);
+
 
         #endregion
 
@@ -100,14 +109,34 @@ namespace Glider.Common.Objects
             public GSpellTimer timer;
         };
 
+ 
+
+        public struct Friend
+        {
+            public GPlayer      player;             // Player's Unique ID
+            public double       health;             // Player's Health   
+            public double       mtDeath;            // Mean Time To Death
+            public GPlayerClass pClass;             // Player's class
+            public GSpellTimer  timer;              // A timer to see if this friend has expired
+            public bool         nearMe;             // Dirty flag set if player goes too far
+            public double[]     healthHist;         // A sampling history of this person's health 
+
+        };
+
+
+
+
         public Trinket Trinket1;
         public Trinket Trinket2;
+        public static Friend[] friends = new Friend[FRIEND_SIZE];
+        public static double[] myHealthHistory = new double[20];
+        public static int healIndex = 0;
 
 
         #endregion
 
 
-        #endregion
+        
         //Delays
 
         #region Spell Timers
@@ -129,15 +158,19 @@ namespace Glider.Common.Objects
         GSpellTimer Shadowmeld = new GSpellTimer(10 * 1000);
         GSpellTimer PsychicScream;      // Duration set by config
         GSpellTimer Renew = new GSpellTimer(15 * 1000);
+        GSpellTimer RenewOther = new GSpellTimer(15 * 1000);
         GSpellTimer Shadowguard = new GSpellTimer(5 * 1000 * 60);
         GSpellTimer TouchOfWeakness = new GSpellTimer(3 * 1000 * 60);
         GSpellTimer ToW = new GSpellTimer(10 * 1000);
         GSpellTimer Silence = new GSpellTimer(45 * 1000);
-        GSpellTimer FlashHeal = new GSpellTimer(10 * 1000); // We don't want Flash Heal Spamming
+        GSpellTimer FlashHeal = new GSpellTimer(2 * 1000); // We don't want Flash Heal Spamming
         GSpellTimer Potion = new GSpellTimer(2 * 60 * 1000);
         GSpellTimer ShadowProt = new GSpellTimer(10 * 60 * 1000);
         GSpellTimer RecentFort = new GSpellTimer(30 * 1000); // Received fort within last thirty seconds
         GSpellTimer Heals = new GSpellTimer(10 * 1000); // Prevent heals from stopping combat when low on mana
+        GSpellTimer GreaterHeal = new GSpellTimer(2 * 1000); 
+        GSpellTimer LesserHeal = new GSpellTimer(2 * 1000);
+        GSpellTimer HealingLogTimer = new GSpellTimer(60 * 1000); 
         GSpellTimer MountTimer = new GSpellTimer(10 * 1000);
 
         #endregion
@@ -160,8 +193,7 @@ namespace Glider.Common.Objects
         bool UseVampiricTouch = false;               //Enable if you have Vampiric Embrace  
         bool UseShadowform = false;                  //Enable if you want to use Shadowform.     
         bool HandleAdd = true;                      //Enable if you want to DOT adds.
-        bool UseInnerFocus = false;                  //Enable if you want to use Inner Focus set to false if you dont.
-        bool UsePsychicScream = true;               //Set to true if you want to fear adds, or even players.
+        bool UseInnerFocus = false;                  //Enable if you want to use Inner Focus set to false if you don't
         bool UseRenew = false;                      //Choose if you want to use renew, will not drop shadowform to use.
         bool CureDisease = false;                   //Chose to curse diseases. Will drop shadow form to cure also.
         bool UseSilence = false;                   //Set true if you have Silence and wish to use it
@@ -186,6 +218,11 @@ namespace Glider.Common.Objects
         bool RestHealInCombat = true;
         double MinHPShieldRecast = 0.1;
         bool ActivePvP = false;
+        double distanceToHelp = 30;
+        double panicMTD = 4;
+        double moderateMTD = 8;
+        double nonSeriousMTD = 12;
+
         string[] RacialAbilities = {
         "None",
         "None",
@@ -221,10 +258,18 @@ namespace Glider.Common.Objects
         bool MeleeFlay = false;
 
         #region new variables
-
         double MindFlayRange = 20.0;
+        int AddsToScream = 2;
+
+        #region new variables  // Keep all variables that needs to be added to the config box here
+        /*bool RandomPull = true;
+        int PullLock = 1; */
+
         #endregion
         #endregion
+        #endregion
+
+
 
 
     }
@@ -236,7 +281,7 @@ using System;
 using System.Threading;
 using Glider.Common.Objects;
 using System.Reflection;
-#endif 
+#endif
 
 namespace Glider.Common.Objects
 {
@@ -274,7 +319,7 @@ namespace Glider.Common.Objects
             Context.SetConfigValue("DanPriest.UseInnerFocus", UseInnerFocus.ToString(), false);
             Context.SetConfigValue("DanPriest.UseMindBlast", UseMindBlast.ToString(), false);
             Context.SetConfigValue("DanPriest.UseMindFlay", UseMindFlay.ToString(), false);
-            Context.SetConfigValue("DanPriest.UsePsychicScream", UsePsychicScream.ToString(), false);
+            Context.SetConfigValue("DanPriest.AddsToScream", AddsToScream.ToString(), false);
             Context.SetConfigValue("DanPriest.UsePWShield", UsePWShield.ToString(), false);
             Context.SetConfigValue("DanPriest.UseRenew", UseRenew.ToString(), false);
             Context.SetConfigValue("DanPriest.UseShadowfiend", UseShadowfiend.ToString(), false);
@@ -386,7 +431,7 @@ namespace Glider.Common.Objects
             UseInnerFocus = Context.GetConfigBool("DanPriest.UseInnerFocus");
             UseMindBlast = Context.GetConfigBool("DanPriest.UseMindBlast");
             UseMindFlay = Context.GetConfigBool("DanPriest.UseMindFlay");
-            UsePsychicScream = Context.GetConfigBool("DanPriest.UsePsychicScream");
+            AddsToScream = Context.GetConfigInt("DanPriest.AddsToScream");
             UsePWShield = Context.GetConfigBool("DanPriest.UsePWShield");
             UseRenew = Context.GetConfigBool("DanPriest.UseRenew");
             UseShadowfiend = Context.GetConfigBool("DanPriest.UseShadowfiend");
@@ -474,7 +519,7 @@ namespace Glider.Common.Objects
                 Context.Log("UseInnerFocus: " + UseInnerFocus.ToString());
                 Context.Log("UseMindBlast: " + UseMindBlast.ToString());
                 Context.Log("UseMindFlay: " + UseMindFlay.ToString());
-                Context.Log("UsePsychicScream: " + UsePsychicScream.ToString());
+                Context.Log("AddsToScream: " + AddsToScream.ToString());
                 Context.Log("UsePWShield: " + UsePWShield.ToString());
                 Context.Log("UseRenew: " + UseRenew.ToString());
                 Context.Log("UseShadowfiend: " + UseShadowfiend.ToString());
@@ -632,7 +677,7 @@ namespace Glider.Common.Objects
                     SetConfigValue(configDialog, "DanPriest.UseInnerFocus", Context.GetConfigString("DanPriest.UseInnerFocus"));
                     SetConfigValue(configDialog, "DanPriest.UseMindBlast", Context.GetConfigString("DanPriest.UseMindBlast"));
                     SetConfigValue(configDialog, "DanPriest.UseMindFlay", Context.GetConfigString("DanPriest.UseMindFlay"));
-                    SetConfigValue(configDialog, "DanPriest.UsePsychicScream", Context.GetConfigString("DanPriest.UsePsychicScream"));
+                    SetConfigValue(configDialog, "DanPriest.AddsToScream", Context.GetConfigString("DanPriest.AddsToScream"));
                     SetConfigValue(configDialog, "DanPriest.UsePWShield", Context.GetConfigString("DanPriest.UsePWShield"));
                     SetConfigValue(configDialog, "DanPriest.UseRenew", Context.GetConfigString("DanPriest.UseRenew"));
                     SetConfigValue(configDialog, "DanPriest.UseShadowfiend", Context.GetConfigString("DanPriest.UseShadowfiend"));
@@ -734,7 +779,7 @@ namespace Glider.Common.Objects
                         Context.SetConfigValue("DanPriest.UseInnerFocus", GetConfigValue(configDialog, "DanPriest.UseInnerFocus"), true);
                         Context.SetConfigValue("DanPriest.UseMindBlast", GetConfigValue(configDialog, "DanPriest.UseMindBlast"), true);
                         Context.SetConfigValue("DanPriest.UseMindFlay", GetConfigValue(configDialog, "DanPriest.UseMindFlay"), true);
-                        Context.SetConfigValue("DanPriest.UsePsychicScream", GetConfigValue(configDialog, "DanPriest.UsePsychicScream"), true);
+                        Context.SetConfigValue("DanPriest.AddsToScream", GetConfigValue(configDialog, "DanPriest.AddsToScream"), true);
                         Context.SetConfigValue("DanPriest.UsePWShield", GetConfigValue(configDialog, "DanPriest.UsePWShield"), true);
                         Context.SetConfigValue("DanPriest.UseRenew", GetConfigValue(configDialog, "DanPriest.UseRenew"), true);
                         Context.SetConfigValue("DanPriest.UseShadowfiend", GetConfigValue(configDialog, "DanPriest.UseShadowfiend"), true);
@@ -1134,21 +1179,22 @@ namespace Glider.Common.Objects
 
         }
 
-        int HasBuff(String[] buffs)
+        int HasBuff(String[] buff)    // I made an overloaded version for your CC code. Check if it works like you want.
         {
-            int buffIndex = 0;              // Buff index in array
+
+
             Me.Refresh(true);
             GBuff[] Buffs = Me.GetBuffSnapshot();
-            foreach (string buff in buffs)
+            foreach (GBuff Buff in Buffs)
             {
-                foreach (GBuff Buff in Buffs)
+                foreach (string SBuff in buff)
                 {
-                    if (Buff.SpellName.ToLower().Contains(buff.ToLower()))
-                        return buffIndex;
+                    if (Buff.SpellName.ToLower().Contains(SBuff))
+                        return Buff.SpellID;
                 }
-                buffIndex++;
             }
             return -1;
+
         }
 
 
@@ -1266,10 +1312,195 @@ namespace Glider.Common.Objects
             return false;
 
         }
+
+
+        public void LogHealth()
+        {
+            if (healIndex == 20)
+                healIndex = 0;
+
+            myHealthHistory[healIndex++] = Me.Health;
+        }
+
+        public double calculateMyMTD()
+        {
+            if (healIndex == 0)
+                return 0;           // No data, report back w/ ZERO 
+
+            double  totalSlope = 0,
+                    avgSlope = 0,
+                    b = friends[0].healthHist[0],
+                    count = 0;
+
+            int j = 0;
+
+
+            for (j = 0; j < 20; j++)
+            {
+                if (myHealthHistory[j] != 0)
+                    totalSlope += myHealthHistory[j];
+                count++;
+            }
+
+            avgSlope = totalSlope / count;
+
+            if (avgSlope == 0)
+                return 0;
+            else
+                return (Math.Ceiling((double)(0 - b) / avgSlope)); // we have an approximation of death
+
+        }
+
+        // If we're in shadowform then we don't do a thing until specified time.. defaulted to panicMTD
+        public bool checkMyHealing(GUnit Target)
+        {
+
+            double myMTD=0;
+
+            // Have any history to work with?
+            // Do we even need to be healed?
+            if ((myMTD = calculateMyMTD()) == 0)
+                return CheckHealthCombat(Target); // No history we'll have to work w/ standard algorithms
+
+
+            if (myMTD < panicMTD ) // Oh noes, shield and flash heal we are certainly dead (recommended 3-5)
+            {
+
+                // Do a fear if possible we need to run and fear at this point we HAVE to stop them from attacking
+                 if (Target.DistanceToSelf <= Fear_Range && PsychicScream.IsReady)
+                {
+                     CastSpell("DP.PsychicScream");
+                     PsychicScream.Reset();
+                }
+                if (isCaster((GPlayer)Target) && Silence.IsReady)
+                {
+                    CastSpell("DP.Silence");
+                    Silence.Reset();
+                }
+
+                CheckPWShield();
+
+/*
+                if (Trinket1.utility == "Heal" && Trinket1.timer.IsReady)
+                {
+                    CastSpell("DP.Item1");
+                    Trinket1.timer.Reset();
+                }
+*/
+                // This is crunch time. If we can't get the flash heal off then do something
+                if (FlashHeal.IsReady)
+                {
+                    CastSpell("DP.FlashHeal");
+                    FlashHeal.Reset();
+                }
+                else if (LesserHeal.IsReady)
+                {
+                    CastSpell("DP.LesserHeal");
+                    LesserHeal.Reset();
+                }
+
+                // Always slap on a renew.. if we're being hit hard we'll hopefully be back in this section again soon
+                if (Renew.IsReady)
+                {
+                    CastSpell("DP.Renew");
+                    Renew.Reset();
+                }
+                return true;
+            }
+            else if (myMTD < moderateMTD && !IsShadowform())  
+                                            // This is not immediate death but should start taking things into consideration
+            {                               // I recommend taking panic's top end and adding 2 seconds (i.e. if PanicHeal is set to 4
+                                            // then 2 seconds is 4 more so this would be 8
+
+                //Who is attacking us? Can we fear/silence them?
+                if (Target.IsPlayer && Target.DistanceToSelf <= Fear_Range && PsychicScream.IsReady)
+                {
+                    CastSpell("DP.PsychicScream");
+                    PsychicScream.Reset();
+                }
+                else if (isCaster((GPlayer)Target) && Silence.IsReady)
+                {
+                    CastSpell("DP.Silence");
+                    Silence.Reset();
+                }
+                else
+                {
+                    //If we can't fear/silence, then it's time to switch strategies to more panicky
+                    CheckPWShield();
+
+                    if (GreaterHeal.IsReady)
+                    {
+                        CastSpell("DP.GreaterHeal");
+                        GreaterHeal.Reset();
+                    }
+
+                    // Always slap on a renew..
+                    if (Renew.IsReady)
+                    {
+                        CastSpell("DP.Renew");
+                        Renew.Reset();
+                    }
+                    return true;
+
+                }
+
+                // We have successfully feared/or silenced our attacker save the shield for panic
+
+
+                 if (GreaterHeal.IsReady)
+                 {
+                    CastSpell("DP.GreaterHeal");
+                    GreaterHeal.Reset();
+                 }
+
+
+                // Always slap on a renew.. if ready
+                if (Renew.IsReady)
+                {
+                    CastSpell("DP.Renew");
+                    Renew.Reset();
+                }
+
+            }
+            else if (myMTD < nonSeriousMTD && !IsShadowform())
+            {
+                // Well we're hurt but there's no real reason for alarm quite yet
+                // so we'll skip the shield and slap on the renew immediately 
+                if (Renew.IsReady)
+                {
+                    CastSpell("DP.Renew");
+                    Renew.Reset();
+                }
+                return true;
+            }
+
+            // We have a super high MTD and are not imminently going to die.
+
+
+
+            return false;
+        }
+
+/*
+        public bool checkHealingFriend(int index )
+        {
+
+        }
+ */
+        public bool isCaster(GPlayer Target)
+        {
+                    if(Target.PlayerClass.ToString().ToLower() == "mage" ||
+                    Target.PlayerClass.ToString().ToLower() == "warlock" ||
+                    Target.PlayerClass.ToString().ToLower() == "priest")
+                        return true;
+            return false;
+        }
+
         public bool CheckHealthCombat(GUnit Target) //Copied from Mercury
         {
             if (IsShadowform())
                 return CheckHealthStuffShadowform(Target);
+
             if (!Heals.IsReady)
             {
                 return false;
@@ -1317,6 +1548,7 @@ namespace Glider.Common.Objects
             }
             return false;
         }
+
 
         public bool CheckHealthStuffShadowform(GUnit Target)
         {
@@ -1421,6 +1653,12 @@ namespace Glider.Common.Objects
 
             bool Fast = false;
             Interface.WaitForReady("DP.CooldownProbe");
+
+
+            /*int[] used;
+            string[] Sleft = Spells;    //parts of my random cast-sequence attempt. I'll just comment this out
+            int left = Spells.Length;*/
+
             for (int i = 0; i < Spells.Length; i++)
             {
                 GUnit Closest = GObjectList.GetNearestAttacker(Me.GUID);
@@ -1453,6 +1691,11 @@ namespace Glider.Common.Objects
                         Silence.Reset();
                     }
                 }
+
+                /* Random rSpell = new Random(i, left);
+                 string Spell = Spells[rSpell.Next()];            //parts of my random cast-sequence attempt. I'll just comment this out
+
+                 left = Spells.Length - i;*/
                 switch (Spells[i])
                 {
                     case "Mind Blast":
@@ -1490,7 +1733,7 @@ namespace Glider.Common.Objects
                         break;
                     case "Mind Flay":
                         if ((HasBuff("Power Word: Shield") || FlayWithoutShield)
-                    && ((Target.IsInMeleeRange && !MeleeFlay) || MeleeFlay))
+                    && ((!Target.IsInMeleeRange && !MeleeFlay) || MeleeFlay))
                         {
                             Charge(Target, true);
                             CastPull("DP.MindFlay", Fast);
@@ -1693,6 +1936,14 @@ namespace Glider.Common.Objects
             }
             return false;
         }
+
+        protected int GetNumAdds()
+        {
+            GObjectList.SetCacheDirty();
+            int Extras = GObjectList.GetAttackers().Length - 1;
+            return Extras;
+        }
+
         bool NearbyEnemy(int yards, bool PvP)
         {
 
@@ -1743,8 +1994,8 @@ namespace Glider.Common.Objects
 
         bool CheckPWShield(GUnit Target, bool InCombat)
         {
-            if (((InCombat && (RecastShield || Me.Health < 0.1) && UsePWShield) || (!InCombat && UsePWShield)
-                 || GotExtraAttacker(Target)) && Target.Health >= MinHPShieldRecast)
+            if (((InCombat && (RecastShield || Me.Health < 0.2) && UsePWShield) || (!InCombat && UsePWShield)
+                 || GotExtraAttacker(Target)) && (Target.Health >= MinHPShieldRecast || GotExtraAttacker(Target)))
             {
                 if (!Me.HasBuff(PW_SHIELD) && !Me.HasBuff(WEAKENEDSOUL))
                 {
@@ -1797,20 +2048,20 @@ namespace Glider.Common.Objects
             }
             return null;   // Never found it.
         }
+
         bool CheckPWShield()
         {
-            if (UsePWShield)
+            if (UsePWShield && !Me.HasBuff(PW_SHIELD) && !Me.HasBuff(WEAKENEDSOUL))
             {
-                if (!Me.HasBuff(PW_SHIELD) && !Me.HasBuff(WEAKENEDSOUL))
-                {
                     if (UseInnerFocus && InnerFocus.IsReady)
                     {
                         CastSpell("DP.InnerFocus");
                         InnerFocus.Reset();
                     }
+ 
                     CastSpell("DP.Shield");
                     return true;
-                }
+               
 
             }
             return false;
@@ -2018,15 +2269,31 @@ namespace Glider.Common.Objects
         }
         #endregion
 
-
+        int AttackersInRange(double pRangeToCheck)
+        {
+            int vrtn = 0;
+            GObjectList.SetCacheDirty();
+            GUnit[] attackers = GObjectList.GetAttackers();
+            foreach (GUnit attacker in attackers)
+                if (attacker.DistanceToSelf < pRangeToCheck) vrtn++;
+            return vrtn;
+        }
 
         // See if we have an extra attacker and should do something about it.  If something was
         // done, returns True.  Otherwise, False.
         bool CheckAdd(GMonster OriginalTarget)
         {
+            if ((GetNumAdds() >= AddsToScream && PsychicScream.IsReady))
+            {
+                if (AttackersInRange(8.0) > 0)
+                {
+                    CastSpell("DP.PsychicScream");
+                    PsychicScream.Reset();
+                }
+            }
             if (Added || !HandleAdd)
                 return false;
-
+            GObjectList.SetCacheDirty();
             GUnit Add = GObjectList.GetNearestAttacker(OriginalTarget.GUID);
 
             if (Add == null)
@@ -2048,14 +2315,6 @@ namespace Glider.Common.Objects
                 GPlayer player = (GPlayer)Add;
                 KillPlayer(player, Me.Location);
                 return true;
-            }
-
-
-            if (UsePsychicScream && PsychicScream.IsReady && Add.DistanceToSelf < 8)
-            {
-                Context.Log("Add within Scream range, casting Psychic Scream");
-                CastSpell("DP.PsychicScream");
-                PsychicScream.Reset();
             }
 
             if (UseShadowfiend && Shadowfiend.IsReady && Me.Mana <= ShadowfiendAtPercent)
@@ -2098,6 +2357,7 @@ namespace Glider.Common.Objects
         #endregion
     }
 }
+
 #if !usingNamespaces
 using System;
 using System.Threading;
@@ -2115,6 +2375,7 @@ namespace Glider.Common.Objects
         {
             #region pull
             Context.Log("KillTarget invoked");
+
 
             if (LookForOwner(Target))
                 return GCombatResult.Success;
@@ -2186,8 +2447,22 @@ namespace Glider.Common.Objects
             bool IsClose = false;
             #endregion
             #region Combat loop
+            // Start the healing process hehe
+            HealingLogTimer.Reset();
+            count = 0;
+
             while (true)
             {
+                if (HealingLogTimer.IsReady)
+                {
+                    HealingLogTimer.Reset();
+                    count = 0;
+                }
+                else if (HealingLogTimer.TicksLeft > (500 * count))   //Got error "Operator '>' cannot be applied to operands of type 'GSpellTimer' and 'int'" So, my guess is that .TicksLeft will be correct
+                {
+                    LogHealth();
+                    count++;
+                }
                 Thread.Sleep(101);
                 #region Important checks
                 CommonResult = Context.CheckCommonCombatResult(Monster, IsAmbush);
@@ -2307,7 +2582,7 @@ namespace Glider.Common.Objects
                         CheckPWShield(Target, true);
 
                     if (SpamMindFlay > 0 && Me.Mana > MinManaToCast && (HasBuff("Power Word: Shield") || FlayWithoutShield)
-                    && ((Target.IsInMeleeRange && !MeleeFlay) || MeleeFlay))
+                    && ((!Target.IsInMeleeRange && !MeleeFlay) || MeleeFlay))
                     {
 
                         Monster.Face();
@@ -2423,7 +2698,7 @@ namespace Glider.Common.Objects
 
 
                 if (SpamMindFlay > 0 && (HasBuff("Power Word: Shield") || FlayWithoutShield)
-                    && ((Target.IsInMeleeRange && !MeleeFlay) || MeleeFlay))
+                    && ((!Target.IsInMeleeRange && !MeleeFlay) || MeleeFlay))
                 {
 
                     Monster.Face();
@@ -2463,6 +2738,7 @@ namespace Glider.Common.Objects
 
     }
 }
+
 #if !usingNamespaces
 using System;
 using System.Threading;
@@ -2474,8 +2750,6 @@ namespace Glider.Common.Objects
 {
     partial class DanPriest
     {
-
-
         #region PVP Functions
         GCombatResult KillPlayer(GPlayer Target, GLocation Anchor)
         {
@@ -2734,161 +3008,6 @@ namespace Glider.Common.Objects
         #endregion
         #endregion
 
-
-
-        #region Threads
-
-        public static CC_Thread ccThreadClass = new CC_Thread();
-        public static Thread ccThread = new Thread(ccThreadClass.checkCC);
-
-        public static MonitorStatus monThreadClass = new MonitorStatus();
-        public static Thread monThread = new Thread(monThreadClass.monitor);
-
-
-        public static void ThreadInit()
-        {
-            monThread.Start();
-            Thread.Sleep(500);
-
-            ccThread.Start();
-            Thread.Sleep(500);
-        }
-
-        public static void ThreadExit()
-        {
-            monThread.Abort();
-            monThread.Join(1000);
-
-            ccThread.Abort();
-            ccThread.Join(1000);
-        }
-
-        public class CC_Thread : DanPriest
-        {
-
-            #region Thread_Common
-
-            volatile bool abort;
-            public void Abort() { abort = true; }
-
-            void checkAbort()
-            {
-                if (abort)
-                    Thread.CurrentThread.Abort();
-            }
-
-            #endregion
-
-
-            public void checkCC()
-            {
-                while (true)
-                {
-                    Thread.Sleep(500);            //Sleep .5 sec for now
-                    CC_WaitHandle.WaitOne();
-
-                    checkAbort();
-                    try
-                    {
-                        int CC = HasBuff(CC_Array);
-                        if (CC != -1)
-                            if (RemoveCC(CC))
-                                continue;
-                            else
-                            {
-                                // sigh, if nohting got rid of it, lets stop trying to move and periodically check
-
-                                //sleepMove();  need a halt for  no longer moving
-                                while (HasBuff(CC_Array) != CC)
-                                    Thread.Sleep(750);           // TODO: Tweak time right now 3/4 a second sounds nice
-                                //restartMove();  being moving process again when Buff has timed out (want to retry
-                                //                if there are new buffs
-                            }
-                    }
-                    catch (Exception e)
-                    {
-                        Context.Log(e + "Exception caught in checkCC");
-
-                    }
-
-                    finally { CC_WaitHandle.Close(); }
-
-                }
-
-            }
-
-            bool RemoveCC(int CC)
-            {
-                // Try to dispel the bloody thing
-                if (CC_Array_Dispellable[CC])
-                    CastSpell("DP.Dispel");
-
-                if (HasBuff(CC_Array) != -1)
-                    return true;
-
-                // Didn't work eh, lets see if we can trinket it
-                if (Trinket1.utility == "CC" && Trinket1.timer.IsReady)
-                {
-                    CastSpell("DP.Trinket1");
-                    return true;
-                }
-                else if (Trinket2.utility == "CC" && Trinket2.timer.IsReady)
-                {
-                    CastSpell("DP.Trinket2");
-                    return true;
-                }
-
-
-                // Still have the blasted thing, is there anything we have that will remove it?
-                int i = 0;
-                foreach (string racial in RacialAbilities)
-                {
-                    i++;
-                    if (racial == "WoTF" && CC == 0 || CC == 1 || CC == 2 || CC == 3 || CC == 9)
-                        CastSpell("DanPriest.Racial" + i);
-                    if (racial == "Escape Artist" && CC == 17)
-                        CastSpell("DanPriest.Racial" + i);
-
-                }
-                return false;
-            }
-
-
-
-        }
-
-        public class MonitorStatus : DanPriest
-        {
-
-            #region Thread_Common
-
-            volatile bool abort;
-            public void Abort() { abort = true; }
-
-            void checkAbort()
-            {
-                if (abort)
-                    Thread.CurrentThread.Abort();
-            }
-
-            #endregion
-
-
-            public void monitor()
-            {
-               //Start the heartbeat (todo)
-
-                //Sleep for a 1/3 of sec
-                Thread.Sleep(333);
-                CC_WaitHandle.Set();
-
-                Thread.Sleep(333);
-//                Friends_WaitHandle.Set();
-
-            }
-        }
-
-        #endregion
     }
 }
 
