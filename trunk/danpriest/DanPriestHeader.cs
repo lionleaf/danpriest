@@ -1,15 +1,17 @@
-
+#define PPather
 #define usingNamespaces
-
+#if PPather
+//!Reference: PPather.dll
+#endif
 
 using System;
 using System.Threading;
 using Glider.Common.Objects;
 using System.Reflection;
 using System.Timers;
-
-
-
+#if PPather
+using Pather;
+#endif
 namespace Glider.Common.Objects
 {
 

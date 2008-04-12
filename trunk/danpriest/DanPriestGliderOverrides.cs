@@ -8,7 +8,11 @@ using System.Reflection;
 
 namespace Glider.Common.Objects
 {
+#if PPather
+    partial class DanPriest : PPather
+#else
     partial class DanPriest : GGameClass
+#endif
     {
         #region GGameClass overrides
 
