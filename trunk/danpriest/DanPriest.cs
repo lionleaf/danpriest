@@ -1,4 +1,4 @@
-#define PPath
+#define PPather
 #define usingNamespaces
 #if PPather
 //!Reference: PPather.dll
@@ -137,7 +137,6 @@ namespace Glider.Common.Objects
         public static Friend[] friends = new Friend[FRIEND_SIZE];
         public static double[] myHealthHistory = new double[20];
         public static int healIndex = 0;
-
 
         #endregion
 
@@ -1334,30 +1333,39 @@ namespace Glider.Common.Objects
 
         public double calculateMyMTD()
         {
-            if (healIndex == 0)
-                return 0;           // No data, report back w/ ZERO 
-
-            double  totalSlope = 0,
-                    avgSlope = 0,
-                    b = friends[0].healthHist[0],
-                    count = 0;
-
-            int j = 0;
-
-
-            for (j = 0; j < 20; j++)
+            try
             {
-                if (myHealthHistory[j] != 0)
-                    totalSlope += myHealthHistory[j];
-                count++;
+                if (healIndex == 0)
+                    return 0;           // No data, report back w/ ZERO
+
+                double totalSlope = 0,
+                        avgSlope = 0,
+                        count = 0;
+                double  b = friends[0].healthHist[0];
+                int j = 0;
+
+                for (j = 0; j < 20; j++)
+                {
+                    if (myHealthHistory[j] != 0)
+                        totalSlope += myHealthHistory[j];
+                    count++;
+                }
+                avgSlope = totalSlope / count;
+
+                if (avgSlope == 0)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return (Math.Ceiling((double)(0 - b) / avgSlope)); // we have an approximation of death
+                }
             }
-
-            avgSlope = totalSlope / count;
-
-            if (avgSlope == 0)
+            catch
+            {
+                Context.Log("Excpetion caught in calculateMyMTD(). healIndex = " + healIndex);
                 return 0;
-            else
-                return (Math.Ceiling((double)(0 - b) / avgSlope)); // we have an approximation of death
+            }
 
         }
 
@@ -2484,11 +2492,10 @@ namespace Glider.Common.Objects
                     return GCombatResult.Success;
                 }
 
-                /*if (Me.Health < Target.Health && IsShadowform())
+                if (Me.Health < Target.Health && IsShadowform())
                     CheckHealthStuffShadowform(Target);
                 else
-                    CheckHealthCombat(Target);*/
-                checkMyHealing(Target);
+                    CheckHealthCombat(Target);
 
                 LookForOwner(Target);
 
@@ -2582,11 +2589,10 @@ namespace Glider.Common.Objects
                 #region If Target health is below LowestHpToCast or we are low on mana (MinManaToCast)
                 if (Target.Health < LowestHpToCast || Me.Mana < MinManaToCast)
                 {
-                    /*if (Me.Health < Target.Health && IsShadowform())
+                    if (Me.Health < Target.Health && IsShadowform())
                         CheckHealthStuffShadowform(Target);
                     else
-                        CheckHealthCombat(Target);*/
-                    checkMyHealing(Target);
+                        CheckHealthCombat(Target);
                     if (Me.Mana > .08)
                         CheckPWShield(Target, true);
 
