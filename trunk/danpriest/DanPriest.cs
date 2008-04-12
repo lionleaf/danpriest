@@ -1,4 +1,4 @@
-#define PPather
+#define PPath
 #define usingNamespaces
 #if PPather
 //!Reference: PPather.dll
@@ -1656,10 +1656,7 @@ namespace Glider.Common.Objects
 
         GCombatResult CastSequence(GUnit Target, string[] Spells)
         {
-            if (Me.Health < Target.Health && IsShadowform())
-                CheckHealthStuffShadowform(Target);
-            else
-                CheckHealthCombat(Target);
+            checkMyHealing(Target);
 
             bool Fast = false;
             Interface.WaitForReady("DP.CooldownProbe");
@@ -1684,10 +1681,7 @@ namespace Glider.Common.Objects
 
 
                 }
-                if (Me.Health < Target.Health && IsShadowform())
-                    CheckHealthStuffShadowform(Target);
-                else
-                    CheckHealthCombat(Target);
+                checkMyHealing(Target);
                 CheckPWShield(Target, false);
                 if (Me.Mana < MinManaToCast)
                 {
@@ -2306,6 +2300,8 @@ namespace Glider.Common.Objects
             GObjectList.SetCacheDirty();
             GUnit Add = GObjectList.GetNearestAttacker(OriginalTarget.GUID);
 
+
+            checkMyHealing(OriginalTarget);
             if (Add == null)
                 return false;
 
@@ -2334,6 +2330,7 @@ namespace Glider.Common.Objects
             }
 
             CastSequence(Add, AddSpells);
+            checkMyHealing(OriginalTarget);
             Context.Log("Finished dotting add.");
             Added = true;
             AddedGUID = Add.GUID;
@@ -2487,10 +2484,11 @@ namespace Glider.Common.Objects
                     return GCombatResult.Success;
                 }
 
-                if (Me.Health < Target.Health && IsShadowform())
+                /*if (Me.Health < Target.Health && IsShadowform())
                     CheckHealthStuffShadowform(Target);
                 else
-                    CheckHealthCombat(Target);
+                    CheckHealthCombat(Target);*/
+                checkMyHealing(Target);
 
                 LookForOwner(Target);
 
@@ -2584,10 +2582,11 @@ namespace Glider.Common.Objects
                 #region If Target health is below LowestHpToCast or we are low on mana (MinManaToCast)
                 if (Target.Health < LowestHpToCast || Me.Mana < MinManaToCast)
                 {
-                    if (Me.Health < Target.Health && IsShadowform())
+                    /*if (Me.Health < Target.Health && IsShadowform())
                         CheckHealthStuffShadowform(Target);
                     else
-                        CheckHealthCombat(Target);
+                        CheckHealthCombat(Target);*/
+                    checkMyHealing(Target);
                     if (Me.Mana > .08)
                         CheckPWShield(Target, true);
 

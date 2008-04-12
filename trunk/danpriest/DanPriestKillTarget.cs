@@ -118,10 +118,11 @@ namespace Glider.Common.Objects
                     return GCombatResult.Success;
                 }
 
-                if (Me.Health < Target.Health && IsShadowform())
+                /*if (Me.Health < Target.Health && IsShadowform())
                     CheckHealthStuffShadowform(Target);
                 else
-                    CheckHealthCombat(Target);
+                    CheckHealthCombat(Target);*/
+                checkMyHealing(Target);
 
                 LookForOwner(Target);
 
@@ -215,10 +216,11 @@ namespace Glider.Common.Objects
                 #region If Target health is below LowestHpToCast or we are low on mana (MinManaToCast)
                 if (Target.Health < LowestHpToCast || Me.Mana < MinManaToCast)
                 {
-                    if (Me.Health < Target.Health && IsShadowform())
+                    /*if (Me.Health < Target.Health && IsShadowform())
                         CheckHealthStuffShadowform(Target);
                     else
-                        CheckHealthCombat(Target);
+                        CheckHealthCombat(Target);*/
+                    checkMyHealing(Target);
                     if (Me.Mana > .08)
                         CheckPWShield(Target, true);
 
