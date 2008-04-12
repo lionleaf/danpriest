@@ -17,6 +17,7 @@ namespace Glider.Common.Objects
             #region pull
             Context.Log("KillTarget invoked");
 
+
             if (LookForOwner(Target))
                 return GCombatResult.Success;
 
@@ -87,8 +88,22 @@ namespace Glider.Common.Objects
             bool IsClose = false;
             #endregion
             #region Combat loop
+            // Start the healing process hehe
+            HealingLogTimer.Reset();
+            count = 0;
+
             while (true)
             {
+                if (HealingLogTimer.IsReady)
+                {
+                    HealingLogTimer.Reset();
+                    count = 0;
+                }
+                else if (HealingLogTimer.TicksLeft > (500 * count))   //Got error "Operator '>' cannot be applied to operands of type 'GSpellTimer' and 'int'" So, my guess is that .TicksLeft will be correct
+                {
+                    LogHealth();
+                    count++;
+                }
                 Thread.Sleep(101);
                 #region Important checks
                 CommonResult = Context.CheckCommonCombatResult(Monster, IsAmbush);
