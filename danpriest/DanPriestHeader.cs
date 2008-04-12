@@ -4,6 +4,7 @@
 //!Reference: PPather.dll
 #endif
 
+//test
 using System;
 using System.Threading;
 using Glider.Common.Objects;
@@ -137,7 +138,6 @@ namespace Glider.Common.Objects
         public static Friend[] friends = new Friend[FRIEND_SIZE];
         public static double[] myHealthHistory = new double[20];
         public static int healIndex = 0;
-
 
         #endregion
 
