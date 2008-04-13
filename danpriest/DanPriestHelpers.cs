@@ -1296,6 +1296,14 @@ namespace Glider.Common.Objects
             string TimeStamp = DateTime.Now.Hour + ":" + DateTime.Now.Minute + ":" + DateTime.Now.Second + "." + DateTime.Now.Millisecond + ": ";
             Context.Debug(TimeStamp + text);
         }
+
+        protected bool IsKeyEnabled(String key)
+        {
+            Interface.IsKeyEnabled(key);
+            Thread.Sleep(20);
+            bool pop = Interface.IsKeyEnabled(key); // Checking twice gives the correct result. Thanks for the tip :)
+            return pop;
+        }
         #endregion
     }
 }
