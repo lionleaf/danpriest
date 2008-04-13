@@ -1,0 +1,23 @@
+#summary Stuff to to and ideas for future releases. Feel free to comment
+= Introduction =
+
+This is a list of ideas / changes / fixes in all sizes which we might implement in future releases
+
+
+= Details =
+
+  * Check whether activated keys is populated
+  * 
+  *
+  *
+  *
+  *
+  *
+  *
+  *
+  *
+  *
+  *
+  *
+  *
+  * List will be populated soon
