@@ -47,24 +47,24 @@ namespace Glider.Common.Objects
 
             if (RawText.Contains("shadow word") && RawText.Contains("pain") && RawText.Contains("was resisted"))
             {
-                Context.Log("SW:Pain was resisted, Reset Timer");
+                Log("SW:Pain was resisted, Reset Timer");
                 SWPain.ForceReady();
             }
 
             if (RawText.Contains("mind") && RawText.Contains("flay") && RawText.Contains("was resisted"))
             {
-                Context.Log("Mind flay was resisted, Reset Timer");
+                Log("Mind flay was resisted, Reset Timer");
                 MindFlay.ForceReady();
             }
 
             if (RawText.Contains("vampiric") && RawText.Contains("embrace") && RawText.Contains("was resisted"))
             {
-                Context.Log("Vampiric Embrace was resisted, Reset Timer");
+                Log("Vampiric Embrace was resisted, Reset Timer");
             }
 
             if (RawText.Contains("vampiric") && RawText.Contains("touch") && RawText.Contains("was resisted"))
             {
-                Context.Log("Vampiric Touch was resisted, Reset Timer");
+                Log("Vampiric Touch was resisted, Reset Timer");
                 VampiricTouch.ForceReady();
             }
 
@@ -80,12 +80,12 @@ namespace Glider.Common.Objects
                     RawText.Contains("seduce") ||
                     RawText.Contains("slumber")))
             {
-                Context.Log(DateTime.Now.ToString() + ": " + "Got feared/charmed/sleeped.");
+                Log(DateTime.Now.ToString() + ": " + "Got feared/charmed/sleeped.");
                 if (Ability("Forsaken"))
                 {
 
                     CastSpell("DP.WillOfTheForsaken");
-                    Context.Log(DateTime.Now.ToString() + ": " + "Broke fear/charm/sleep with will of the forsaken.");
+                    Log(DateTime.Now.ToString() + ": " + "Broke fear/charm/sleep with will of the forsaken.");
                 }
             }
             if (RawText.Contains("fades from you"))
@@ -96,7 +96,7 @@ namespace Glider.Common.Objects
                     RawText.Contains("psychic scream") ||
                     RawText.Contains("shriek"))
                 {
-                    Context.Log(DateTime.Now.ToString() + ": " + "Fear Ran out.");
+                    Log(DateTime.Now.ToString() + ": " + "Fear Ran out.");
                 }
             }
 
@@ -141,7 +141,7 @@ namespace Glider.Common.Objects
             CheckShadowform();
             if (ShadowProtection && ShadowProt.IsReady)
             {
-                Context.Log("Rebuffing Shadow Protection");
+                Log("Rebuffing Shadow Protection");
                 CastSpell("DP.ShadowProtection");
                 ShadowProt.Reset();
             }
@@ -172,7 +172,7 @@ namespace Glider.Common.Objects
                 ActivePVP();
             if (ShadowProtection && ShadowProt.IsReady)
             {
-                Context.Log("Rebuffing Shadow Protection");
+                Log("Rebuffing Shadow Protection");
                 CastSpell("DP.ShadowProtection");
                 ShadowProt.Reset();
                 return;
@@ -185,7 +185,7 @@ namespace Glider.Common.Objects
             //Checks for Fear Ward if your a Dwarf or Draenei and enabled your race it will cast Fear Ward.
             if (Ability("Fear") && !Me.HasBuff(6346) && Me.Mana > .3 && FearWard.IsReady && Interface.IsKeyReady("DP.FearWard"))
             {
-                Context.Log("Buffing: Fear Ward");
+                Log("Buffing: Fear Ward");
                 if (IsShadowform())
                     CastSpell("DP.Shadowform");
                 CastSpell("DP.FearWard");
@@ -213,7 +213,7 @@ namespace Glider.Common.Objects
             if (Mount && !IsMounted() && !NearbyEnemy(MountDistance, ActivePvP) && /*!NearbyLoot(MountDistance) &&*/ MountTimer.IsReady && !Me.IsInCombat)
             {
                 Context.ReleaseSpinRun();
-                Context.Log("Mounting up");
+                Log("Mounting up");
                 Context.CastSpell("DP.Mount");
                 MountTimer.Reset();
                 return;
@@ -231,7 +231,7 @@ namespace Glider.Common.Objects
                     CastSpell("DP.TouchOfWeakness");
             }
 
-            Context.Log("ApproachingTarget invoked");
+            Log("ApproachingTarget invoked");
 
             if (UseInnerFocus && InnerFocus.IsReady)
             {

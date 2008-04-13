@@ -49,11 +49,11 @@ namespace Glider.Common.Objects
         {
             try
             {
-                Context.Log(DateTime.Now.Hour + ":" + DateTime.Now.Minute + ":" + DateTime.Now.Second + "." + DateTime.Now.Millisecond + " " + Text);
+                Log(DateTime.Now.Hour + ":" + DateTime.Now.Minute + ":" + DateTime.Now.Second + "." + DateTime.Now.Millisecond + " " + Text);
             }
             catch (Exception e)
             {
-                Context.Log("WTF?!: Exception in Log(): " + e);
+                Log("WTF?!: Exception in Log(): " + e);
             }
         }*/
 
@@ -163,7 +163,7 @@ namespace Glider.Common.Objects
                 Math.Abs(closestAdd.Location.Z - GContext.Main.Me.Location.Z) < 15 &&
                 Math.Abs(closestAdd.Bearing) < AVOID_ADD_HEADING_TOLERANCE)
             {
-                Context.Log(DateTime.Now.ToString() + ": " + "Possible add: \"" + closestAdd.Name + "\" (distance = " + closestAdd.DistanceToSelf + ", bearing = " + closestAdd.Bearing + "), backing up combat");
+                Log(DateTime.Now.ToString() + ": " + "Possible add: \"" + closestAdd.Name + "\" (distance = " + closestAdd.DistanceToSelf + ", bearing = " + closestAdd.Bearing + "), backing up combat");
                 AddBackup.Reset();
                 GSpellTimer Futility = new GSpellTimer(2000);
 
@@ -183,7 +183,7 @@ namespace Glider.Common.Objects
                 Context.ReleaseKey("Common.Back");
 
                 if (Futility.IsReady)
-                    Context.Log(DateTime.Now.ToString() + ": " + "Backed up for max time, stopping");
+                    Log(DateTime.Now.ToString() + ": " + "Backed up for max time, stopping");
 
                 Thread.Sleep(301);
 
@@ -248,7 +248,7 @@ namespace Glider.Common.Objects
             }
             catch
             {
-                Context.Log("Excpetion caught in calculateMyMTD(). healIndex = " + healIndex);
+                Log("Excpetion caught in calculateMyMTD(). healIndex = " + healIndex);
                 return 0;
             }
 
@@ -512,7 +512,7 @@ namespace Glider.Common.Objects
         {
             if (Target.DistanceToSelf <= Fear_Range && PsychicScream.IsReady)
             {
-                Context.Log(DateTime.Now.ToString() + ": " + "Casting Psychic Scream (For panic-healing)");
+                Log(DateTime.Now.ToString() + ": " + "Casting Psychic Scream (For panic-healing)");
                 CastSpell("DP.PsychicScream");
                 PsychicScream.Reset();
             }
@@ -614,7 +614,7 @@ namespace Glider.Common.Objects
                         Charge(Target, false);
                         if (UseManaBurn && Target.Mana >= ManaBurnPercent)
                         {
-                            Context.Log("Target got mana, casting Mana Burn");
+                            Log("Target got mana, casting Mana Burn");
                             CastPull("DP.ManaBurn", Fast);
                             MindBlast.Reset();
                         }
@@ -695,7 +695,7 @@ namespace Glider.Common.Objects
                     case "Psychic Scream":
                         if (PsychicScream.IsReady && Closest.DistanceToSelf < Fear_Range)
                         {
-                            Context.Log("Using Psychic Scream");
+                            Log("Using Psychic Scream");
                             CastPull("DP.PsychicScream", Fast);
                             PsychicScream.Reset();
                             Fast = false;
@@ -720,7 +720,7 @@ namespace Glider.Common.Objects
                     case "None":
                         break;
                     default:
-                        Context.Log("ERROR: Spell not recognized: " + PullSpells[i]);
+                        Log("ERROR: Spell not recognized: " + PullSpells[i]);
                         break;
                 }
 
@@ -740,13 +740,13 @@ namespace Glider.Common.Objects
                 {
                     if (Player.Pet.IsTargetingMe)
                     {
-                        Context.Log("We are being attacked by the pet of a player, killing player instead");
+                        Log("We are being attacked by the pet of a player, killing player instead");
                         KillPlayer(Player, Me.Location);
                         return true;
                     }
                     else
                     {
-                        Context.Log("We are attacking the pet of a player, but it is not attacking back. Stopping");
+                        Log("We are attacking the pet of a player, but it is not attacking back. Stopping");
                         return true;
                     }
                 }
@@ -771,7 +771,7 @@ namespace Glider.Common.Objects
                         TargetUnit(Player, false);
                         if (Me.Target == Player)
                         {
-                            Context.Log("Initiating Combat");
+                            Log("Initiating Combat");
                             KillTarget(Player, false);
                             return;
                         }
@@ -1006,7 +1006,7 @@ namespace Glider.Common.Objects
         {
             if (Interface.IsKeyFiring("DP.Wand"))
             {
-                Context.Log("Stopping wand");
+                Log("Stopping wand");
                 Context.SendKey("DP.Wand");
                 Thread.Sleep(StopWandWait);
                 Interface.WaitForReady("DP.CooldownProbe");
@@ -1063,7 +1063,7 @@ namespace Glider.Common.Objects
             Thread.Sleep(SleepBeforeCheck);
             Context.Interface.WaitForReady(Spell);
             Thread.Sleep(SleepAfterReady);
-            Context.Debug(DateTime.Now.ToString() + ": Casting - " + Spell.ToString());
+            Log("Casting - " + Spell.ToString());
             Context.CastSpell(Spell, false, false);
         }
         void CastSpell(string Spell, bool fast)
@@ -1078,7 +1078,7 @@ namespace Glider.Common.Objects
                     Context.SendKey("Common.Sit");
 
                 StopWand();
-                Context.Debug(DateTime.Now.ToString() + ": Casting - " + Spell.ToString());
+                Log("Casting - " + Spell.ToString());
                 Context.CastSpell(Spell, false, false);
             }
         }
@@ -1092,7 +1092,7 @@ namespace Glider.Common.Objects
 
                 StopWand();
                 Context.Interface.WaitForReady(Spell);
-                Context.Debug(DateTime.Now.ToString() + ": Casting - " + Spell.ToString());
+                Log("Casting - " + Spell.ToString());
                 Context.CastSpell(Spell, false, false);
 
             }
@@ -1102,7 +1102,7 @@ namespace Glider.Common.Objects
                     Context.SendKey("Common.Sit");
 
                 StopWand();
-                Context.Debug(DateTime.Now.ToString() + ": Casting - " + Spell.ToString());
+                Log("Casting - " + Spell.ToString());
                 Context.CastSpell(Spell, false, false);
             }
         }
@@ -1119,7 +1119,7 @@ namespace Glider.Common.Objects
                 Thread.Sleep(SleepBeforeCheck);
                 Context.Interface.WaitForReady(Spell);
                 Thread.Sleep(SleepAfterReady);
-                Context.Debug(DateTime.Now.ToString() + ": Casting - " + Spell.ToString());
+                Log("Casting - " + Spell.ToString());
                 Target.Face();
                 Context.SendKey(Spell);
                 Thread.Sleep(100);
@@ -1139,7 +1139,7 @@ namespace Glider.Common.Objects
                 Target.Face();
                 StopWand();
                 Target.Face();
-                Context.Debug(DateTime.Now.ToString() + ": Casting - " + Spell.ToString());
+                Log("Casting - " + Spell.ToString());
                 Context.SendKey(Spell);
                 Thread.Sleep(100);
                 while (Me.IsCasting)
@@ -1153,21 +1153,21 @@ namespace Glider.Common.Objects
         }
         void CastSwitchSpell(string FirstSpell, string SecondSpell, GUnit Target, double TargetHealthToSwitch)
         {
-            Context.Log("CastSwitchSpell invoked");
+            Log("CastSwitchSpell invoked");
             if (Me.IsSitting)
                 Context.SendKey("Common.Sit");
             StopWand();
             Thread.Sleep(SleepBeforeCheck);
             Context.Interface.WaitForReady(FirstSpell);
             Thread.Sleep(SleepAfterReady);
-            Context.Debug(DateTime.Now.ToString() + ": Casting - " + FirstSpell.ToString());
+            Log("Casting - " + FirstSpell.ToString());
             Context.CastSpell(FirstSpell, false, true);
             Interface.WaitForReady("DP.CooldownProbe");
             while (Me.IsCasting)
             {
                 if (Target.Health < TargetHealthToSwitch)
                 {
-                    Context.Log(DateTime.Now.ToString() + ": Casting - " + SecondSpell.ToString());
+                    Log("Casting - " + SecondSpell.ToString());
                     Context.CastSpell(SecondSpell, false, false);
                 }
             }
@@ -1211,11 +1211,11 @@ namespace Glider.Common.Objects
                 return false;
 
             // Got an add!
-            Context.Log("Additional attacker: \"" + Add.Name + "\", 0x" + Add.GUID.ToString("x") + ", Doting");
+            Log("Additional attacker: \"" + Add.Name + "\", 0x" + Add.GUID.ToString("x") + ", Doting");
 
             if (!Add.SetAsTarget(false))    // Couldn't select it.
             {
-                Context.Log("Could not select with Tab key, turning off adding option");
+                Log("Could not select with Tab key, turning off adding option");
                 HandleAdd = false;
                 OriginalTarget.SetAsTarget(true);
                 return false;
@@ -1240,7 +1240,7 @@ namespace Glider.Common.Objects
             else
                 CheckHealthCombat(OriginalTarget);
             //checkMyHealing(OriginalTarget);
-            Context.Log("Finished dotting add.");
+            Log("Finished dotting add.");
             Added = true;
             AddedGUID = Add.GUID;
             if (!OriginalTarget.IsDead && OriginalTarget.IsValid)
@@ -1263,13 +1263,18 @@ namespace Glider.Common.Objects
                        {
                            OriginalTarget.WaitForApproach(MindFlayRange, 10 * 1000);
                        }
-                       Context.Log("Casting mindflay on feared Target");
+                       Log("Casting mindflay on feared Target");
                        CastSpell("DP.MindFlay");
                    }
                }while (OriginalTarget.DistanceToSelf >= 5);
            }*/
         }
 
+        void Log(string text)
+        {
+            string TimeStamp = DateTime.Now.Hour + ":" + DateTime.Now.Minute + ":" + DateTime.Now.Second + "." + DateTime.Now.Millisecond+": ";
+            Context.Log(TimeStamp+text);
+        }
         #endregion
     }
 }
