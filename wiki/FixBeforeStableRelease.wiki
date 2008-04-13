@@ -7,12 +7,13 @@ Version 1.2 will soon be released, and is supposed to be the stable version to f
 
 = List =
 
-*Bold* means important 
+*Bold* means important. _italic_ means not so important
   * *OOM checks!*
   * *GSpellTimer for SW: P, to prevent double-cast*
+  * *Simple-healing*
+  * Fix our super awesome healing-algorithm
+  * _Add code to detect chance of getting add on pull (look at Parrior)_
+  * More Log()
+  * _Random cast sequence_
+  * _Handle mutliple adds_
   * More to come
-  *
-  *
-  *
-  *
-  *
