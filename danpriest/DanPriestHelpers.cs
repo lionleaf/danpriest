@@ -1066,6 +1066,22 @@ namespace Glider.Common.Objects
             Log("Casting - " + Spell.ToString());
             Context.CastSpell(Spell, false, false);
         }
+
+        void CastSpell(string Spell, GUnit Target)
+        {
+
+            if (Me.IsSitting)
+                Context.SendKey("Common.Sit");
+
+            StopWand();
+            Thread.Sleep(SleepBeforeCheck);
+            Context.Interface.WaitForReady(Spell);
+            Thread.Sleep(SleepAfterReady);
+            Debug("Facing target before casting" + Spell);
+            Target.Face();
+            Log("Casting - " + Spell.ToString());
+            Context.CastSpell(Spell, false, false);
+        }
         void CastSpell(string Spell, bool fast)
         {
 
@@ -1274,6 +1290,11 @@ namespace Glider.Common.Objects
         {
             string TimeStamp = DateTime.Now.Hour + ":" + DateTime.Now.Minute + ":" + DateTime.Now.Second + "." + DateTime.Now.Millisecond+": ";
             Context.Log(TimeStamp+text);
+        }
+        void Debug(string text)
+        {
+            string TimeStamp = DateTime.Now.Hour + ":" + DateTime.Now.Minute + ":" + DateTime.Now.Second + "." + DateTime.Now.Millisecond + ": ";
+            Context.Debug(TimeStamp + text);
         }
         #endregion
     }

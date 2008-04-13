@@ -150,27 +150,28 @@ namespace Glider.Common.Objects
                 {
                     Log("We got a runner, dealing with it");
                     IsClose = false;
+                    Target.Face();
                     switch (HandleRunners)
                     {
                         case "Mind Flay":
                             StopWand();
-                            Context.CastSpell("DP.MindFlay");
+                            CastSpell("DP.MindFlay", Target);
                             break;
                         case "Mind Blast":
                             StopWand();
-                            Context.CastSpell("DP.MindBlast");
+                            CastSpell("DP.MindBlast", Target);
                             break;
                         case "Smite":
                             StopWand();
-                            Context.CastSpell("DP.Smite");
+                            CastSpell("DP.Smite", Target);
                             break;
                         case "Holy Fire":
                             StopWand();
-                            Context.CastSpell("DP.HolyFire");
+                            CastSpell("DP.HolyFire", Target);
                             break;
                         case "Shadow Word: Death":
                             StopWand();
-                            Context.CastSpell("DP.SWDeath");
+                            CastSpell("DP.SWDeath", Target);
                             break;
                         case "Melee-chase":
                             Target.Approach(Context.MeleeDistance);
