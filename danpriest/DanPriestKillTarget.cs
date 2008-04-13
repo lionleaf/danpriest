@@ -15,7 +15,7 @@ namespace Glider.Common.Objects
         public override GCombatResult KillTarget(GUnit Target, bool IsAmbush)
         {
             #region pull
-            Context.Log("KillTarget invoked");
+            Log("KillTarget invoked");
 
 
             if (LookForOwner(Target))
@@ -135,20 +135,20 @@ namespace Glider.Common.Objects
 
                 if (LowManaScream && PsychicScream.IsReady && Me.Mana < LowManaScreamAt && Monster.DistanceToSelf < 8 && Monster.Health > .18)
                 {
-                    Context.Log("Low on mana, screaming!");
+                    Log("Low on mana, screaming!");
                     Context.CastSpell("DP.PsychicScream");
                     PsychicScream.Reset();
                 }
                 if (PanicScream && Me.Health <= PanicHealth) //This is bad! Panic situation!
                 {
-                    Context.Log("Low hp, panic screaming");
+                    Log("Low hp, panic screaming");
                     PanicHeal(Target);
                     continue;
                 }
 
                 if (Target.DistanceToSelf > Context.MeleeDistance && IsClose && HandleRunners != "Nothing")
                 {
-                    Context.Log("We got a runner, dealing with it");
+                    Log("We got a runner, dealing with it");
                     IsClose = false;
                     switch (HandleRunners)
                     {
@@ -180,7 +180,7 @@ namespace Glider.Common.Objects
                             StartWand(Target);
                             break;
                         default:
-                            Context.Log("Unknown chase spell: " + HandleRunners);
+                            Log("Unknown chase spell: " + HandleRunners);
                             break;
                     }
                     continue;
@@ -303,7 +303,7 @@ namespace Glider.Common.Objects
                 {
                     if (UseManaBurn && Target.Mana >= ManaBurnPercent)
                     {
-                        Context.Log("Target got mana, casting Mana Burn");
+                        Log("Target got mana, casting Mana Burn");
                         CastSpell("DP.ManaBurn");
                         MindBlast.Reset();
                     }
@@ -323,13 +323,13 @@ namespace Glider.Common.Objects
 
                     if (Add == null)
                     {
-                        Context.Log(DateTime.Now.ToString() + ": " + "! Could not find add after combat, id = " + AddedGUID.ToString("x"));
+                        Log(DateTime.Now.ToString() + ": " + "! Could not find add after combat, id = " + AddedGUID.ToString("x"));
                         return GCombatResult.Success;
                     }
 
                     if (!Add.SetAsTarget(false))
                     {
-                        Context.Log(DateTime.Now.ToString() + ": " + "! Could not target add after combat, name = \"" + Add.Name + "\", id = " + Add.GUID.ToString("x"));
+                        Log(DateTime.Now.ToString() + ": " + "! Could not target add after combat, name = \"" + Add.Name + "\", id = " + Add.GUID.ToString("x"));
                         return GCombatResult.Success;
                     }
 

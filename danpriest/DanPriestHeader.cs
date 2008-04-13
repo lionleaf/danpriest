@@ -1,4 +1,4 @@
-#define PPath
+#define PPather
 #define usingNamespaces
 #if PPather
 //!Reference: PPather.dll
