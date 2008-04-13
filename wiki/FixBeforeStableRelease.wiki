@@ -8,7 +8,7 @@ Version 1.2 will soon be released, and is supposed to be the stable version to f
 = List =
 
 *Bold* means important. _italic_ means not so important
-  * *OOM checks!*
+  * *OOM checks!*   //Use IsKeyEnabled ??
   * *GSpellTimer for SW: P, to prevent double-cast*
   * *Simple-healing*
   * Fix our super awesome healing-algorithm
