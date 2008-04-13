@@ -16,4 +16,9 @@ Version 1.2 will soon be released, and is supposed to be the stable version to f
   * More Log()
   * _Random cast sequence_
   * _Handle mutliple adds_
+  * *When done with add, must kill the next one insta, no pausing!*
+  *
+  *
+  *
+  *
   * More to come
