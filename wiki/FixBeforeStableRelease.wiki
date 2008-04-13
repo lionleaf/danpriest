@@ -1,0 +1,18 @@
+#summary This is list of the things that has to be done before I can release the stable version.
+
+= Introduction =
+
+Version 1.2 will soon be released, and is supposed to be the stable version to fall back on if something fails. So, this is a list of stuff that has to be fixed before I can release it. Feel free to comment.
+
+
+= List =
+
+*Bold* means important 
+  * *OOM checks!*
+  * *GSpellTimer for SW: P, to prevent double-cast*
+  * More to come
+  *
+  *
+  *
+  *
+  *
