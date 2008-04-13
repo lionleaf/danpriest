@@ -7,8 +7,8 @@ This is a list of ideas / changes / fixes in all sizes which we might implement 
 = Details =
 
   * Check whether activated keys is populated
+  * Check for silence
   * 
-  *
   *
   *
   *
