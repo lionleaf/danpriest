@@ -1,0 +1,790 @@
+<?xml version="1.0"?>
+<GConfig>
+
+  
+  <config>
+    <height>570</height>
+    <width>640</width>
+    <colwidth>300</colwidth>
+  </config>
+
+  <tab>
+    <label>General</label>
+
+    <input>
+      <label>Don't cast offensive spells under target hp %</label>
+      <target>DanPriest.LowestHpToCast</target>
+    </input>
+
+    <input>
+      <label>Don't cast offensive spells under mana %</label>
+      <target>DanPriest.MinManaToCast</target>
+    </input>
+
+    <group>
+    <label>Pull</label>
+
+    <input>
+      <label>Pull distance</label>
+      <target>DanPriest.PullDistance</target>
+    </input>
+
+    <combobox>
+      <label>Pull spell #1</label>
+      <target>DanPriest.Spell1</target>
+      <options>
+        <option>None</option>
+        <option>Mind Blast</option>
+        <option>Mind Flay</option>
+        <option>Shadow Word: Pain</option>
+        <option>Vampiric Touch</option>
+        <option>Vampiric Embrace</option>
+        <option>Item 1</option>
+        <option>Item 2</option>
+        <option>Devouring Plague</option>
+	<option>Holy Fire</option>
+	<option>Smite</option>
+      </options>
+
+    </combobox>
+
+    <combobox>
+      <label>Pull spell #2</label>
+      <target>DanPriest.Spell2</target>
+      <options>
+        <option>None</option>
+        <option>Mind Blast</option>
+        <option>Mind Flay</option>
+        <option>Shadow Word: Pain</option>
+        <option>Vampiric Touch</option>
+        <option>Vampiric Embrace</option>
+        <option>Item 1</option>
+        <option>Item 2</option>
+        <option>Devouring Plague</option>
+	<option>Holy Fire</option>
+	<option>Smite</option>
+      </options>
+
+    </combobox>
+
+    <combobox>
+      <label>Pull spell #3</label>
+      <target>DanPriest.Spell3</target>
+      <options>
+        <option>None</option>
+        <option>Mind Blast</option>
+        <option>Mind Flay</option>
+        <option>Shadow Word: Pain</option>
+        <option>Vampiric Touch</option>
+        <option>Vampiric Embrace</option>
+        <option>Item 1</option>
+        <option>Item 2</option>
+        <option>Devouring Plague</option>
+	<option>Holy Fire</option>
+	<option>Smite</option>
+      </options>
+
+    </combobox>
+
+    <combobox>
+      <label>Pull spell #4</label>
+      <target>DanPriest.Spell4</target>
+      <options>
+        <option>None</option>
+        <option>Mind Blast</option>
+        <option>Mind Flay</option>
+        <option>Shadow Word: Pain</option>
+        <option>Vampiric Touch</option>
+        <option>Vampiric Embrace</option>
+        <option>Item 1</option>
+        <option>Item 2</option>
+        <option>Devouring Plague</option>
+	<option>Holy Fire</option>
+	<option>Smite</option>
+      </options>
+
+    </combobox>
+
+    <combobox>
+      <label>Pull spell #5</label>
+      <target>DanPriest.Spell5</target>
+      <options>
+        <option>None</option>
+        <option>Mind Blast</option>
+        <option>Mind Flay</option>
+        <option>Shadow Word: Pain</option>
+        <option>Vampiric Touch</option>
+        <option>Vampiric Embrace</option>
+        <option>Item 1</option>
+        <option>Item 2</option>
+        <option>Devouring Plague</option>
+	<option>Holy Fire</option>
+	<option>Smite</option>
+      </options>
+
+    </combobox>
+
+    <combobox>
+      <label>Pull spell #6</label>
+      <target>DanPriest.Spell6</target>
+      <options>
+        <option>None</option>
+        <option>Mind Blast</option>
+        <option>Mind Flay</option>
+        <option>Shadow Word: Pain</option>
+        <option>Vampiric Touch</option>
+        <option>Vampiric Embrace</option>
+        <option>Item 1</option>
+        <option>Item 2</option>
+        <option>Devouring Plague</option>
+	<option>Holy Fire</option>
+	<option>Smite</option>
+      </options>
+
+    </combobox>
+
+    <combobox>
+      <label>Pull spell #7</label>
+      <target>DanPriest.Spell7</target>
+      <options>
+        <option>None</option>
+        <option>Mind Blast</option>
+        <option>Mind Flay</option>
+        <option>Shadow Word: Pain</option>
+        <option>Vampiric Touch</option>
+        <option>Vampiric Embrace</option>
+        <option>Item 1</option>
+        <option>Item 2</option>
+        <option>Devouring Plague</option>
+	<option>Holy Fire</option>
+	<option>Smite</option>
+      </options>
+
+    </combobox>
+
+    <input>
+      <label>Item 1 cooldown</label>
+      <target>DanPriest.Trinket1</target>
+
+    </input>
+
+    <input>
+      <label>Item 2 cooldown</label>
+      <target>DanPriest.Trinket2</target>
+
+    </input>
+
+    </group>
+
+    <group>
+    <label>Mind Flay</label>
+
+    <input>
+      <label>Mind Flay range</label>
+      <target>DanPriest.MindFlayRange</target>
+
+    </input>    
+
+    <combobox>
+      <label>Extra Mind Flays</label>
+      <target>DanPriest.MindFlayMultiplier</target>
+      <options>
+        <option>0</option>
+        <option>1</option>
+        <option>2</option>
+        <option>3</option>
+        <option>4</option>
+        <option>5</option>
+        <option>6</option>
+        <option>7</option>
+        <option>8</option>
+        <option>9</option>
+        <option>10</option>
+        <option>100</option>
+      </options>
+    </combobox>
+
+    <checkbox>
+      <label>Use Mind Flay even if I got no shield</label>
+      <target>DanPriest.FlayWithoutShield</target>
+    </checkbox>
+
+    <checkbox>
+      <label>Cast Mind Flay in close combat</label>
+      <target>DanPriest.MeleeFlay</target>
+    </checkbox>
+
+    </group>
+
+    <group>
+    <label>Mind Blast</label>
+
+    <checkbox>
+      <label>Spam Mind Blast</label>
+      <target>DanPriest.UseMindBlast</target>
+    </checkbox>
+
+    <input>
+      <label>Spam Mind Blast every: (sec)</label>
+      <target>DanPriest.MBlast</target>
+
+    </input>
+
+    <input>
+      <label>Don't cast Mind Blast under target hp %</label>
+      <target>DanPriest.MindBlastLowestHealth</target>
+
+    </input>
+
+    </group>
+
+    <group>
+    <label>Recast</label>
+
+    <checkbox>
+      <label>Shadow Word: Pain</label>
+      <target>DanPriest.UseSWPain</target>
+    </checkbox>
+
+    <checkbox>
+      <label>Vampiric Touch</label>
+      <target>DanPriest.UseVampiricTouch</target>
+
+    </checkbox>
+
+    <checkbox>
+      <label>Vampiric Embrace</label>
+      <target>DanPriest.UseVampiricEmbrace</target>
+
+    </checkbox>
+
+    </group>
+
+    <group>
+    <label>Use</label>
+
+    <checkbox>
+      <label>Wand</label>
+      <target>DanPriest.UseWand</target>
+    </checkbox>
+
+    <checkbox>
+      <label>Mana Burn instead of Mind Blast if target has mana</label>
+      <target>DanPriest.UseManaBurn</target>
+
+    </checkbox>
+
+    <checkbox>
+      <label>SW: Death</label>
+      <target>DanPriest.UseSWDeath</target>
+
+    </checkbox>
+
+    <checkbox>
+      <label>Shadowfiend</label>
+      <target>DanPriest.UseShadowfiend</target>
+
+    </checkbox>
+
+    <checkbox>
+      <label>Inner Focus</label>
+      <target>DanPriest.UseInnerFocus</target>
+
+    </checkbox>
+
+    <checkbox>
+      <label>Silence</label>
+      <target>DanPriest.UseSilence</target>
+
+    </checkbox>
+
+    </group>
+
+    <group>
+    <label>Variables</label>
+
+    <input>
+      <label>Mana Burn min mana (target)</label>
+      <target>DanPriest.ManaBurnPercent</target>
+    </input>
+
+    <input>
+      <label>SW: Death Percent</label>
+      <target>DanPriest.SWDeathAtPercent</target>
+
+    </input>
+
+    <input>
+      <label>Shadowfiend mana percentage</label>
+      <target>DanPriest.ShadowfiendAtPercent</target>
+
+    </input>
+
+    <checkbox>
+      <label>Cast Silence eventhough wand is active</label>
+      <target>DanPriest.DropWandToSilence</target>
+
+    </checkbox>
+
+    </group>
+
+    <group>
+    <label>Other</label>
+
+    <checkbox>
+      <label>Toggle melee between spells</label>
+      <target>DanPriest.UseMelee</target>
+    </checkbox>
+
+    <combobox>
+      <label>What to do with runners?</label>
+      <target>DanPriest.HandleRunners</target>
+      <options>
+        <option>Nothing</option>
+        <option>Mind Blast</option>
+        <option>Mind Flay</option>
+        <option>Shadow Word: Death</option>
+        <option>Smite</option>
+        <option>Holy Fire</option>
+        <option>Melee-chase</option>
+        <option>Wand</option>
+      </options>
+    </combobox>
+
+    </group>
+
+  </tab>
+<!--/////////////////////////////////////////////////////////////////////////////////////////////
+	End of General tab
+
+	Start of Survival and Buffs tab
+/////////////////////////////////////////////////////////////////////////////////////////////-->
+  <tab>
+    <label>Survival and Buffs</label>
+
+    <group>
+    <label>Use</label>
+
+    <checkbox>
+      <label>Shadowform</label>
+      <target>DanPriest.UseShadowform</target>
+
+    </checkbox>
+
+    <checkbox>
+      <label>PW: Fortitude</label>
+      <target>DanPriest.UseFort</target>
+
+    </checkbox>
+
+    <checkbox>
+      <label>Inner Fire</label>
+      <target>DanPriest.UseInnerFire</target>
+
+    </checkbox>
+
+
+    <checkbox>
+      <label>Shadow Protection</label>
+      <target>DanPriest.ShadowProtection</target>
+
+    </checkbox>
+
+    <checkbox>
+      <label>Renew (will not drop Shadowform)</label>
+      <target>DanPriest.UseRenew</target>
+
+    </checkbox>
+
+    </group>
+
+<!--
+    <checkbox>
+      <label>Fear Ward</label>
+      <target>DanPriest.UseFearWard</target>
+
+    </checkbox>
+-->
+
+    <group>
+    <label>Shield</label>
+    <checkbox>
+      <label>PW: Shield</label>
+      <target>DanPriest.UsePWShield</target>
+
+    </checkbox>
+
+    <checkbox>
+      <label>Recast Shield</label>
+      <target>DanPriest.RecastShield</target>
+
+    </checkbox>
+
+    <input>
+      <label>Do not cast shield if target hp is below:</label>
+      <target>DanPriest.MinHPShieldRecast</target>
+
+    </input>
+
+    </group>
+
+
+    <group>
+    <label>Emergencies</label>
+
+    <checkbox>
+      <label>Psychic Scream Heal combo</label>
+      <target>DanPriest.PanicScream</target>
+
+    </checkbox>
+
+    <input>
+      <label>Use Psychic Scream at health %</label>
+      <target>DanPriest.PanicHealth</target>
+
+    </input>
+
+    <checkbox>
+      <label>Bandage if in shadowform when Panic Screaming</label>
+      <target>DanPriest.UseBandage</target>
+
+    </checkbox>
+
+    <checkbox>
+      <label>Low Mana Scream</label>
+      <target>DanPriest.LowManaScream</target>
+
+    </checkbox>
+
+    <input>
+      <label>Low Mana Scream at (% mana)</label>
+      <target>DanPriest.LowManaScreamAt</target>
+
+    </input>
+
+    <checkbox>
+      <label>Use Restheal in combat (only with new PW:shield)</label>
+      <target>DanPriest.RestHealInCombat</target>
+
+    </checkbox>
+
+    </group>
+
+<!--
+    <checkbox>
+      <label>Buff friendly players passing by</label>
+      <target>DanPriest.FriendBuffing</target>
+
+    </checkbox>
+-->
+
+  </tab>
+  <!--/////////////////////////////////////////////////////////////////////////////////////////////
+	End of Survival and Buffs tab
+
+	Start of Adds and Special Features tab
+///////////////////////////////////////////////////////////////////////////////////////////// -->
+  <tab>
+    <label>Adds and Special Features</label>
+
+    <group>
+    <label>Adds</label>
+
+    <checkbox>
+      <label>Avoid adds</label>
+      <target>DanPriest.AvoidAdds</target>
+
+    </checkbox>
+
+    <input>
+      <label>Avoid add distance</label>
+      <target>DanPriest.AvoidAddDistance</target>
+
+    </input>
+
+    <input>
+      <label>Psychic Scream cooldown(sec)</label>
+      <target>DanPriest.PsScream</target>
+
+    </input>
+
+    <checkbox>
+      <label>Psychic Scream adds before castsequence</label>
+      <target>DanPriest.UsePsychicScream</target>
+
+    </checkbox>
+
+
+    <checkbox>
+      <label>Handle adds</label>
+      <target>DanPriest.HandleAdd</target>
+
+    </checkbox>
+
+    <combobox>
+      <label>Add spell #1</label>
+      <target>DanPriest.Add1</target>
+      <options>
+        <option>None</option>
+        <option>Mind Blast</option>
+        <option>Mind Flay</option>
+        <option>Shadow Word: Pain</option>
+        <option>Devouring Plague</option>
+        <option>Psychic Scream</option>
+        <option>Vampiric Touch</option>
+        <option>Vampiric Embrace</option>
+        <option>Item 1</option>
+        <option>Item 2</option>
+      </options>
+
+    </combobox>
+
+    <combobox>
+      <label>Add spell #2</label>
+      <target>DanPriest.Add2</target>
+      <options>
+        <option>None</option>
+        <option>Mind Blast</option>
+        <option>Mind Flay</option>
+        <option>Shadow Word: Pain</option>
+        <option>Devouring Plague</option>
+        <option>Psychic Scream</option>
+        <option>Vampiric Touch</option>
+        <option>Vampiric Embrace</option>
+        <option>Item 1</option>
+        <option>Item 2</option>
+      </options>
+
+    </combobox>
+
+    <combobox>
+      <label>Add spell #3</label>
+      <target>DanPriest.Add3</target>
+      <options>
+        <option>None</option>
+        <option>Mind Blast</option>
+        <option>Mind Flay</option>
+        <option>Shadow Word: Pain</option>
+        <option>Devouring Plague</option>
+        <option>Psychic Scream</option>
+        <option>Vampiric Touch</option>
+        <option>Vampiric Embrace</option>
+        <option>Item 1</option>
+        <option>Item 2</option>
+      </options>
+
+    </combobox>
+
+    <combobox>
+      <label>Add spell #4</label>
+      <target>DanPriest.Add4</target>
+      <options>
+        <option>None</option>
+        <option>Mind Blast</option>
+        <option>Mind Flay</option>
+        <option>Shadow Word: Pain</option>
+        <option>Devouring Plague</option>
+        <option>Psychic Scream</option>
+        <option>Vampiric Touch</option>
+        <option>Vampiric Embrace</option>
+        <option>Item 1</option>
+        <option>Item 2</option>
+      </options>
+
+    </combobox>
+
+    <combobox>
+      <label>Add spell #5</label>
+      <target>DanPriest.Add5</target>
+      <options>
+        <option>None</option>
+        <option>Mind Blast</option>
+        <option>Mind Flay</option>
+        <option>Shadow Word: Pain</option>
+        <option>Devouring Plague</option>
+        <option>Psychic Scream</option>
+        <option>Vampiric Touch</option>
+        <option>Vampiric Embrace</option>
+        <option>Item 1</option>
+        <option>Item 2</option>
+      </options>
+
+    </combobox>
+
+    <combobox>
+      <label>Add spell #6</label>
+      <target>DanPriest.Add6</target>
+      <options>
+        <option>None</option>
+        <option>Mind Blast</option>
+        <option>Mind Flay</option>
+        <option>Shadow Word: Pain</option>
+        <option>Devouring Plague</option>
+        <option>Psychic Scream</option>
+        <option>Vampiric Touch</option>
+        <option>Vampiric Embrace</option>
+        <option>Item 1</option>
+        <option>Item 2</option>
+      </options>
+
+    </combobox>
+
+    <combobox>
+      <label>Add spell #7</label>
+      <target>DanPriest.Add7</target>
+      <options>
+        <option>None</option>
+        <option>Mind Blast</option>
+        <option>Mind Flay</option>
+        <option>Shadow Word: Pain</option>
+        <option>Devouring Plague</option>
+        <option>Psychic Scream</option>
+        <option>Vampiric Touch</option>
+        <option>Vampiric Embrace</option>
+        <option>Item 1</option>
+        <option>Item 2</option>
+      </options>
+
+    </combobox>
+
+    </group>
+
+
+    <group>
+    <label>Use</label>
+
+    <checkbox>
+      <label>Cure Disease (will drop shadowform)</label>
+      <target>DanPriest.CureDisease</target>
+    </checkbox>
+<!--   
+ <checkbox>
+      <label>Dispel Magic (will drop shadowform)</label>
+      <target>DanPriest.UseDispel</target>
+    </checkbox>
+-->
+
+    <combobox>
+      <label>Racial ability #1</label>
+      <target>DanPriest.Racial1</target>
+      <options>
+        <option>None</option>
+        <option>Fear Ward</option>
+        <option>Desperate Prayer</option>
+        <option>Shadowguard</option>
+        <option>Touch of Weakness</option>
+        <option>Devouring Plague</option>
+        <option>Will of the Forsaken</option>
+      </options>
+
+    </combobox>
+
+    <combobox>
+      <label>Racial ability #2</label>
+      <target>DanPriest.Racial2</target>
+      <options>
+        <option>None</option>
+        <option>Fear Ward</option>
+        <option>Desperate Prayer</option>
+        <option>Shadowguard</option>
+        <option>Touch of Weakness</option>
+        <option>Devouring Plague</option>
+        <option>Will of the Forsaken</option>
+      </options>
+
+    </combobox>
+
+    <combobox>
+      <label>Racial ability #3</label>
+      <target>DanPriest.Racial3</target>
+      <options>
+        <option>None</option>
+        <option>Fear Ward</option>
+        <option>Desperate Prayer</option>
+        <option>Shadowguard</option>
+        <option>Touch of Weakness</option>
+        <option>Devouring Plague</option>
+        <option>Will of the Forsaken</option>
+      </options>
+
+    </combobox>
+
+    </group>
+
+    <checkbox>
+      <label>Mount</label>
+      <target>DanPriest.Mount</target>
+
+    </checkbox>
+
+    <input>
+      <label>Don't mount if enemy closer than (yards)</label>
+      <target>DanPriest.MountDistance</target>
+
+    </input>
+
+    
+  </tab>
+  <!--/////////////////////////////////////////////////////////////////////////////////////////////
+	End of Adds and Special Features tab
+
+	Start of PvP tab
+///////////////////////////////////////////////////////////////////////////////////////////// -->
+
+  <tab>
+    <label>PvP</label>
+
+    <checkbox>
+      <label>Use Mind Flay in PvP</label>
+      <target>DanPriest.UseMindFlay</target>
+
+    </checkbox>
+
+    <checkbox>
+      <label>Active PvP</label>
+      <target>DanPriest.ActivePvP</target>
+
+    </checkbox>
+    
+    <input>
+      <label>Give up if target is x yards away</label>
+      <target>DanPriest.PvPRange</target>
+    </input>
+    
+  </tab>
+  <!--/////////////////////////////////////////////////////////////////////////////////////////////
+	End of PvP tab
+
+	Start of Advanced tab
+///////////////////////////////////////////////////////////////////////////////////////////// -->
+  <tab>
+    <label>Advanced</label>
+    <input>
+      <label>Sleep after spell is ready (ms) (increase if you have gcd problems)</label>
+      <target>DanPriest.SleepAfterReady</target>
+
+    </input>
+
+    <input>
+      <label>Sleep before interface check (ms) (Should probably be left alone...)</label>
+      <target>DanPriest.SleepBeforeCheck</target>
+
+    </input>
+
+    <checkbox>
+      <label>Show variables (For debugging)</label>
+      <target>DanPriest.ShowVariables</target>
+
+    </checkbox>
+
+<!--
+    <checkbox>
+      <label>Show combatinfo in glider-window</label>
+      <target>DanPriest.Debug</target>
+
+    </checkbox>
+-->
+
+  </tab>
+
+</GConfig>
