@@ -217,7 +217,8 @@ namespace Glider.Common.Objects
             if (healIndex == 20)
                 healIndex = 0;
 
-            myHealthHistory[healIndex++] = Me.Health;
+                myHealthHistory[healIndex++] = Me.Health;
+                
         }
 
         public double calculateMyMTD()
@@ -237,11 +238,13 @@ namespace Glider.Common.Objects
                 {
                     if (myHealthHistory[j] != 0)
                     {
-                        totalSlope += myHealthHistory[j];
-                        count++;
+                        if (j != 0)
+                            totalSlope += (myHealthHistory[j]-myHealthHistory[j-1]);
                     }
                     else
                         break;
+
+                    count++;
                 }
                 avgSlope = totalSlope / count;
 
@@ -286,8 +289,10 @@ namespace Glider.Common.Objects
 
                     myCalcMTD[i]=Math.Ceiling((double)(0 - b) / avgSlope); // we have an approximation of death
 
-                    Log("Calculated MTD: " + myCalcMTD[i]);
                     Log("Average Slope: " + avgSlope + "y-axis" + b);
+                    Log("Calculated MTD: " + myCalcMTD[i]);
+
+                    
                     return (myCalcMTD[i]);
                 }
             }
@@ -320,12 +325,11 @@ namespace Glider.Common.Objects
                      CastSpell("DP.PsychicScream");
                      PsychicScream.Reset();
                 }
-                    if (Target.IsPlayer && isCaster((GPlayer)Target) && Silence.IsReady)
-                    {
-                        CastSpell("DP.Silence");
-                        Silence.Reset();
-                    }
-
+                if (isCaster((GPlayer)Target) && Silence.IsReady)
+                {
+                    CastSpell("DP.Silence");
+                    Silence.Reset();
+                }
 
                 CheckPWShield();
 
@@ -341,11 +345,6 @@ namespace Glider.Common.Objects
                 {
                     CastSpell("DP.FlashHeal");
                     FlashHeal.Reset();
-                }
-                else if (LesserHeal.IsReady)
-                {
-                    CastSpell("DP.LesserHeal");
-                    LesserHeal.Reset();
                 }
 
                 // Always slap on a renew.. if we're being hit hard we'll hopefully be back in this section again soon
@@ -364,9 +363,9 @@ namespace Glider.Common.Objects
                 }
 
                 // Finish off w/ a greater heal?? May need to be removed
-                if (GreaterHeal.IsReady)
+                if (RestHeal.IsReady)
                 {
-                    CastSpell("DP.GreaterHeal");
+                    CastSpell("DP.RestHeal");
                     FlashHeal.Reset();
                 }
 
@@ -393,10 +392,10 @@ namespace Glider.Common.Objects
                     //If we can't fear/silence, then it's time to switch strategies to more panicky
                     CheckPWShield();
 
-                    if (GreaterHeal.IsReady)
+                    if (RestHeal.IsReady)
                     {
-                        CastSpell("DP.GreaterHeal");
-                        GreaterHeal.Reset();
+                        CastSpell("DP.RestHeal");
+                        RestHeal.Reset();
                     }
 
                     // Always slap on a renew..
@@ -412,10 +411,10 @@ namespace Glider.Common.Objects
                 // We have successfully feared/or silenced our attacker save the shield for panic
 
 
-                 if (GreaterHeal.IsReady)
+                 if (RestHeal.IsReady)
                  {
-                    CastSpell("DP.GreaterHeal");
-                    GreaterHeal.Reset();
+                    CastSpell("DP.RestHeal");
+                    RestHeal.Reset();
                  }
 
 

@@ -91,8 +91,9 @@ namespace Glider.Common.Objects
             // Start the healing process hehe
             HealingLogTimer.Reset();
             count = 1;
-            for (int i = 0; i < 5; i++) myCalcMTD[i] = 0;
-            for (int i = 0; i < 20; i++) myHealthHistory[i] = 0;
+            for(int i=0; i < 5; i++) myCalcMTD[i]=0;
+            for(int i=0; i < 20; i++) myHealthHistory[i]=0;
+
             while (true)
             {
                 if (HealingLogTimer.IsReady)
