@@ -37,7 +37,8 @@ namespace Glider.Common.Objects
         long AddedGUID;
         bool UseFort = true;                        //Toggle whether to use Fort for a buff
         bool SkipLoot;
-        public int count = 0;
+        public int healTCount = 0;
+        public int oldHealTCount = 0;
         public double[] myCalcMTD = new double[5];
         //Leave this next one as they are set.
         #endregion
@@ -1335,7 +1336,7 @@ namespace Glider.Common.Objects
             {
                 double savedHealth = myHealthHistory[18];
                 double savedHealth2 = myHealthHistory[19];
- 
+
                 for (int i = 0; i < 20; i++) myHealthHistory[i] = 0;
 
                 healIndex = 0;
@@ -1362,6 +1363,7 @@ namespace Glider.Common.Objects
                         count = 1;
                 double  b = myHealthHistory[0];
                 int j = 0;
+
 
                 for (j = 0; j < 20; j++)
                 {
@@ -1409,20 +1411,34 @@ namespace Glider.Common.Objects
                         nonSeriousMTD++;
                     }
 
-                    if (moderateCount > 2) // same as above  but w/ 3 in mode
+                    if (moderateCount > 2 && moderateMTD < nonSeriousMTD - 1) // same as above  but w/ 3 in mode
                         nonSeriousMTD++;   // start healing small heal (renew) sooner
 
-                    if (nonSeriousCount > 3 && nonSeriousMTD > moderateMTD+1) // if we're constantly in nonserious (4 of 5 heals) we're healing too often
+                    if (nonSeriousCount > 4 && nonSeriousMTD > moderateMTD+1 && myCalcMTD[i] < (nonSeriousMTD*2)) // if we're constantly in nonserious (4 of 5 heals) we're healing too often
                         nonSeriousMTD--;
 
 
                     myCalcMTD[i]=Math.Ceiling((double)(0 - b) / avgSlope); // we have an approximation of death
 
-                    Log("Average Slope: " + avgSlope + "y-axis: " + b);
-                    Log("Calculated MTD: " + myCalcMTD[i]);
-                    Log("nonSeriousMTD: " + nonSeriousMTD + "moderateMTD: " + moderateMTD);
-                    Log("Health: " + Me.Health);
+                    if (healTCount != oldHealTCount)
+                    {
+                        Log("Average Slope: " + avgSlope + "y-axis: " + b);
+                        Log("Calculated MTD: " + myCalcMTD[i]);
+                        Log("nonSeriousMTD: " + nonSeriousMTD + "moderateMTD: " + moderateMTD);
+                        Log("Health: " + Me.Health);
+                    }
 
+                    /* Something fishy happened full reset */
+                    if (myCalcMTD[i] <= 0)
+                    {
+                        for (int k = 0; k < 20; k++) myHealthHistory[k] = 0;
+                        for (int k = 0; k < 4; k++) myCalcMTD[k] = 0;
+
+                        HealingLogTimer.Reset();
+                        healTCount = 1;
+                        healIndex = 0;
+                    }
+                        
                     
                     return (myCalcMTD[i]);
                 }
@@ -1441,14 +1457,19 @@ namespace Glider.Common.Objects
 
             double myMTD=0;
 
+            Target.Refresh();
+            Me.Refresh();
+
             // Have any history to work with?
             // Do we even need to be healed?
-            if ((myMTD = calculateMyMTD()) == 0)
+            myMTD = calculateMyMTD();
+            if (myMTD == 0)
+                myMTD = 1000; // extraordinarily high for the purposeof using the health checks
+
+                /*
                 return CheckHealthCombat(Target); // No history we'll have to work w/ standard algorithms
-
-            Target.Refresh();
-
-            if (myMTD < panicMTD ) // Oh noes, shield and flash heal we are certainly dead (recommended 3-5)
+                */
+            if (myMTD < panicMTD || Me.Health < .20) // Oh noes, shield and flash heal we are certainly dead (recommended 3-5)
             {
 
                 // Do a fear if possible we need to run and fear at this point we HAVE to stop them from attacking
@@ -1464,6 +1485,14 @@ namespace Glider.Common.Objects
                 }
 
                 CheckPWShield();
+                
+                if ( (!HasBuff("WEAKENEDSOUL") && !IsKeyEnabled("DP.Shield")) && (Me.Mana < .15 && 
+                        Potion.IsReady && Interface.GetActionInventory("DP.ManaPot") > 0))
+                {
+                    CastSpell("DP.ManaPot");
+                    Potion.Reset();
+                    CheckPWShield();
+                }
 
 /*
                 if (Trinket1.utility == "Heal" && Trinket1.timer.IsReady)
@@ -1486,7 +1515,6 @@ namespace Glider.Common.Objects
                     Renew.Reset();
                 }
                 // If all else fails and we're still close.. use that Pot priest, use that pot
-                Target.Refresh();
                 if(Me.Health < .25 && Potion.IsReady && Interface.GetActionInventory("DP.Potion") > 0)
                 {
 
@@ -1514,7 +1542,7 @@ namespace Glider.Common.Objects
                     CastSpell("DP.PsychicScream");
                     PsychicScream.Reset();
                 }
-                else if (isCaster((GPlayer)Target) && Silence.IsReady)
+                else if (isCaster(Target) && Silence.IsReady)
                 {
                     CastSpell("DP.Silence");
                     Silence.Reset();
@@ -1524,7 +1552,7 @@ namespace Glider.Common.Objects
                     //If we can't fear/silence, then it's time to switch strategies to more panicky
                     CheckPWShield();
 
-                    if (RestHeal.IsReady && Target.Health > .5 && IsKeyEnabled("DP.RestHeal"))
+                    if (RestHeal.IsReady && Me.Health < .5 && IsKeyEnabled("DP.RestHeal"))
                     {
                         CastSpell("DP.RestHeal");
                         RestHeal.Reset();
@@ -1544,11 +1572,16 @@ namespace Glider.Common.Objects
                 // and only do a big ole heal if we're low on health
 
 
-                 if (RestHeal.IsReady && Target.Health < .5 && IsKeyEnabled("DP.RestHeal"))
+                 if (RestHeal.IsReady && Me.Health < .5 && IsKeyEnabled("DP.RestHeal"))
                  {
                     CastSpell("DP.RestHeal");
                     RestHeal.Reset();
                  }
+                 else if(FlashHeal.IsReady && IsKeyEnabled("DP.FlashHeal"))
+                {
+                    CastSpell("DP.FlashHeal");
+                    Renew.Reset();
+                }
 
 
                 // Always slap on a renew.. if ready
@@ -1568,11 +1601,27 @@ namespace Glider.Common.Objects
                     CastSpell("DP.Renew");
                     Renew.Reset();
                 }
+
+                if (FlashHeal.IsReady && IsKeyEnabled("DP.FlashHeal"))
+                {
+                    CastSpell("DP.FlashHeal");
+                    Renew.Reset();
+                }
+
+
+                return true;
+            }
+            else if (Me.Health < .85 && !IsShadowform())
+            {
+                if (Renew.IsReady && IsKeyEnabled("DP.Renew"))
+                {
+                    CastSpell("DP.Renew");
+                    Renew.Reset();
+                }
                 return true;
             }
 
             // We have a super high MTD and are not imminently going to die.
-
 
 
             return false;
@@ -2191,8 +2240,6 @@ namespace Glider.Common.Objects
 
         void StartWand(GUnit Target)
         {
-
-            Target.Approach(30);
             Target.Face();
             if (!Interface.IsKeyFiring("DP.Wand"))
             {
@@ -2593,12 +2640,14 @@ namespace Glider.Common.Objects
                 }
             }
 
+            /*
             // Before anything, see if we should throw on a quick renew:
             if (Me.Health < .8 && Renew.IsReady && !IsShadowform())
             {
                 Context.CastSpell("Priest.Renew");
                 Renew.Reset();
             }
+            */
 
             StartLife = Me.Health;  // Remember this, just in case.
 
@@ -2608,7 +2657,7 @@ namespace Glider.Common.Objects
             #region Combat loop
             // Start the healing process hehe
             HealingLogTimer.Reset();
-            count = 1;
+            healTCount = 1;
             for(int i=0; i < 5; i++) myCalcMTD[i]=0;
             for(int i=0; i < 20; i++) myHealthHistory[i]=0;
 
@@ -2617,12 +2666,13 @@ namespace Glider.Common.Objects
                 if (HealingLogTimer.IsReady)
                 {
                     HealingLogTimer.Reset();
-                    count = 1;
+                    healTCount = 1;
                 }
-                else if (HealingLogTimer.TicksSinceLastReset > (500 * count))   //Got error "Operator '>' cannot be applied to operands of type 'GSpellTimer' and 'int'" So, my guess is that .TicksLeft will be correct
+                else if (HealingLogTimer.TicksSinceLastReset > (1000 * healTCount))   //Got error "Operator '>' cannot be applied to operands of type 'GSpellTimer' and 'int'" So, my guess is that .TicksLeft will be correct
                 {                                                               // It was TicksSinceLastReset we're counting up and comparing it to every 500 mark (.5 sec)
                     LogHealth();
-                    count++;
+                    healTCount++;
+
                 }
                 Thread.Sleep(101);
                 #region Important checks

@@ -1122,8 +1122,6 @@ namespace Glider.Common.Objects
 
         void StartWand(GUnit Target)
         {
-
-            Target.Approach(30);
             Target.Face();
             if (!Interface.IsKeyFiring("DP.Wand"))
             {
