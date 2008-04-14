@@ -73,18 +73,22 @@ namespace Glider.Common.Objects
 
         }
 
-        int HasBuff(String[] buff)    // I made an overloaded version for your CC code. Check if it works like you want.
+        // Want to know the index into the debuff array to see if the item is dispellable
+        int HasBuff(String[] buff)
         {
 
 
             Me.Refresh(true);
             GBuff[] Buffs = Me.GetBuffSnapshot();
+            int count = 0;
             foreach (GBuff Buff in Buffs)
             {
                 foreach (string SBuff in buff)
                 {
+                    
                     if (Buff.SpellName.ToLower().Contains(SBuff))
-                        return Buff.SpellID;
+                        return count;
+                    count++;
                 }
             }
             return -1;
@@ -225,8 +229,8 @@ namespace Glider.Common.Objects
 
                 double totalSlope = 0,
                         avgSlope = 0,
-                        count = 0;
-                double  b = friends[0].healthHist[0];
+                        count = 1;
+                double  b = myHealthHistory[0];
                 int j = 0;
 
                 for (j = 0; j < 20; j++)
@@ -243,7 +247,44 @@ namespace Glider.Common.Objects
                 }
                 else
                 {
-                    return (Math.Ceiling((double)(0 - b) / avgSlope)); // we have an approximation of death
+                    int i = 0,
+                        panicCount = 0;
+                        moderateCount = 0;
+                        nonSeriousCount = 0;
+
+                    // Clear contents if array is full
+                    if (myCalcMTD[4] != 0)
+                        for (i = 0; i < 5 && myCalcMTD[i] = 0; i++ );
+
+                    for (i = 0; i < 5 && myCalcMTD[i] != 0; i++)           // find first available area to place value
+                    {
+                        // while we're here we might as well see how often we're in what heal mode
+                        if (myCalcMTD[i] < panicMTD)
+                            panicCount++;
+                        else if (myCalcMTD[i] > nonSeriousMTD)
+                            nonSeriousCount++;
+                        else
+                            moderateCount++;
+                    }
+
+                    if (panicCount > 1) // if the past 5 times that we calculated our heal mode 2 of them were in panic
+                    {
+                        moderateMTD++;  // then we need to enter moderate healing more often
+                        nonSeriousMTD++;
+                    }
+
+                    if (moderateCount > 2) // same as above  but w/ 3 in mode
+                        nonSeriousMTD++;   // start healing small heal (renew) sooner
+
+                    if (nonSeriousCount > 3) // if we're constantly in nonserious (4 of 5 heals) we're healing too often
+                        nonSeriousMTD--;
+
+
+                    myCalcMTD[i]=Math.Ceiling((double)(0 - b) / avgSlope); // we have an approximation of death
+
+                    Log("Calculated MTD: " + myCalcMTD[i]);
+                    
+                    return (myCalcMTD[i]);
                 }
             }
             catch
@@ -270,7 +311,7 @@ namespace Glider.Common.Objects
             {
 
                 // Do a fear if possible we need to run and fear at this point we HAVE to stop them from attacking
-                 if (Target.DistanceToSelf <= Fear_Range && PsychicScream.IsReady)
+                 if (Target.DistanceToSelf <= Fear_Range && PsychicScream.IsReady && UsePsychicScream)
                 {
                      CastSpell("DP.PsychicScream");
                      PsychicScream.Reset();
@@ -308,6 +349,22 @@ namespace Glider.Common.Objects
                     CastSpell("DP.Renew");
                     Renew.Reset();
                 }
+                // If all else fails and we're still close.. use that Pot priest, use that pot
+                Me.Refresh();
+                if(Me.Health < .25 && Potion.IsReady && Interface.GetActionInventory("DP.Potion") > 0)
+                {
+
+                    CastSpell("DP.Potion");
+                    Potion.Reset();
+                }
+
+                // Finish off w/ a greater heal?? May need to be removed
+                if (Greaterheal.IsReady)
+                {
+                    CastSpell("DP.GreaterHeal");
+                    FlashHeal.Reset();
+                }
+
                 return true;
             }
             else if (myMTD < moderateMTD && !IsShadowform())  
