@@ -335,7 +335,7 @@ namespace Glider.Common.Objects
                      CastSpell("DP.PsychicScream");
                      PsychicScream.Reset();
                 }
-                if (isCaster((GPlayer)Target) && Silence.IsReady)
+                if (isCaster(Target) && Silence.IsReady)
                 {
                     CastSpell("DP.Silence");
                     Silence.Reset();
@@ -461,11 +461,14 @@ namespace Glider.Common.Objects
 
         }
  */
-        public bool isCaster(GPlayer Target)
+        public bool isCaster(GUnit Target)
         {
-                    if(Target.PlayerClass.ToString().ToLower() == "mage" ||
-                    Target.PlayerClass.ToString().ToLower() == "warlock" ||
-                    Target.PlayerClass.ToString().ToLower() == "priest")
+            if (!Target.IsPlayer)
+                return false;
+            GPlayer Player = (GPlayer)Target;  //Should be safe now
+                    if(Player.PlayerClass.ToString().ToLower() == "mage" ||
+                    Player.PlayerClass.ToString().ToLower() == "warlock" ||
+                    Player.PlayerClass.ToString().ToLower() == "priest")
                         return true;
             return false;
         }
