@@ -218,7 +218,7 @@ namespace Glider.Common.Objects
             {
                 double savedHealth = myHealthHistory[18];
                 double savedHealth2 = myHealthHistory[19];
- 
+
                 for (int i = 0; i < 20; i++) myHealthHistory[i] = 0;
 
                 healIndex = 0;
@@ -306,6 +306,16 @@ namespace Glider.Common.Objects
                     Log("nonSeriousMTD: " + nonSeriousMTD + "moderateMTD: " + moderateMTD);
                     Log("Health: " + Me.Health);
 
+                    /* Something fishy happened full reset */
+                    if (myCalcMTD[i] < 0)
+                    {
+                        for (int k = 0; k < 20; k++) myHealthHistory[k] = 0;
+                        for (int k = 0; k < 4; k++) myCalcMTD[k] = 0;
+
+                        HealingLogTimer.Reset();
+                        healTCount = 1;
+                    }
+                        
                     
                     return (myCalcMTD[i]);
                 }
@@ -331,7 +341,7 @@ namespace Glider.Common.Objects
 
             Target.Refresh();
 
-            if (myMTD < panicMTD ) // Oh noes, shield and flash heal we are certainly dead (recommended 3-5)
+            if (myMTD < panicMTD || Target.Health < .20) // Oh noes, shield and flash heal we are certainly dead (recommended 3-5)
             {
 
                 // Do a fear if possible we need to run and fear at this point we HAVE to stop them from attacking
