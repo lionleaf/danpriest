@@ -236,8 +236,12 @@ namespace Glider.Common.Objects
                 for (j = 0; j < 20; j++)
                 {
                     if (myHealthHistory[j] != 0)
+                    {
                         totalSlope += myHealthHistory[j];
-                    count++;
+                        count++;
+                    }
+                    else
+                        break;
                 }
                 avgSlope = totalSlope / count;
 
@@ -283,7 +287,7 @@ namespace Glider.Common.Objects
                     myCalcMTD[i]=Math.Ceiling((double)(0 - b) / avgSlope); // we have an approximation of death
 
                     Log("Calculated MTD: " + myCalcMTD[i]);
-                    
+                    Log("Average Slope: " + avgSlope + "y-axis" + b);
                     return (myCalcMTD[i]);
                 }
             }
@@ -316,11 +320,12 @@ namespace Glider.Common.Objects
                      CastSpell("DP.PsychicScream");
                      PsychicScream.Reset();
                 }
-                if (isCaster((GPlayer)Target) && Silence.IsReady)
-                {
-                    CastSpell("DP.Silence");
-                    Silence.Reset();
-                }
+                    if (Target.IsPlayer && isCaster((GPlayer)Target) && Silence.IsReady)
+                    {
+                        CastSpell("DP.Silence");
+                        Silence.Reset();
+                    }
+
 
                 CheckPWShield();
 
