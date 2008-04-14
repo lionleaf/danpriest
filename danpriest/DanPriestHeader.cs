@@ -175,8 +175,7 @@ namespace Glider.Common.Objects
         GSpellTimer ShadowProt = new GSpellTimer(10 * 60 * 1000);
         GSpellTimer RecentFort = new GSpellTimer(30 * 1000); // Received fort within last thirty seconds
         GSpellTimer Heals = new GSpellTimer(10 * 1000); // Prevent heals from stopping combat when low on mana
-        GSpellTimer GreaterHeal = new GSpellTimer(2 * 1000); 
-        GSpellTimer LesserHeal = new GSpellTimer(2 * 1000);
+        GSpellTimer RestHeal = new GSpellTimer(2 * 1000);
         GSpellTimer HealingLogTimer = new GSpellTimer(60 * 1000); 
         GSpellTimer MountTimer = new GSpellTimer(10 * 1000);
 

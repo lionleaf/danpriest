@@ -249,7 +249,9 @@ namespace Glider.Common.Objects
                                     for (j = 0; j < 5; j++)
                                     {
                                         if (friends[i].healthHist[j] != 0)
-                                            totalSlope += friends[i].healthHist[j];
+                                            totalSlope += (friends[i].healthHist[j] - friends[i].healthHist[j-1]);
+                                        else
+                                            break;
                                         count++;
                                         
                                     }
