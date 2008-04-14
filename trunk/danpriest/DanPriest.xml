@@ -355,7 +355,7 @@
 
   </tab>
 <!--/////////////////////////////////////////////////////////////////////////////////////////////
-	End of General tab
+	End of General tab      
 
 	Start of Survival and Buffs tab
 /////////////////////////////////////////////////////////////////////////////////////////////-->
@@ -502,17 +502,26 @@
 
     </input>
 
+    <combobox>
+      <label>Psychic Scream when you have x or more adds</label>
+      <target>DanPriest.AddsToScream</target>
+      <options>
+        <option>Nothing</option>
+        <option>Mind Blast</option>
+        <option>Mind Flay</option>
+        <option>Shadow Word: Death</option>
+        <option>Smite</option>
+        <option>Holy Fire</option>
+        <option>Melee-chase</option>
+        <option>Wand</option>
+      </options>
+    </combobox>
+
     <input>
       <label>Psychic Scream cooldown(sec)</label>
       <target>DanPriest.PsScream</target>
 
     </input>
-
-    <checkbox>
-      <label>Psychic Scream adds before castsequence</label>
-      <target>DanPriest.UsePsychicScream</target>
-
-    </checkbox>
 
 
     <checkbox>
