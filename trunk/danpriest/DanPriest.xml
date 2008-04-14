@@ -506,14 +506,11 @@
       <label>Psychic Scream when you have x or more adds</label>
       <target>DanPriest.AddsToScream</target>
       <options>
-        <option>Nothing</option>
-        <option>Mind Blast</option>
-        <option>Mind Flay</option>
-        <option>Shadow Word: Death</option>
-        <option>Smite</option>
-        <option>Holy Fire</option>
-        <option>Melee-chase</option>
-        <option>Wand</option>
+        <option>1</option>
+        <option>2</option>
+        <option>3</option>
+        <option>4</option>
+        <option>100000</option>
       </options>
     </combobox>
 
