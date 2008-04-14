@@ -304,8 +304,14 @@ namespace Glider.Common.Objects
                     if (nonSeriousCount > 36 && nonSeriousMTD > (moderateMTD+1) && calcMTD[i] < (nonSeriousMTD*2)) // if we're constantly in nonserious (4 of 5 heals) we're healing too often
                         nonSeriousMTD--;
 
-                    double calculatedMTD = Math.Ceiling((double)(0 - b) / avgSlope);
-                    myCalcMTD.Enqueue(calculatedMTD); // we have an approximation of death
+                    double calculatedMTD = Math.Ceiling((double)(0 - b) / avgSlope); //approximate death
+                    if (myCalcMTD.Count < 40)
+                        myHealthHistory.Enqueue(calculatedMTD);
+                    else
+                    {
+                        myHealthHistory.Dequeue();
+                        myHealthHistory.Enqueue(calculatedMTD);
+                    }
 
                     if (healTCount != oldHealTCount)
                     {
