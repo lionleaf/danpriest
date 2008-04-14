@@ -93,8 +93,10 @@ namespace Glider.Common.Objects
             // Start the healing process hehe
             HealingLogTimer.Reset();
             healTCount = 1;
-            for(int i=0; i < 5; i++) myCalcMTD[i]=0;
-            for(int i=0; i < 20; i++) myHealthHistory[i]=0;
+            while (myCalcMTD.Count != 0)
+                myCalcMTD.Dequeue();
+            while (myHealthHistory.Count != 0)
+                myHealthHistory.Dequeue();
 
             while (true)
             {
@@ -115,12 +117,20 @@ namespace Glider.Common.Objects
 
                 if (CommonResult != GCombatResult.Unknown)
                 {
-                    for (int i = 0; i < 20; i++) myHealthHistory[i] = 0; //Clear health
+                    while (myHealthHistory.Count != 0)
+                        myHealthHistory.Dequeue(); //Clear health
+                    while (myCalcMTD.Count != 0)
+                        myCalcMTD.Dequeue();
+
                     return CommonResult;
                 }
                 if (Monster.IsDead)
                 {
-                    for (int i = 0; i < 20; i++) myHealthHistory[i] = 0; //Clear health
+                    while (myHealthHistory.Count != 0)
+                        myHealthHistory.Dequeue(); //Clear health
+                    while (myCalcMTD.Count != 0)
+                        myCalcMTD.Dequeue();
+
                     if (Added)
                         return GCombatResult.SuccessWithAdd;
                     return GCombatResult.Success;
@@ -336,7 +346,12 @@ namespace Glider.Common.Objects
                 if (CommonResult == GCombatResult.Success && Added)
                 {
                     GUnit Add = GObjectList.FindUnit(AddedGUID);
-                    for (int i = 0; i < 20; i++) myHealthHistory[i] = 0; //Clear health
+
+                    while (myCalcMTD.Count != 0)
+                        myCalcMTD.Dequeue();
+                    while (myHealthHistory.Count != 0)
+                        myHealthHistory.Dequeue(); //Clear health
+
                     if (Add == null)
                     {
                         Log(DateTime.Now.ToString() + ": " + "! Could not find add after combat, id = " + AddedGUID.ToString("x"));
