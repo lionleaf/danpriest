@@ -241,7 +241,7 @@ namespace Glider.Common.Objects
                                     double  totalSlope = 0,
                                             avgSlope = 0,
                                             b = friends[0].healthHist[0],
-                                            count = 0;
+                                            count = 1;
                                     int     j=0;
 
                                     friends[i].health = player.HealthPoints;

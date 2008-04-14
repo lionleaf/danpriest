@@ -38,6 +38,7 @@ namespace Glider.Common.Objects
         bool UseFort = true;                        //Toggle whether to use Fort for a buff
         bool SkipLoot;
         public int count = 0;
+        public double[] myCalcMTD = new double[5];
         //Leave this next one as they are set.
         #endregion
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -205,6 +206,7 @@ namespace Glider.Common.Objects
         bool UseSilence = false;                   //Set true if you have Silence and wish to use it
         double LowestHpToCast = .15;
         bool PanicScream = true;                   //Psychic Scream heal combo
+        bool UsePsychicScream = false;
         double PanicHealth = .12;
         bool UseBandage = false;
         bool bahbah = true;
@@ -225,9 +227,9 @@ namespace Glider.Common.Objects
         double MinHPShieldRecast = 0.1;
         bool ActivePvP = false;
         double distanceToHelp = 30;
-        double panicMTD = 4;
-        double moderateMTD = 8;
-        double nonSeriousMTD = 12;
+        public double panicMTD = 4;                // 2 seconds
+        public double moderateMTD = 8;             // 4 seconds
+        public double nonSeriousMTD = 12;          // 6 seconds
 
         string[] RacialAbilities = {
         "None",
