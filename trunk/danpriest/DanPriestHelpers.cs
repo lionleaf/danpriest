@@ -397,7 +397,7 @@ namespace Glider.Common.Objects
                     CastSpell("DP.PsychicScream");
                     PsychicScream.Reset();
                 }
-                else if (isCaster((GPlayer)Target) && Silence.IsReady)
+                else if (isCaster(Target) && Silence.IsReady)
                 {
                     CastSpell("DP.Silence");
                     Silence.Reset();
