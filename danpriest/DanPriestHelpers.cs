@@ -272,9 +272,6 @@ namespace Glider.Common.Objects
 
                     Queue cloneCalcMTD = new Queue(40);
 
-                    if (myCalcMTD.Count == 40) // Queue is full
-                        myCalcMTD.Dequeue();   // Destroy one record
-
                     cloneCalcMTD = (Queue)myCalcMTD.Clone();
 
                     for (int k = 0; k < 40 && cloneCalcMTD.Count != 0; k++)
