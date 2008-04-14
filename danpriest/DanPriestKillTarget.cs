@@ -90,14 +90,14 @@ namespace Glider.Common.Objects
             #region Combat loop
             // Start the healing process hehe
             HealingLogTimer.Reset();
-            count = 0;
+            count = 1;
 
             while (true)
             {
                 if (HealingLogTimer.IsReady)
                 {
                     HealingLogTimer.Reset();
-                    count = 0;
+                    count = 1;
                 }
                 else if (HealingLogTimer.TicksSinceLastReset > (500 * count))   //Got error "Operator '>' cannot be applied to operands of type 'GSpellTimer' and 'int'" So, my guess is that .TicksLeft will be correct
                 {                                                               // It was TicksSinceLastReset we're counting up and comparing it to every 500 mark (.5 sec)
