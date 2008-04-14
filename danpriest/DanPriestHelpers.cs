@@ -335,13 +335,20 @@ namespace Glider.Common.Objects
 
             double myMTD=0;
 
+            Target.Refresh();
+            Me.Refresh();
+
+            if (Me.Mana < .05 && Potion.IsReady && Interface.GetActionInventory("DP.ManaPot") > 0)
+            {
+                CastSpell("DP.ManaPot");
+                Potion.Reset();
+            }
+
             // Have any history to work with?
             // Do we even need to be healed?
             if ((myMTD = calculateMyMTD()) == 0)
                 return CheckHealthCombat(Target); // No history we'll have to work w/ standard algorithms
 
-            Target.Refresh();
-            Me.Refresh();
             if (myMTD < panicMTD || Me.Health < .20) // Oh noes, shield and flash heal we are certainly dead (recommended 3-5)
             {
 
