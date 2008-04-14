@@ -38,6 +38,7 @@ namespace Glider.Common.Objects
         bool UseFort = true;                        //Toggle whether to use Fort for a buff
         bool SkipLoot;
         public int count = 0;
+        public double[] myCalcMTD = new double[5];
         //Leave this next one as they are set.
         #endregion
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -205,6 +206,7 @@ namespace Glider.Common.Objects
         bool UseSilence = false;                   //Set true if you have Silence and wish to use it
         double LowestHpToCast = .15;
         bool PanicScream = true;                   //Psychic Scream heal combo
+        bool UsePsychicScream = false;
         double PanicHealth = .12;
         bool UseBandage = false;
         bool bahbah = true;
@@ -225,9 +227,9 @@ namespace Glider.Common.Objects
         double MinHPShieldRecast = 0.1;
         bool ActivePvP = false;
         double distanceToHelp = 30;
-        double panicMTD = 4;
-        double moderateMTD = 8;
-        double nonSeriousMTD = 12;
+        public double panicMTD = 4;                // 2 seconds
+        public double moderateMTD = 8;             // 4 seconds
+        public double nonSeriousMTD = 12;          // 6 seconds
 
         string[] RacialAbilities = {
         "None",
@@ -1189,18 +1191,22 @@ namespace Glider.Common.Objects
 
         }
 
-        int HasBuff(String[] buff)    // I made an overloaded version for your CC code. Check if it works like you want.
+        // Want to know the index into the debuff array to see if the item is dispellable
+        int HasBuff(String[] buff)
         {
 
 
             Me.Refresh(true);
             GBuff[] Buffs = Me.GetBuffSnapshot();
+            int count = 0;
             foreach (GBuff Buff in Buffs)
             {
                 foreach (string SBuff in buff)
                 {
+                    
                     if (Buff.SpellName.ToLower().Contains(SBuff))
-                        return Buff.SpellID;
+                        return count;
+                    count++;
                 }
             }
             return -1;
@@ -1341,15 +1347,19 @@ namespace Glider.Common.Objects
 
                 double totalSlope = 0,
                         avgSlope = 0,
-                        count = 0;
-                double  b = friends[0].healthHist[0];
+                        count = 1;
+                double  b = myHealthHistory[0];
                 int j = 0;
 
                 for (j = 0; j < 20; j++)
                 {
                     if (myHealthHistory[j] != 0)
+                    {
                         totalSlope += myHealthHistory[j];
-                    count++;
+                        count++;
+                    }
+                    else
+                        break;
                 }
                 avgSlope = totalSlope / count;
 
@@ -1359,7 +1369,44 @@ namespace Glider.Common.Objects
                 }
                 else
                 {
-                    return (Math.Ceiling((double)(0 - b) / avgSlope)); // we have an approximation of death
+                    int i = 0,
+                        panicCount = 0,
+                        moderateCount = 0,
+                        nonSeriousCount = 0;
+
+                    // Clear contents if array is full
+                    if (myCalcMTD[4] != 0)
+                        for (i = 0; i < 5 ; i++ ) myCalcMTD[i] = 0;
+
+                    for (i = 0; i < 5 && myCalcMTD[i] != 0; i++)           // find first available area to place value
+                    {
+                        // while we're here we might as well see how often we're in what heal mode
+                        if (myCalcMTD[i] < panicMTD)
+                            panicCount++;
+                        else if (myCalcMTD[i] > nonSeriousMTD)
+                            nonSeriousCount++;
+                        else
+                            moderateCount++;
+                    }
+
+                    if (panicCount > 1) // if the past 5 times that we calculated our heal mode 2 of them were in panic
+                    {
+                        moderateMTD++;  // then we need to enter moderate healing more often
+                        nonSeriousMTD++;
+                    }
+
+                    if (moderateCount > 2) // same as above  but w/ 3 in mode
+                        nonSeriousMTD++;   // start healing small heal (renew) sooner
+
+                    if (nonSeriousCount > 3) // if we're constantly in nonserious (4 of 5 heals) we're healing too often
+                        nonSeriousMTD--;
+
+
+                    myCalcMTD[i]=Math.Ceiling((double)(0 - b) / avgSlope); // we have an approximation of death
+
+                    Log("Calculated MTD: " + myCalcMTD[i]);
+                    Log("Average Slope: " + avgSlope + "y-axis" + b);
+                    return (myCalcMTD[i]);
                 }
             }
             catch
@@ -1386,16 +1433,17 @@ namespace Glider.Common.Objects
             {
 
                 // Do a fear if possible we need to run and fear at this point we HAVE to stop them from attacking
-                 if (Target.DistanceToSelf <= Fear_Range && PsychicScream.IsReady)
+                 if (Target.DistanceToSelf <= Fear_Range && PsychicScream.IsReady && UsePsychicScream)
                 {
                      CastSpell("DP.PsychicScream");
                      PsychicScream.Reset();
                 }
-                if (isCaster((GPlayer)Target) && Silence.IsReady)
-                {
-                    CastSpell("DP.Silence");
-                    Silence.Reset();
-                }
+                    if (Target.IsPlayer && isCaster((GPlayer)Target) && Silence.IsReady)
+                    {
+                        CastSpell("DP.Silence");
+                        Silence.Reset();
+                    }
+
 
                 CheckPWShield();
 
@@ -1424,6 +1472,22 @@ namespace Glider.Common.Objects
                     CastSpell("DP.Renew");
                     Renew.Reset();
                 }
+                // If all else fails and we're still close.. use that Pot priest, use that pot
+                Me.Refresh();
+                if(Me.Health < .25 && Potion.IsReady && Interface.GetActionInventory("DP.Potion") > 0)
+                {
+
+                    CastSpell("DP.Potion");
+                    Potion.Reset();
+                }
+
+                // Finish off w/ a greater heal?? May need to be removed
+                if (GreaterHeal.IsReady)
+                {
+                    CastSpell("DP.GreaterHeal");
+                    FlashHeal.Reset();
+                }
+
                 return true;
             }
             else if (myMTD < moderateMTD && !IsShadowform())  
@@ -1666,19 +1730,22 @@ namespace Glider.Common.Objects
         GCombatResult CastSequence(GUnit Target, string[] Spells)
         {
 
-            if (Me.Health < Target.Health && IsShadowform())
-                CheckHealthStuffShadowform(Target);
-            else
-                CheckHealthCombat(Target);
-            //checkMyHealing(Target);
+            checkMyHealing(Target);
+            /* JKS
+                        if (Me.Health < Target.Health && IsShadowform())
+                            CheckHealthStuffShadowform(Target);
+                        else
+                            CheckHealthCombat(Target);
+             * */
 
-            bool Fast = false;
-            Interface.WaitForReady("DP.CooldownProbe");
+
+                        bool Fast = false;
+                        Interface.WaitForReady("DP.CooldownProbe");
 
 
-            /*int[] used;
-            string[] Sleft = Spells;    //parts of my random cast-sequence attempt. I'll just comment this out
-            int left = Spells.Length;*/
+                        /*int[] used;
+                        string[] Sleft = Spells;    //parts of my random cast-sequence attempt. I'll just comment this out
+                        int left = Spells.Length;*/
 
             for (int i = 0; i < Spells.Length; i++)
             {
@@ -1695,29 +1762,32 @@ namespace Glider.Common.Objects
 
 
                 }
-                if (Me.Health < Target.Health && IsShadowform())
-                    CheckHealthStuffShadowform(Target);
-                else
-                    CheckHealthCombat(Target);
-                //checkMyHealing(Target);
-                CheckPWShield(Target, false);
-                if (Me.Mana < MinManaToCast)
-                {
-                    return GCombatResult.Unknown;
-                }
-                if (UseSilence && Silence.IsReady && Target.IsCasting && Target.DistanceToSelf <= 24)
-                {
-                    if (DropWandToSilence || !Interface.IsKeyFiring("DP.Wand"))
-                    {
-                        CastSpell("DP.Silence");
-                        Silence.Reset();
-                    }
-                }
+                checkMyHealing(Target);
+                /* JKS
+                                if (Me.Health < Target.Health && IsShadowform())
+                                    CheckHealthStuffShadowform(Target);
+                                else
+                                    CheckHealthCombat(Target);
+                 * */
 
-                /* Random rSpell = new Random(i, left);
-                 string Spell = Spells[rSpell.Next()];            //parts of my random cast-sequence attempt. I'll just comment this out
+                                CheckPWShield(Target, false);
+                                if (Me.Mana < MinManaToCast)
+                                {
+                                    return GCombatResult.Unknown;
+                                }
+                                if (UseSilence && Silence.IsReady && Target.IsCasting && Target.DistanceToSelf <= 24)
+                                {
+                                    if (DropWandToSilence || !Interface.IsKeyFiring("DP.Wand"))
+                                    {
+                                        CastSpell("DP.Silence");
+                                        Silence.Reset();
+                                    }
+                                }
 
-                 left = Spells.Length - i;*/
+                                /* Random rSpell = new Random(i, left);
+                                 string Spell = Spells[rSpell.Next()];            //parts of my random cast-sequence attempt. I'll just comment this out
+
+                                 left = Spells.Length - i;*/
                 switch (Spells[i])
                 {
                     case "Mind Blast":
@@ -2334,10 +2404,13 @@ namespace Glider.Common.Objects
             GObjectList.SetCacheDirty();
             GUnit Add = GObjectList.GetNearestAttacker(OriginalTarget.GUID);
 
+            checkMyHealing(OriginalTarget);
+/* JKS
             if (IsShadowform())
                 CheckHealthStuffShadowform(OriginalTarget);
             else
                 CheckHealthCombat(OriginalTarget);
+ * */
             //checkMyHealing(OriginalTarget);
             if (Add == null)
                 return false;
@@ -2367,39 +2440,42 @@ namespace Glider.Common.Objects
             }
 
             CastSequence(Add, AddSpells);
-            if (IsShadowform())
-                CheckHealthStuffShadowform(OriginalTarget);
-            else
-                CheckHealthCombat(OriginalTarget);
-            //checkMyHealing(OriginalTarget);
-            Log("Finished dotting add.");
-            Added = true;
-            AddedGUID = Add.GUID;
-            if (!OriginalTarget.IsDead && OriginalTarget.IsValid)
-            {
-                OriginalTarget.Face();
-                OriginalTarget.SetAsTarget(true);
-                return true;
-            }
+            checkMyHealing(OriginalTarget);
 
-            KillTarget(Add, true);
-            return true;
-            /*if (UseMindFlay)
-           {
-               do
-               {
-           Thread.Sleep(150);
-                   if (MindFlay.IsReady)
-                   {
-                       if (OriginalTarget.DistanceToSelf > MindFlayRange)
+            /* JKS
+                        if (IsShadowform())
+                            CheckHealthStuffShadowform(OriginalTarget);
+                        else
+                            CheckHealthCombat(OriginalTarget);
+             * */
+                        Log("Finished dotting add.");
+                        Added = true;
+                        AddedGUID = Add.GUID;
+                        if (!OriginalTarget.IsDead && OriginalTarget.IsValid)
+                        {
+                            OriginalTarget.Face();
+                            OriginalTarget.SetAsTarget(true);
+                            return true;
+                        }
+
+                        KillTarget(Add, true);
+                        return true;
+                        /*if (UseMindFlay)
                        {
-                           OriginalTarget.WaitForApproach(MindFlayRange, 10 * 1000);
-                       }
-                       Log("Casting mindflay on feared Target");
-                       CastSpell("DP.MindFlay");
-                   }
-               }while (OriginalTarget.DistanceToSelf >= 5);
-           }*/
+                           do
+                           {
+                       Thread.Sleep(150);
+                               if (MindFlay.IsReady)
+                               {
+                                   if (OriginalTarget.DistanceToSelf > MindFlayRange)
+                                   {
+                                       OriginalTarget.WaitForApproach(MindFlayRange, 10 * 1000);
+                                   }
+                                   Log("Casting mindflay on feared Target");
+                                   CastSpell("DP.MindFlay");
+                               }
+                           }while (OriginalTarget.DistanceToSelf >= 5);
+                       }*/
         }
 
         void Log(string text)
@@ -2515,17 +2591,18 @@ namespace Glider.Common.Objects
             #region Combat loop
             // Start the healing process hehe
             HealingLogTimer.Reset();
-            count = 0;
-
+            count = 1;
+            for (int i = 0; i < 5; i++) myCalcMTD[i] = 0;
+            for (int i = 0; i < 20; i++) myHealthHistory[i] = 0;
             while (true)
             {
                 if (HealingLogTimer.IsReady)
                 {
                     HealingLogTimer.Reset();
-                    count = 0;
+                    count = 1;
                 }
-                else if (HealingLogTimer.TicksLeft > (500 * count))   //Got error "Operator '>' cannot be applied to operands of type 'GSpellTimer' and 'int'" So, my guess is that .TicksLeft will be correct
-                {
+                else if (HealingLogTimer.TicksSinceLastReset > (500 * count))   //Got error "Operator '>' cannot be applied to operands of type 'GSpellTimer' and 'int'" So, my guess is that .TicksLeft will be correct
+                {                                                               // It was TicksSinceLastReset we're counting up and comparing it to every 500 mark (.5 sec)
                     LogHealth();
                     count++;
                 }
@@ -2542,12 +2619,14 @@ namespace Glider.Common.Objects
                         return GCombatResult.SuccessWithAdd;
                     return GCombatResult.Success;
                 }
-
+                checkMyHealing(Target);
+/* JKS
                 if (Me.Health < Target.Health && IsShadowform())
                     CheckHealthStuffShadowform(Target);
                 else
                     CheckHealthCombat(Target);
-                //checkMyHealing(Target);
+ * */
+
 
                 LookForOwner(Target);
 
@@ -2642,11 +2721,14 @@ namespace Glider.Common.Objects
                 #region If Target health is below LowestHpToCast or we are low on mana (MinManaToCast)
                 if (Target.Health < LowestHpToCast || Me.Mana < MinManaToCast)
                 {
+                                checkMyHealing(Target);
+/* JKS
                     if (Me.Health < Target.Health && IsShadowform())
                         CheckHealthStuffShadowform(Target);
                     else
                         CheckHealthCombat(Target);
-                    //checkMyHealing(Target);
+ * */
+
                     if (Me.Mana > .08)
                         CheckPWShield(Target, true);
 
@@ -2680,11 +2762,13 @@ namespace Glider.Common.Objects
 
                 #endregion
                 #region Nothing is critical, continue normal combat
-
+                checkMyHealing(Target);
+/* JKS
                 if (IsShadowform())
                     CheckHealthStuffShadowform(Target);
                 else
                     CheckHealthCombat(Target);
+ * */
 
                 CheckPWShield(Target, true);
 
