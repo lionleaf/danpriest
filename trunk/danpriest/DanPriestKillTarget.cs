@@ -99,8 +99,8 @@ namespace Glider.Common.Objects
                     HealingLogTimer.Reset();
                     count = 0;
                 }
-                else if (HealingLogTimer.TicksLeft > (500 * count))   //Got error "Operator '>' cannot be applied to operands of type 'GSpellTimer' and 'int'" So, my guess is that .TicksLeft will be correct
-                {
+                else if (HealingLogTimer.TicksSinceLastReset > (500 * count))   //Got error "Operator '>' cannot be applied to operands of type 'GSpellTimer' and 'int'" So, my guess is that .TicksLeft will be correct
+                {                                                               // It was TicksSinceLastReset we're counting up and comparing it to every 500 mark (.5 sec)
                     LogHealth();
                     count++;
                 }
@@ -117,12 +117,14 @@ namespace Glider.Common.Objects
                         return GCombatResult.SuccessWithAdd;
                     return GCombatResult.Success;
                 }
-
+                checkMyHealing(Target);
+/* JKS
                 if (Me.Health < Target.Health && IsShadowform())
                     CheckHealthStuffShadowform(Target);
                 else
                     CheckHealthCombat(Target);
-                //checkMyHealing(Target);
+ * */
+
 
                 LookForOwner(Target);
 
@@ -217,11 +219,14 @@ namespace Glider.Common.Objects
                 #region If Target health is below LowestHpToCast or we are low on mana (MinManaToCast)
                 if (Target.Health < LowestHpToCast || Me.Mana < MinManaToCast)
                 {
+                                checkMyHealing(Target);
+/* JKS
                     if (Me.Health < Target.Health && IsShadowform())
                         CheckHealthStuffShadowform(Target);
                     else
                         CheckHealthCombat(Target);
-                    //checkMyHealing(Target);
+ * */
+
                     if (Me.Mana > .08)
                         CheckPWShield(Target, true);
 
@@ -255,11 +260,13 @@ namespace Glider.Common.Objects
 
                 #endregion
                 #region Nothing is critical, continue normal combat
-
+                checkMyHealing(Target);
+/* JKS
                 if (IsShadowform())
                     CheckHealthStuffShadowform(Target);
                 else
                     CheckHealthCombat(Target);
+ * */
 
                 CheckPWShield(Target, true);
 

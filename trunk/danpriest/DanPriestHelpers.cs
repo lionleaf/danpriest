@@ -607,19 +607,22 @@ namespace Glider.Common.Objects
         GCombatResult CastSequence(GUnit Target, string[] Spells)
         {
 
-            if (Me.Health < Target.Health && IsShadowform())
-                CheckHealthStuffShadowform(Target);
-            else
-                CheckHealthCombat(Target);
-            //checkMyHealing(Target);
+            checkMyHealing(Target);
+            /* JKS
+                        if (Me.Health < Target.Health && IsShadowform())
+                            CheckHealthStuffShadowform(Target);
+                        else
+                            CheckHealthCombat(Target);
+             * */
 
-            bool Fast = false;
-            Interface.WaitForReady("DP.CooldownProbe");
+
+                        bool Fast = false;
+                        Interface.WaitForReady("DP.CooldownProbe");
 
 
-            /*int[] used;
-            string[] Sleft = Spells;    //parts of my random cast-sequence attempt. I'll just comment this out
-            int left = Spells.Length;*/
+                        /*int[] used;
+                        string[] Sleft = Spells;    //parts of my random cast-sequence attempt. I'll just comment this out
+                        int left = Spells.Length;*/
 
             for (int i = 0; i < Spells.Length; i++)
             {
@@ -636,29 +639,32 @@ namespace Glider.Common.Objects
 
 
                 }
-                if (Me.Health < Target.Health && IsShadowform())
-                    CheckHealthStuffShadowform(Target);
-                else
-                    CheckHealthCombat(Target);
-                //checkMyHealing(Target);
-                CheckPWShield(Target, false);
-                if (Me.Mana < MinManaToCast)
-                {
-                    return GCombatResult.Unknown;
-                }
-                if (UseSilence && Silence.IsReady && Target.IsCasting && Target.DistanceToSelf <= 24)
-                {
-                    if (DropWandToSilence || !Interface.IsKeyFiring("DP.Wand"))
-                    {
-                        CastSpell("DP.Silence");
-                        Silence.Reset();
-                    }
-                }
+                checkMyHealing(Target);
+                /* JKS
+                                if (Me.Health < Target.Health && IsShadowform())
+                                    CheckHealthStuffShadowform(Target);
+                                else
+                                    CheckHealthCombat(Target);
+                 * */
 
-                /* Random rSpell = new Random(i, left);
-                 string Spell = Spells[rSpell.Next()];            //parts of my random cast-sequence attempt. I'll just comment this out
+                                CheckPWShield(Target, false);
+                                if (Me.Mana < MinManaToCast)
+                                {
+                                    return GCombatResult.Unknown;
+                                }
+                                if (UseSilence && Silence.IsReady && Target.IsCasting && Target.DistanceToSelf <= 24)
+                                {
+                                    if (DropWandToSilence || !Interface.IsKeyFiring("DP.Wand"))
+                                    {
+                                        CastSpell("DP.Silence");
+                                        Silence.Reset();
+                                    }
+                                }
 
-                 left = Spells.Length - i;*/
+                                /* Random rSpell = new Random(i, left);
+                                 string Spell = Spells[rSpell.Next()];            //parts of my random cast-sequence attempt. I'll just comment this out
+
+                                 left = Spells.Length - i;*/
                 switch (Spells[i])
                 {
                     case "Mind Blast":
@@ -1275,10 +1281,13 @@ namespace Glider.Common.Objects
             GObjectList.SetCacheDirty();
             GUnit Add = GObjectList.GetNearestAttacker(OriginalTarget.GUID);
 
+            checkMyHealing(OriginalTarget);
+/* JKS
             if (IsShadowform())
                 CheckHealthStuffShadowform(OriginalTarget);
             else
                 CheckHealthCombat(OriginalTarget);
+ * */
             //checkMyHealing(OriginalTarget);
             if (Add == null)
                 return false;
@@ -1308,39 +1317,42 @@ namespace Glider.Common.Objects
             }
 
             CastSequence(Add, AddSpells);
-            if (IsShadowform())
-                CheckHealthStuffShadowform(OriginalTarget);
-            else
-                CheckHealthCombat(OriginalTarget);
-            //checkMyHealing(OriginalTarget);
-            Log("Finished dotting add.");
-            Added = true;
-            AddedGUID = Add.GUID;
-            if (!OriginalTarget.IsDead && OriginalTarget.IsValid)
-            {
-                OriginalTarget.Face();
-                OriginalTarget.SetAsTarget(true);
-                return true;
-            }
+            checkMyHealing(OriginalTarget);
 
-            KillTarget(Add, true);
-            return true;
-            /*if (UseMindFlay)
-           {
-               do
-               {
-           Thread.Sleep(150);
-                   if (MindFlay.IsReady)
-                   {
-                       if (OriginalTarget.DistanceToSelf > MindFlayRange)
+            /* JKS
+                        if (IsShadowform())
+                            CheckHealthStuffShadowform(OriginalTarget);
+                        else
+                            CheckHealthCombat(OriginalTarget);
+             * */
+                        Log("Finished dotting add.");
+                        Added = true;
+                        AddedGUID = Add.GUID;
+                        if (!OriginalTarget.IsDead && OriginalTarget.IsValid)
+                        {
+                            OriginalTarget.Face();
+                            OriginalTarget.SetAsTarget(true);
+                            return true;
+                        }
+
+                        KillTarget(Add, true);
+                        return true;
+                        /*if (UseMindFlay)
                        {
-                           OriginalTarget.WaitForApproach(MindFlayRange, 10 * 1000);
-                       }
-                       Log("Casting mindflay on feared Target");
-                       CastSpell("DP.MindFlay");
-                   }
-               }while (OriginalTarget.DistanceToSelf >= 5);
-           }*/
+                           do
+                           {
+                       Thread.Sleep(150);
+                               if (MindFlay.IsReady)
+                               {
+                                   if (OriginalTarget.DistanceToSelf > MindFlayRange)
+                                   {
+                                       OriginalTarget.WaitForApproach(MindFlayRange, 10 * 1000);
+                                   }
+                                   Log("Casting mindflay on feared Target");
+                                   CastSpell("DP.MindFlay");
+                               }
+                           }while (OriginalTarget.DistanceToSelf >= 5);
+                       }*/
         }
 
         void Log(string text)
