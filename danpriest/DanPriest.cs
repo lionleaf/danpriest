@@ -2182,6 +2182,22 @@ namespace Glider.Common.Objects
             Log("Casting - " + Spell.ToString());
             Context.CastSpell(Spell, false, false);
         }
+
+        void CastSpell(string Spell, GUnit Target)
+        {
+
+            if (Me.IsSitting)
+                Context.SendKey("Common.Sit");
+
+            StopWand();
+            Thread.Sleep(SleepBeforeCheck);
+            Context.Interface.WaitForReady(Spell);
+            Thread.Sleep(SleepAfterReady);
+            Debug("Facing target before casting" + Spell);
+            Target.Face();
+            Log("Casting - " + Spell.ToString());
+            Context.CastSpell(Spell, false, false);
+        }
         void CastSpell(string Spell, bool fast)
         {
 
@@ -2391,6 +2407,19 @@ namespace Glider.Common.Objects
             string TimeStamp = DateTime.Now.Hour + ":" + DateTime.Now.Minute + ":" + DateTime.Now.Second + "." + DateTime.Now.Millisecond+": ";
             Context.Log(TimeStamp+text);
         }
+        void Debug(string text)
+        {
+            string TimeStamp = DateTime.Now.Hour + ":" + DateTime.Now.Minute + ":" + DateTime.Now.Second + "." + DateTime.Now.Millisecond + ": ";
+            Context.Debug(TimeStamp + text);
+        }
+
+        protected bool IsKeyEnabled(String key)
+        {
+            Interface.IsKeyEnabled(key);
+            Thread.Sleep(20);
+            bool pop = Interface.IsKeyEnabled(key); // Checking twice gives the correct result. Thanks for the tip :)
+            return pop;
+        }
         #endregion
     }
 }
@@ -2546,27 +2575,28 @@ namespace Glider.Common.Objects
                 {
                     Log("We got a runner, dealing with it");
                     IsClose = false;
+                    Target.Face();
                     switch (HandleRunners)
                     {
                         case "Mind Flay":
                             StopWand();
-                            Context.CastSpell("DP.MindFlay");
+                            CastSpell("DP.MindFlay", Target);
                             break;
                         case "Mind Blast":
                             StopWand();
-                            Context.CastSpell("DP.MindBlast");
+                            CastSpell("DP.MindBlast", Target);
                             break;
                         case "Smite":
                             StopWand();
-                            Context.CastSpell("DP.Smite");
+                            CastSpell("DP.Smite", Target);
                             break;
                         case "Holy Fire":
                             StopWand();
-                            Context.CastSpell("DP.HolyFire");
+                            CastSpell("DP.HolyFire", Target);
                             break;
                         case "Shadow Word: Death":
                             StopWand();
-                            Context.CastSpell("DP.SWDeath");
+                            CastSpell("DP.SWDeath", Target);
                             break;
                         case "Melee-chase":
                             Target.Approach(Context.MeleeDistance);
