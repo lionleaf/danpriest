@@ -307,13 +307,14 @@ namespace Glider.Common.Objects
                     Log("Health: " + Me.Health);
 
                     /* Something fishy happened full reset */
-                    if (myCalcMTD[i] < 0)
+                    if (myCalcMTD[i] <= 0)
                     {
                         for (int k = 0; k < 20; k++) myHealthHistory[k] = 0;
                         for (int k = 0; k < 4; k++) myCalcMTD[k] = 0;
 
                         HealingLogTimer.Reset();
                         healTCount = 1;
+                        healIndex = 0;
                     }
                         
                     
@@ -340,8 +341,8 @@ namespace Glider.Common.Objects
                 return CheckHealthCombat(Target); // No history we'll have to work w/ standard algorithms
 
             Target.Refresh();
-
-            if (myMTD < panicMTD || Target.Health < .20) // Oh noes, shield and flash heal we are certainly dead (recommended 3-5)
+            Me.Refresh();
+            if (myMTD < panicMTD || Me.Health < .20) // Oh noes, shield and flash heal we are certainly dead (recommended 3-5)
             {
 
                 // Do a fear if possible we need to run and fear at this point we HAVE to stop them from attacking
@@ -379,7 +380,6 @@ namespace Glider.Common.Objects
                     Renew.Reset();
                 }
                 // If all else fails and we're still close.. use that Pot priest, use that pot
-                Target.Refresh();
                 if(Me.Health < .25 && Potion.IsReady && Interface.GetActionInventory("DP.Potion") > 0)
                 {
 
@@ -417,7 +417,7 @@ namespace Glider.Common.Objects
                     //If we can't fear/silence, then it's time to switch strategies to more panicky
                     CheckPWShield();
 
-                    if (RestHeal.IsReady && Target.Health < .5 && IsKeyEnabled("DP.RestHeal"))
+                    if (RestHeal.IsReady && Me.Health < .5 && IsKeyEnabled("DP.RestHeal"))
                     {
                         CastSpell("DP.RestHeal");
                         RestHeal.Reset();
@@ -437,7 +437,7 @@ namespace Glider.Common.Objects
                 // and only do a big ole heal if we're low on health
 
 
-                 if (RestHeal.IsReady && Target.Health < .5 && IsKeyEnabled("DP.RestHeal"))
+                 if (RestHeal.IsReady && Me.Health < .5 && IsKeyEnabled("DP.RestHeal"))
                  {
                     CastSpell("DP.RestHeal");
                     RestHeal.Reset();
@@ -476,7 +476,7 @@ namespace Glider.Common.Objects
 
                 return true;
             }
-            else if (Target.Health < .85 && !IsShadowform())
+            else if (Me.Health < .85 && !IsShadowform())
             {
                 if (Renew.IsReady && IsKeyEnabled("DP.Renew"))
                 {
@@ -486,10 +486,7 @@ namespace Glider.Common.Objects
                 return true;
             }
 
-
-
             // We have a super high MTD and are not imminently going to die.
-
 
 
             return false;
