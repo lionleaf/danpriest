@@ -246,6 +246,7 @@ namespace Glider.Common.Objects
                 double  b = myHealthHistory[0];
                 int j = 0;
 
+
                 for (j = 0; j < 20; j++)
                 {
                     if (myHealthHistory[j] != 0)
@@ -295,16 +296,19 @@ namespace Glider.Common.Objects
                     if (moderateCount > 2 && moderateMTD < nonSeriousMTD - 1) // same as above  but w/ 3 in mode
                         nonSeriousMTD++;   // start healing small heal (renew) sooner
 
-                    if (nonSeriousCount > 3 && nonSeriousMTD > moderateMTD+1) // if we're constantly in nonserious (4 of 5 heals) we're healing too often
+                    if (nonSeriousCount > 4 && nonSeriousMTD > moderateMTD+1 && myCalcMTD[i] < (nonSeriousMTD*2)) // if we're constantly in nonserious (4 of 5 heals) we're healing too often
                         nonSeriousMTD--;
 
 
                     myCalcMTD[i]=Math.Ceiling((double)(0 - b) / avgSlope); // we have an approximation of death
 
-                    Log("Average Slope: " + avgSlope + "y-axis: " + b);
-                    Log("Calculated MTD: " + myCalcMTD[i]);
-                    Log("nonSeriousMTD: " + nonSeriousMTD + "moderateMTD: " + moderateMTD);
-                    Log("Health: " + Me.Health);
+                    if (healTCount != oldHealTCount)
+                    {
+                        Log("Average Slope: " + avgSlope + "y-axis: " + b);
+                        Log("Calculated MTD: " + myCalcMTD[i]);
+                        Log("nonSeriousMTD: " + nonSeriousMTD + "moderateMTD: " + moderateMTD);
+                        Log("Health: " + Me.Health);
+                    }
 
                     /* Something fishy happened full reset */
                     if (myCalcMTD[i] <= 0)
@@ -340,9 +344,13 @@ namespace Glider.Common.Objects
 
             // Have any history to work with?
             // Do we even need to be healed?
-            if ((myMTD = calculateMyMTD()) == 0)
-                return CheckHealthCombat(Target); // No history we'll have to work w/ standard algorithms
+            myMTD = calculateMyMTD();
+            if (myMTD == 0)
+                myMTD = 1000; // extraordinarily high for the purposeof using the health checks
 
+                /*
+                return CheckHealthCombat(Target); // No history we'll have to work w/ standard algorithms
+                */
             if (myMTD < panicMTD || Me.Health < .20) // Oh noes, shield and flash heal we are certainly dead (recommended 3-5)
             {
 

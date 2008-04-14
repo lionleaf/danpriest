@@ -38,6 +38,7 @@ namespace Glider.Common.Objects
         bool UseFort = true;                        //Toggle whether to use Fort for a buff
         bool SkipLoot;
         public int healTCount = 0;
+        public int oldHealTCount = 0;
         public double[] myCalcMTD = new double[5];
         //Leave this next one as they are set.
         #endregion
