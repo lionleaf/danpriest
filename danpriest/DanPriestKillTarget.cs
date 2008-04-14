@@ -75,12 +75,14 @@ namespace Glider.Common.Objects
                 }
             }
 
+            /*
             // Before anything, see if we should throw on a quick renew:
             if (Me.Health < .8 && Renew.IsReady && !IsShadowform())
             {
                 Context.CastSpell("Priest.Renew");
                 Renew.Reset();
             }
+            */
 
             StartLife = Me.Health;  // Remember this, just in case.
 
@@ -90,7 +92,7 @@ namespace Glider.Common.Objects
             #region Combat loop
             // Start the healing process hehe
             HealingLogTimer.Reset();
-            count = 1;
+            healTCount = 1;
             for(int i=0; i < 5; i++) myCalcMTD[i]=0;
             for(int i=0; i < 20; i++) myHealthHistory[i]=0;
 
@@ -99,12 +101,12 @@ namespace Glider.Common.Objects
                 if (HealingLogTimer.IsReady)
                 {
                     HealingLogTimer.Reset();
-                    count = 1;
+                    healTCount = 1;
                 }
-                else if (HealingLogTimer.TicksSinceLastReset > (500 * count))   //Got error "Operator '>' cannot be applied to operands of type 'GSpellTimer' and 'int'" So, my guess is that .TicksLeft will be correct
+                else if (HealingLogTimer.TicksSinceLastReset > (500 * healTCount))   //Got error "Operator '>' cannot be applied to operands of type 'GSpellTimer' and 'int'" So, my guess is that .TicksLeft will be correct
                 {                                                               // It was TicksSinceLastReset we're counting up and comparing it to every 500 mark (.5 sec)
                     LogHealth();
-                    count++;
+                    healTCount++;
                 }
                 Thread.Sleep(101);
                 #region Important checks
