@@ -10,6 +10,7 @@ using System.Threading;
 using Glider.Common.Objects;
 using System.Reflection;
 using System.Timers;
+using System.Collections;
 #if PPather
 using Pather;
 #endif
@@ -39,7 +40,7 @@ namespace Glider.Common.Objects
         bool SkipLoot;
         public int healTCount = 0;
         public int oldHealTCount = 0;
-        public double[] myCalcMTD = new double[5];
+
         //Leave this next one as they are set.
         #endregion
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -138,7 +139,10 @@ namespace Glider.Common.Objects
         public Trinket Trinket1;
         public Trinket Trinket2;
         public static Friend[] friends = new Friend[FRIEND_SIZE];
-        public static double[] myHealthHistory = new double[20];
+
+        public Queue myHealthHistory = new Queue(20);
+        public Queue myCalcMTD = new Queue(40);
+        
         public static int healIndex = 0;
 
         #endregion

@@ -4,6 +4,7 @@ using System;
 using System.Threading;
 using Glider.Common.Objects;
 using System.Reflection;
+using System.Collections;
 #endif 
 
 namespace Glider.Common.Objects
@@ -214,23 +215,14 @@ namespace Glider.Common.Objects
 
         public void LogHealth()
         {
-            if (healIndex == 20)
+            // Keep logging new health till queue is full then replace the oldest values
+            if (myHealthHistory.Count < 20)
+                myHealthHistory.Enqueue(Me.Health);
+            else
             {
-                double savedHealth = myHealthHistory[18];
-                double savedHealth2 = myHealthHistory[19];
-
-                for (int i = 0; i < 20; i++) myHealthHistory[i] = 0;
-
-                healIndex = 0;
-                myHealthHistory[healIndex++] = savedHealth;
-                myHealthHistory[healIndex++] = savedHealth2;
-
-                Me.Refresh();
-                CheckHealthCombat(Me);
+                myHealthHistory.Dequeue();
+                myHealthHistory.Enqueue(Me.Health);
             }
-
-                myHealthHistory[healIndex++] = Me.Health;
-                
         }
 
         public double calculateMyMTD()
@@ -243,22 +235,26 @@ namespace Glider.Common.Objects
                 double totalSlope = 0,
                         avgSlope = 0,
                         count = 1;
-                double  b = myHealthHistory[0];
-                int j = 0;
+                double  b =0;
+                double []myHealth= new double[20];
+
+                Queue cloneHealth = new Queue();
+
+                cloneHealth=(Queue)myHealthHistory.Clone();
+
+                if(cloneHealth.Count!=0)
+                    b = Convert.ToDouble(myHealthHistory.Dequeue());
 
 
-                for (j = 0; j < 20; j++)
+                for (int i = 0; i < 20 && cloneHealth.Count != 0; i++)
+                    myHealth[i] = Convert.ToDouble(cloneHealth.Dequeue());
+
+                for (int i = 0; i < 20 && cloneHealth.Count != 0; i++)
                 {
-                    if (myHealthHistory[j] != 0)
-                    {
-                        if (j != 0)
-                            totalSlope += (myHealthHistory[j]-myHealthHistory[j-1]);
-                    }
-                    else
-                        break;
+                    if (i != 0)
+                        totalSlope += (myHealth[i] - myHealth[i - 1]);
+                }    
 
-                    count++;
-                }
                 avgSlope = totalSlope / count;
 
                 if (avgSlope == 0)
@@ -267,63 +263,64 @@ namespace Glider.Common.Objects
                 }
                 else
                 {
-                    int i = 0,
-                        panicCount = 0,
+                    int i = 0;
+                    int panicCount = 0,
                         moderateCount = 0,
                         nonSeriousCount = 0;
 
-                    // Clear contents if array is full
-                    if (myCalcMTD[4] != 0)
-                        for (i = 0; i < 5 ; i++ ) myCalcMTD[i] = 0;
+                    double[] calcMTD = new double[40];
 
-                    for (i = 0; i < 5 && myCalcMTD[i] != 0; i++)           // find first available area to place value
-                    {
-                        // while we're here we might as well see how often we're in what heal mode
-                        if (myCalcMTD[i] < panicMTD)
-                            panicCount++;
-                        else if (myCalcMTD[i] > nonSeriousMTD)
-                            nonSeriousCount++;
-                        else
-                            moderateCount++;
-                    }
+                    Queue cloneCalcMTD = new Queue(40);
 
-                    if (panicCount > 1) // if the past 5 times that we calculated our heal mode 2 of them were in panic
+                    if (myCalcMTD.Count == 40) // Queue is full
+                        myCalcMTD.Dequeue();   // Destroy one record
+
+                    cloneCalcMTD = (Queue)myCalcMTD.Clone();
+
+                    for (int k = 0; k < 40 && cloneCalcMTD.Count != 0; k++)
+                        calcMTD[k] = Convert.ToDouble(cloneCalcMTD.Dequeue());
+
+
+                        for (i=0; i < 40 && calcMTD[i] != 0; i++)           // find first available area to place value
+                        {
+                            // while we're here we might as well see how often we're in what heal mode
+                            if (calcMTD[i] < panicMTD)
+                                panicCount++;
+                            else if (calcMTD[i] > nonSeriousMTD)
+                                nonSeriousCount++;
+                            else
+                                moderateCount++;
+                        }
+
+                    if (panicCount > 8) // if the past 5 times that we calculated our heal mode 2 of them were in panic
                     {
                         moderateMTD++;  // then we need to enter moderate healing more often
                         nonSeriousMTD++;
                     }
 
-                    if (moderateCount > 2 && moderateMTD < nonSeriousMTD - 1) // same as above  but w/ 3 in mode
+                    if (moderateCount > 16 && moderateMTD < nonSeriousMTD - 1) // same as above  but w/ 3 in mode
                         nonSeriousMTD++;   // start healing small heal (renew) sooner
 
-                    if (nonSeriousCount > 4 && nonSeriousMTD > (moderateMTD+1) && myCalcMTD[i] < (nonSeriousMTD*2)) // if we're constantly in nonserious (4 of 5 heals) we're healing too often
+                    if (nonSeriousCount > 36 && nonSeriousMTD > (moderateMTD+1) && calcMTD[i] < (nonSeriousMTD*2)) // if we're constantly in nonserious (4 of 5 heals) we're healing too often
                         nonSeriousMTD--;
 
-
-                    myCalcMTD[i]=Math.Ceiling((double)(0 - b) / avgSlope); // we have an approximation of death
+                    double calculatedMTD = Math.Ceiling((double)(0 - b) / avgSlope);
+                    myCalcMTD.Enqueue(calculatedMTD); // we have an approximation of death
 
                     if (healTCount != oldHealTCount)
                     {
                         Log("Average Slope: " + avgSlope + "y-axis: " + b);
-                        Log("Calculated MTD: " + myCalcMTD[i]);
+                        Log("Calculated MTD: " + calcMTD[i]);
                         Log("nonSeriousMTD: " + nonSeriousMTD + "moderateMTD: " + moderateMTD);
                         Log("Health: " + Me.Health);
                         oldHealTCount = healTCount;
                     }
 
                     /* Something fishy happened full reset */
-                    if (myCalcMTD[i] <= 0)
-                    {
-                        for (int k = 0; k < 20; k++) myHealthHistory[k] = 0;
-                        for (int k = 0; k < 5; k++) myCalcMTD[k] = 0;
-
-                        HealingLogTimer.Reset();
-                        healTCount = 1;
-                        healIndex = 0;
-                    }
-                        
-                    
-                    return (myCalcMTD[i]);
+                    if (calculatedMTD <= 0)
+                        return 0;
+                    else
+                        return (calculatedMTD);
                 }
             }
             catch
@@ -349,9 +346,7 @@ namespace Glider.Common.Objects
             if (myMTD == 0)
                 myMTD = 1000; // extraordinarily high for the purpose of using the health checks
 
-                /*
-                return CheckHealthCombat(Target); // No history we'll have to work w/ standard algorithms
-                */
+
             if (myMTD < panicMTD || Me.Health < .20) // Oh noes, shield and flash heal we are certainly dead (recommended 3-5)
             {
 
@@ -414,7 +409,7 @@ namespace Glider.Common.Objects
 
                 return true;
             }
-            else if (myMTD < moderateMTD && !IsShadowform())  
+            else if ((myMTD < moderateMTD || Me.Health < .8) && !IsShadowform() || Me.Health < .5)  
                                             // This is not immediate death but should start taking things into consideration
             {                               // I recommend taking panic's top end and adding 2 seconds (i.e. if PanicHeal is set to 4
                                             // then 2 seconds is 4 more so this would be 8
@@ -439,6 +434,11 @@ namespace Glider.Common.Objects
                     {
                         CastSpell("DP.RestHeal");
                         RestHeal.Reset();
+                    }
+                    else if(FlashHeal.IsReady && IsKeyEnabled("DP.FlashHeal"))
+                    {
+                        CastSpell("DP.FlashHeal");
+                        Renew.Reset();
                     }
 
                     // Always slap on a renew..
