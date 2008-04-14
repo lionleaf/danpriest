@@ -103,10 +103,11 @@ namespace Glider.Common.Objects
                     HealingLogTimer.Reset();
                     healTCount = 1;
                 }
-                else if (HealingLogTimer.TicksSinceLastReset > (500 * healTCount))   //Got error "Operator '>' cannot be applied to operands of type 'GSpellTimer' and 'int'" So, my guess is that .TicksLeft will be correct
+                else if (HealingLogTimer.TicksSinceLastReset > (1000 * healTCount))   //Got error "Operator '>' cannot be applied to operands of type 'GSpellTimer' and 'int'" So, my guess is that .TicksLeft will be correct
                 {                                                               // It was TicksSinceLastReset we're counting up and comparing it to every 500 mark (.5 sec)
                     LogHealth();
                     healTCount++;
+
                 }
                 Thread.Sleep(101);
                 #region Important checks
