@@ -338,12 +338,6 @@ namespace Glider.Common.Objects
             Target.Refresh();
             Me.Refresh();
 
-            if (Me.Mana < .05 && Potion.IsReady && Interface.GetActionInventory("DP.ManaPot") > 0)
-            {
-                CastSpell("DP.ManaPot");
-                Potion.Reset();
-            }
-
             // Have any history to work with?
             // Do we even need to be healed?
             if ((myMTD = calculateMyMTD()) == 0)
@@ -365,6 +359,14 @@ namespace Glider.Common.Objects
                 }
 
                 CheckPWShield();
+                
+                if ( (!HasBuff("WEAKENEDSOUL") && !IsKeyEnabled("DP.Shield")) && (Me.Mana < .15 && 
+                        Potion.IsReady && Interface.GetActionInventory("DP.ManaPot") > 0))
+                {
+                    CastSpell("DP.ManaPot");
+                    Potion.Reset();
+                    CheckPWShield();
+                }
 
 /*
                 if (Trinket1.utility == "Heal" && Trinket1.timer.IsReady)
