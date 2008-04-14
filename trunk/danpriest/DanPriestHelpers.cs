@@ -292,7 +292,7 @@ namespace Glider.Common.Objects
                         nonSeriousMTD++;
                     }
 
-                    if (moderateCount > 2) // same as above  but w/ 3 in mode
+                    if (moderateCount > 2 && moderateMTD < nonSeriousMTD - 1) // same as above  but w/ 3 in mode
                         nonSeriousMTD++;   // start healing small heal (renew) sooner
 
                     if (nonSeriousCount > 3 && nonSeriousMTD > moderateMTD+1) // if we're constantly in nonserious (4 of 5 heals) we're healing too often
@@ -407,7 +407,7 @@ namespace Glider.Common.Objects
                     //If we can't fear/silence, then it's time to switch strategies to more panicky
                     CheckPWShield();
 
-                    if (RestHeal.IsReady && Target.Health > .5 && IsKeyEnabled("DP.RestHeal"))
+                    if (RestHeal.IsReady && Target.Health < .5 && IsKeyEnabled("DP.RestHeal"))
                     {
                         CastSpell("DP.RestHeal");
                         RestHeal.Reset();
@@ -432,6 +432,11 @@ namespace Glider.Common.Objects
                     CastSpell("DP.RestHeal");
                     RestHeal.Reset();
                  }
+                 else if(FlashHeal.IsReady && IsKeyEnabled("DP.FlashHeal"))
+                {
+                    CastSpell("DP.FlashHeal");
+                    Renew.Reset();
+                }
 
 
                 // Always slap on a renew.. if ready
@@ -451,8 +456,27 @@ namespace Glider.Common.Objects
                     CastSpell("DP.Renew");
                     Renew.Reset();
                 }
+
+                if (FlashHeal.IsReady && IsKeyEnabled("DP.FlashHeal"))
+                {
+                    CastSpell("DP.FlashHeal");
+                    Renew.Reset();
+                }
+
+
                 return true;
             }
+            else if (Target.Health < .85 && !IsShadowform())
+            {
+                if (Renew.IsReady && IsKeyEnabled("DP.Renew"))
+                {
+                    CastSpell("DP.Renew");
+                    Renew.Reset();
+                }
+                return true;
+            }
+
+
 
             // We have a super high MTD and are not imminently going to die.
 
