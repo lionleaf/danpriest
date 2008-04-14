@@ -215,7 +215,16 @@ namespace Glider.Common.Objects
         public void LogHealth()
         {
             if (healIndex == 20)
+            {
+                double savedHealth = myHealthHistory[18];
+                double savedHealth2 = myHealthHistory[19];
+ 
+                for (int i = 0; i < 20; i++) myHealthHistory[i] = 0;
+
                 healIndex = 0;
+                myHealthHistory[healIndex++] = savedHealth;
+                myHealthHistory[healIndex++] = savedHealth2;
+            }
 
                 myHealthHistory[healIndex++] = Me.Health;
                 
@@ -289,8 +298,9 @@ namespace Glider.Common.Objects
 
                     myCalcMTD[i]=Math.Ceiling((double)(0 - b) / avgSlope); // we have an approximation of death
 
-                    Log("Average Slope: " + avgSlope + "y-axis" + b);
+                    Log("Average Slope: " + avgSlope + "y-axis: " + b);
                     Log("Calculated MTD: " + myCalcMTD[i]);
+                    Log("nonSeriousMTD: " + nonSeriousMTD + "moderateMTD: " + moderateMTD);
 
                     
                     return (myCalcMTD[i]);
