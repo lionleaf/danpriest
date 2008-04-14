@@ -175,8 +175,7 @@ namespace Glider.Common.Objects
         GSpellTimer ShadowProt = new GSpellTimer(10 * 60 * 1000);
         GSpellTimer RecentFort = new GSpellTimer(30 * 1000); // Received fort within last thirty seconds
         GSpellTimer Heals = new GSpellTimer(10 * 1000); // Prevent heals from stopping combat when low on mana
-        GSpellTimer GreaterHeal = new GSpellTimer(2 * 1000); 
-        GSpellTimer LesserHeal = new GSpellTimer(2 * 1000);
+        GSpellTimer RestHeal = new GSpellTimer(2 * 1000);
         GSpellTimer HealingLogTimer = new GSpellTimer(60 * 1000); 
         GSpellTimer MountTimer = new GSpellTimer(10 * 1000);
 
@@ -1333,9 +1332,19 @@ namespace Glider.Common.Objects
         public void LogHealth()
         {
             if (healIndex == 20)
-                healIndex = 0;
+            {
+                double savedHealth = myHealthHistory[18];
+                double savedHealth2 = myHealthHistory[19];
+ 
+                for (int i = 0; i < 20; i++) myHealthHistory[i] = 0;
 
-            myHealthHistory[healIndex++] = Me.Health;
+                healIndex = 0;
+                myHealthHistory[healIndex++] = savedHealth;
+                myHealthHistory[healIndex++] = savedHealth2;
+            }
+
+                myHealthHistory[healIndex++] = Me.Health;
+                
         }
 
         public double calculateMyMTD()
@@ -1355,11 +1364,13 @@ namespace Glider.Common.Objects
                 {
                     if (myHealthHistory[j] != 0)
                     {
-                        totalSlope += myHealthHistory[j];
-                        count++;
+                        if (j != 0)
+                            totalSlope += (myHealthHistory[j]-myHealthHistory[j-1]);
                     }
                     else
                         break;
+
+                    count++;
                 }
                 avgSlope = totalSlope / count;
 
@@ -1404,8 +1415,11 @@ namespace Glider.Common.Objects
 
                     myCalcMTD[i]=Math.Ceiling((double)(0 - b) / avgSlope); // we have an approximation of death
 
+                    Log("Average Slope: " + avgSlope + "y-axis: " + b);
                     Log("Calculated MTD: " + myCalcMTD[i]);
-                    Log("Average Slope: " + avgSlope + "y-axis" + b);
+                    Log("nonSeriousMTD: " + nonSeriousMTD + "moderateMTD: " + moderateMTD);
+
+                    
                     return (myCalcMTD[i]);
                 }
             }
@@ -1438,12 +1452,11 @@ namespace Glider.Common.Objects
                      CastSpell("DP.PsychicScream");
                      PsychicScream.Reset();
                 }
-                    if (Target.IsPlayer && isCaster((GPlayer)Target) && Silence.IsReady)
-                    {
-                        CastSpell("DP.Silence");
-                        Silence.Reset();
-                    }
-
+                if (isCaster(Target) && Silence.IsReady)
+                {
+                    CastSpell("DP.Silence");
+                    Silence.Reset();
+                }
 
                 CheckPWShield();
 
@@ -1459,11 +1472,6 @@ namespace Glider.Common.Objects
                 {
                     CastSpell("DP.FlashHeal");
                     FlashHeal.Reset();
-                }
-                else if (LesserHeal.IsReady)
-                {
-                    CastSpell("DP.LesserHeal");
-                    LesserHeal.Reset();
                 }
 
                 // Always slap on a renew.. if we're being hit hard we'll hopefully be back in this section again soon
@@ -1482,9 +1490,9 @@ namespace Glider.Common.Objects
                 }
 
                 // Finish off w/ a greater heal?? May need to be removed
-                if (GreaterHeal.IsReady)
+                if (RestHeal.IsReady)
                 {
-                    CastSpell("DP.GreaterHeal");
+                    CastSpell("DP.RestHeal");
                     FlashHeal.Reset();
                 }
 
@@ -1511,10 +1519,10 @@ namespace Glider.Common.Objects
                     //If we can't fear/silence, then it's time to switch strategies to more panicky
                     CheckPWShield();
 
-                    if (GreaterHeal.IsReady)
+                    if (RestHeal.IsReady)
                     {
-                        CastSpell("DP.GreaterHeal");
-                        GreaterHeal.Reset();
+                        CastSpell("DP.RestHeal");
+                        RestHeal.Reset();
                     }
 
                     // Always slap on a renew..
@@ -1530,10 +1538,10 @@ namespace Glider.Common.Objects
                 // We have successfully feared/or silenced our attacker save the shield for panic
 
 
-                 if (GreaterHeal.IsReady)
+                 if (RestHeal.IsReady)
                  {
-                    CastSpell("DP.GreaterHeal");
-                    GreaterHeal.Reset();
+                    CastSpell("DP.RestHeal");
+                    RestHeal.Reset();
                  }
 
 
@@ -1570,11 +1578,14 @@ namespace Glider.Common.Objects
 
         }
  */
-        public bool isCaster(GPlayer Target)
+        public bool isCaster(GUnit Target)
         {
-                    if(Target.PlayerClass.ToString().ToLower() == "mage" ||
-                    Target.PlayerClass.ToString().ToLower() == "warlock" ||
-                    Target.PlayerClass.ToString().ToLower() == "priest")
+            if (!Target.IsPlayer)
+                return false;
+            GPlayer Player = (GPlayer)Target;  //Should be safe now
+                    if(Player.PlayerClass.ToString().ToLower() == "mage" ||
+                    Player.PlayerClass.ToString().ToLower() == "warlock" ||
+                    Player.PlayerClass.ToString().ToLower() == "priest")
                         return true;
             return false;
         }
@@ -2592,8 +2603,9 @@ namespace Glider.Common.Objects
             // Start the healing process hehe
             HealingLogTimer.Reset();
             count = 1;
-            for (int i = 0; i < 5; i++) myCalcMTD[i] = 0;
-            for (int i = 0; i < 20; i++) myHealthHistory[i] = 0;
+            for(int i=0; i < 5; i++) myCalcMTD[i]=0;
+            for(int i=0; i < 20; i++) myHealthHistory[i]=0;
+
             while (true)
             {
                 if (HealingLogTimer.IsReady)
