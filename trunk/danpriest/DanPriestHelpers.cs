@@ -248,13 +248,13 @@ namespace Glider.Common.Objects
                 else
                 {
                     int i = 0,
-                        panicCount = 0;
-                        moderateCount = 0;
+                        panicCount = 0,
+                        moderateCount = 0,
                         nonSeriousCount = 0;
 
                     // Clear contents if array is full
                     if (myCalcMTD[4] != 0)
-                        for (i = 0; i < 5 && myCalcMTD[i] = 0; i++ );
+                        for (i = 0; i < 5 ; i++ ) myCalcMTD[i] = 0;
 
                     for (i = 0; i < 5 && myCalcMTD[i] != 0; i++)           // find first available area to place value
                     {
@@ -359,7 +359,7 @@ namespace Glider.Common.Objects
                 }
 
                 // Finish off w/ a greater heal?? May need to be removed
-                if (Greaterheal.IsReady)
+                if (GreaterHeal.IsReady)
                 {
                     CastSpell("DP.GreaterHeal");
                     FlashHeal.Reset();
