@@ -111,10 +111,13 @@ namespace Glider.Common.Objects
                 CommonResult = Context.CheckCommonCombatResult(Monster, IsAmbush);
 
                 if (CommonResult != GCombatResult.Unknown)
+                {
+                    for (int i = 0; i < 20; i++) myHealthHistory[i] = 0; //Clear health
                     return CommonResult;
-
+                }
                 if (Monster.IsDead)
                 {
+                    for (int i = 0; i < 20; i++) myHealthHistory[i] = 0; //Clear health
                     if (Added)
                         return GCombatResult.SuccessWithAdd;
                     return GCombatResult.Success;
@@ -330,7 +333,7 @@ namespace Glider.Common.Objects
                 if (CommonResult == GCombatResult.Success && Added)
                 {
                     GUnit Add = GObjectList.FindUnit(AddedGUID);
-
+                    for (int i = 0; i < 20; i++) myHealthHistory[i] = 0; //Clear health
                     if (Add == null)
                     {
                         Log(DateTime.Now.ToString() + ": " + "! Could not find add after combat, id = " + AddedGUID.ToString("x"));

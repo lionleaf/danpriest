@@ -224,6 +224,9 @@ namespace Glider.Common.Objects
                 healIndex = 0;
                 myHealthHistory[healIndex++] = savedHealth;
                 myHealthHistory[healIndex++] = savedHealth2;
+
+                Me.Refresh();
+                CheckHealthCombat(Me);
             }
 
                 myHealthHistory[healIndex++] = Me.Health;
@@ -292,7 +295,7 @@ namespace Glider.Common.Objects
                     if (moderateCount > 2) // same as above  but w/ 3 in mode
                         nonSeriousMTD++;   // start healing small heal (renew) sooner
 
-                    if (nonSeriousCount > 3) // if we're constantly in nonserious (4 of 5 heals) we're healing too often
+                    if (nonSeriousCount > 3 && nonSeriousMTD > moderateMTD+1) // if we're constantly in nonserious (4 of 5 heals) we're healing too often
                         nonSeriousMTD--;
 
 
@@ -301,6 +304,7 @@ namespace Glider.Common.Objects
                     Log("Average Slope: " + avgSlope + "y-axis: " + b);
                     Log("Calculated MTD: " + myCalcMTD[i]);
                     Log("nonSeriousMTD: " + nonSeriousMTD + "moderateMTD: " + moderateMTD);
+                    Log("Health: " + Me.Health);
 
                     
                     return (myCalcMTD[i]);
@@ -325,6 +329,7 @@ namespace Glider.Common.Objects
             if ((myMTD = calculateMyMTD()) == 0)
                 return CheckHealthCombat(Target); // No history we'll have to work w/ standard algorithms
 
+            Target.Refresh();
 
             if (myMTD < panicMTD ) // Oh noes, shield and flash heal we are certainly dead (recommended 3-5)
             {
@@ -351,20 +356,20 @@ namespace Glider.Common.Objects
                 }
 */
                 // This is crunch time. If we can't get the flash heal off then do something
-                if (FlashHeal.IsReady)
+                if (FlashHeal.IsReady && IsKeyEnabled("DP.FlashHeal"))
                 {
                     CastSpell("DP.FlashHeal");
                     FlashHeal.Reset();
                 }
 
                 // Always slap on a renew.. if we're being hit hard we'll hopefully be back in this section again soon
-                if (Renew.IsReady)
+                if (Renew.IsReady && IsKeyEnabled("DP.Renew"))
                 {
                     CastSpell("DP.Renew");
                     Renew.Reset();
                 }
                 // If all else fails and we're still close.. use that Pot priest, use that pot
-                Me.Refresh();
+                Target.Refresh();
                 if(Me.Health < .25 && Potion.IsReady && Interface.GetActionInventory("DP.Potion") > 0)
                 {
 
@@ -373,7 +378,7 @@ namespace Glider.Common.Objects
                 }
 
                 // Finish off w/ a greater heal?? May need to be removed
-                if (RestHeal.IsReady)
+                if (RestHeal.IsReady && IsKeyEnabled("DP.RestHeal"))
                 {
                     CastSpell("DP.RestHeal");
                     FlashHeal.Reset();
@@ -402,14 +407,14 @@ namespace Glider.Common.Objects
                     //If we can't fear/silence, then it's time to switch strategies to more panicky
                     CheckPWShield();
 
-                    if (RestHeal.IsReady)
+                    if (RestHeal.IsReady && Target.Health > .5 && IsKeyEnabled("DP.RestHeal"))
                     {
                         CastSpell("DP.RestHeal");
                         RestHeal.Reset();
                     }
 
                     // Always slap on a renew..
-                    if (Renew.IsReady)
+                    if (Renew.IsReady && IsKeyEnabled("DP.Renew"))
                     {
                         CastSpell("DP.Renew");
                         Renew.Reset();
@@ -419,9 +424,10 @@ namespace Glider.Common.Objects
                 }
 
                 // We have successfully feared/or silenced our attacker save the shield for panic
+                // and only do a big ole heal if we're low on health
 
 
-                 if (RestHeal.IsReady)
+                 if (RestHeal.IsReady && Target.Health < .5 && IsKeyEnabled("DP.RestHeal"))
                  {
                     CastSpell("DP.RestHeal");
                     RestHeal.Reset();
@@ -429,7 +435,7 @@ namespace Glider.Common.Objects
 
 
                 // Always slap on a renew.. if ready
-                if (Renew.IsReady)
+                if (Renew.IsReady && IsKeyEnabled("DP.Renew"))
                 {
                     CastSpell("DP.Renew");
                     Renew.Reset();
@@ -440,7 +446,7 @@ namespace Glider.Common.Objects
             {
                 // Well we're hurt but there's no real reason for alarm quite yet
                 // so we'll skip the shield and slap on the renew immediately 
-                if (Renew.IsReady)
+                if (Renew.IsReady && IsKeyEnabled("DP.Renew"))
                 {
                     CastSpell("DP.Renew");
                     Renew.Reset();
