@@ -296,7 +296,7 @@ namespace Glider.Common.Objects
                     if (moderateCount > 2 && moderateMTD < nonSeriousMTD - 1) // same as above  but w/ 3 in mode
                         nonSeriousMTD++;   // start healing small heal (renew) sooner
 
-                    if (nonSeriousCount > 4 && nonSeriousMTD > moderateMTD+1 && myCalcMTD[i] < (nonSeriousMTD*2)) // if we're constantly in nonserious (4 of 5 heals) we're healing too often
+                    if (nonSeriousCount > 4 && nonSeriousMTD > (moderateMTD+1) && myCalcMTD[i] < (nonSeriousMTD*2)) // if we're constantly in nonserious (4 of 5 heals) we're healing too often
                         nonSeriousMTD--;
 
 
@@ -308,13 +308,14 @@ namespace Glider.Common.Objects
                         Log("Calculated MTD: " + myCalcMTD[i]);
                         Log("nonSeriousMTD: " + nonSeriousMTD + "moderateMTD: " + moderateMTD);
                         Log("Health: " + Me.Health);
+                        oldHealTCount = healTCount;
                     }
 
                     /* Something fishy happened full reset */
                     if (myCalcMTD[i] <= 0)
                     {
                         for (int k = 0; k < 20; k++) myHealthHistory[k] = 0;
-                        for (int k = 0; k < 4; k++) myCalcMTD[k] = 0;
+                        for (int k = 0; k < 5; k++) myCalcMTD[k] = 0;
 
                         HealingLogTimer.Reset();
                         healTCount = 1;
@@ -346,7 +347,7 @@ namespace Glider.Common.Objects
             // Do we even need to be healed?
             myMTD = calculateMyMTD();
             if (myMTD == 0)
-                myMTD = 1000; // extraordinarily high for the purposeof using the health checks
+                myMTD = 1000; // extraordinarily high for the purpose of using the health checks
 
                 /*
                 return CheckHealthCombat(Target); // No history we'll have to work w/ standard algorithms
@@ -391,7 +392,7 @@ namespace Glider.Common.Objects
                 }
 
                 // Always slap on a renew.. if we're being hit hard we'll hopefully be back in this section again soon
-                if (Renew.IsReady && IsKeyEnabled("DP.Renew"))
+                if (Renew.IsReady && IsKeyEnabled("DP.Renew") && !HasBuff("Renew"))
                 {
                     CastSpell("DP.Renew");
                     Renew.Reset();
@@ -405,7 +406,7 @@ namespace Glider.Common.Objects
                 }
 
                 // Finish off w/ a greater heal?? May need to be removed
-                if (RestHeal.IsReady && IsKeyEnabled("DP.RestHeal"))
+                if (RestHeal.IsReady && IsKeyEnabled("DP.RestHeal") && Me.Health <.5)
                 {
                     CastSpell("DP.RestHeal");
                     FlashHeal.Reset();
@@ -441,7 +442,7 @@ namespace Glider.Common.Objects
                     }
 
                     // Always slap on a renew..
-                    if (Renew.IsReady && IsKeyEnabled("DP.Renew"))
+                    if (Renew.IsReady && IsKeyEnabled("DP.Renew") && !HasBuff("Renew"))
                     {
                         CastSpell("DP.Renew");
                         Renew.Reset();
@@ -467,7 +468,7 @@ namespace Glider.Common.Objects
 
 
                 // Always slap on a renew.. if ready
-                if (Renew.IsReady && IsKeyEnabled("DP.Renew"))
+                if (Renew.IsReady && IsKeyEnabled("DP.Renew") && !HasBuff("Renew"))
                 {
                     CastSpell("DP.Renew");
                     Renew.Reset();
@@ -478,7 +479,7 @@ namespace Glider.Common.Objects
             {
                 // Well we're hurt but there's no real reason for alarm quite yet
                 // so we'll skip the shield and slap on the renew immediately 
-                if (Renew.IsReady && IsKeyEnabled("DP.Renew"))
+                if (Renew.IsReady && IsKeyEnabled("DP.Renew") && !HasBuff("Renew"))
                 {
                     CastSpell("DP.Renew");
                     Renew.Reset();
@@ -495,7 +496,7 @@ namespace Glider.Common.Objects
             }
             else if (Me.Health < .85 && !IsShadowform())
             {
-                if (Renew.IsReady && IsKeyEnabled("DP.Renew"))
+                if (Renew.IsReady && IsKeyEnabled("DP.Renew") && !HasBuff("Renew"))
                 {
                     CastSpell("DP.Renew");
                     Renew.Reset();
