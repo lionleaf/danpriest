@@ -293,6 +293,11 @@
     </checkbox>
 
     <checkbox>
+      <label>Save Inner Focus for emergencies</label>
+      <target>DanPriest.UseDivineSpirit</target>
+    </checkbox>
+
+    <checkbox>
       <label>Silence</label>
       <target>DanPriest.UseSilence</target>
 
@@ -388,6 +393,11 @@
       <label>Shadow Protection</label>
       <target>DanPriest.ShadowProtection</target>
 
+    </checkbox>
+
+    <checkbox>
+      <label>Divine Spirit</label>
+      <target>DanPriest.UseDivineSpirit</target>
     </checkbox>
 
     <checkbox>
@@ -503,7 +513,7 @@
     </input>
 
     <combobox>
-      <label>Psychic Scream when you have x or more adds</label>
+      <label>Psychic Scream on x or more adds</label>
       <target>DanPriest.AddsToScream</target>
       <options>
         <option>1</option>
