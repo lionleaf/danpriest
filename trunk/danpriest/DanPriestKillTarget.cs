@@ -52,6 +52,11 @@ namespace Glider.Common.Objects
 
             if (Monster.IsTagged && !Monster.IsMine && !IsAmbush)
                 return GCombatResult.OtherPlayerTag;
+
+
+            /*if(BetterTarget)
+                return KillTarget(BetterTarget)   */
+
             if (UseShadowfiend && Shadowfiend.IsReady && Me.Mana <= ShadowfiendAtPercent)
             {
 
@@ -153,7 +158,7 @@ namespace Glider.Common.Objects
                 if (!Interface.IsKeyFiring("DP.Wand") && !Me.IsMeleeing && UseMelee)
                     Context.SendKey("DP.Melee");
 
-                if (LowManaScream && PsychicScream.IsReady && Me.Mana < LowManaScreamAt && Monster.DistanceToSelf < 8 && Monster.Health > .18)
+                if (LowManaScream && PsychicScream.IsReady && Me.Mana < LowManaScreamAt && Monster.DistanceToSelf < 8 && Monster.Health > .18 && IsKeyEnabled("DP.PsychicScream"))
                 {
                     Log("Low on mana, screaming!");
                     Context.CastSpell("DP.PsychicScream");
@@ -289,7 +294,6 @@ namespace Glider.Common.Objects
                 CheckPWShield(Target, true);
 
 
-
                 if (UseVampiricEmbrace && !HasBuff("Vampiric Embrace", true, Target) && Target.Health >= LowestHpToCast)
                 {
                     Charge(Target, false);
@@ -317,7 +321,7 @@ namespace Glider.Common.Objects
                 }
 
 
-                if (UseSWPain && !HasBuff("Shadow Word: Pain", true, Target) && (bahbah == true || bahbah == false) && Target.Health >= LowestHpToCast)
+                if (UseSWPain && !HasBuff("Shadow Word: Pain", true, Target) && (bahbah == true || bahbah == false) && Target.Health >= LowestHpToCast && Me.Mana > MinManaToCast && IsKeyEnabled("DP.SWPain"))
                 {
                     CastSpell("DP.SWPain");
                     bahbah = true;

@@ -12,6 +12,9 @@ namespace Glider.Common.Objects
     partial class DanPriest
     {
         #region Helpers
+
+        
+
         bool IsMounted()
         {
 
@@ -743,11 +746,12 @@ namespace Glider.Common.Objects
                 switch (Spells[i])
                 {
                     case "Mind Blast":
-                        if (UseInnerFocus && InnerFocus.IsReady)
+                        if (!SaveInnerFocus && UseInnerFocus && InnerFocus.IsReady)
                         {
-                            CastPull("DP.InnerFocus", Fast);
+                            Log("Using Inner Focus for shielding (mana saving)");
+                            Context.SendKey("DP.InnerFocus");
                             InnerFocus.Reset();
-                            Fast = false;
+                            Fast = true;
                         }
                         Charge(Target, false);
                         if (UseManaBurn && Target.Mana >= ManaBurnPercent)
@@ -940,9 +944,10 @@ namespace Glider.Common.Objects
             {
                 if (!Me.HasBuff(PW_FORTITUDE))
                 {
-                    if (UseInnerFocus && InnerFocus.IsReady)
+                    if (!SaveInnerFocus && UseInnerFocus && InnerFocus.IsReady)
                     {
-                        CastSpell("DP.InnerFocus");
+                        Log("Using Inner Focus for PW:Fortitude (mana saving)");
+                        Context.SendKey("DP.InnerFocus");
                         InnerFocus.Reset();
                     }
 
@@ -1039,13 +1044,14 @@ namespace Glider.Common.Objects
         bool CheckPWShield(GUnit Target, bool InCombat)
         {
             if (((InCombat && (RecastShield || Me.Health < 0.2) && UsePWShield) || (!InCombat && UsePWShield)
-                 || GotExtraAttacker(Target)) && (Target.Health >= MinHPShieldRecast || GotExtraAttacker(Target)))
+                 || GotExtraAttacker(Target)) && (Target.Health >= MinHPShieldRecast || GotExtraAttacker(Target)) && IsKeyEnabled("DP.Shield"))
             {
                 if (!Me.HasBuff(PW_SHIELD) && !Me.HasBuff(WEAKENEDSOUL))
                 {
-                    if (UseInnerFocus && InnerFocus.IsReady)
+                    if (!SaveInnerFocus && UseInnerFocus && InnerFocus.IsReady)
                     {
-                        CastSpell("DP.InnerFocus");
+                        Log("Using Inner Focus for shielding (mana saving)");
+                        Context.SendKey("DP.InnerFocus");
                         InnerFocus.Reset();
                     }
                     CastSpell("DP.Shield");
@@ -1095,13 +1101,14 @@ namespace Glider.Common.Objects
 
         bool CheckPWShield()
         {
-            if (UsePWShield && !Me.HasBuff(PW_SHIELD) && !Me.HasBuff(WEAKENEDSOUL))
+            if (UsePWShield && !Me.HasBuff(PW_SHIELD) && !Me.HasBuff(WEAKENEDSOUL) && IsKeyEnabled("DP.Shield"))
             {
-                    if (UseInnerFocus && InnerFocus.IsReady)
-                    {
-                        CastSpell("DP.InnerFocus");
-                        InnerFocus.Reset();
-                    }
+                if (!SaveInnerFocus && UseInnerFocus && InnerFocus.IsReady)
+                {
+                    Log("Using Inner Focus for shielding (mana saving)");
+                    Context.SendKey("DP.InnerFocus");
+                    InnerFocus.Reset();
+                }
  
                     CastSpell("DP.Shield");
                     return true;
@@ -1186,6 +1193,46 @@ namespace Glider.Common.Objects
                     CheckShadowform();
                 }
             }
+        }
+
+        void CheckBuffs()
+        {
+            if (Me.IsInCombat || Me.IsDead)
+                return;
+            CheckShadowform();
+            if (Ability("Shadowguard") && IsKeyEnabled("DP.Shadowguard"))
+            {
+                if (!HasBuff("Shadowguar"))
+                {
+                    CastSpell("DP.Shadowguard");
+                    return;
+                }
+            }
+            if (ShadowProtection && ShadowProt.IsReady && IsKeyEnabled("DP.ShadowProtection"))
+            {
+                Log("Rebuffing Shadow Protection");
+                CastSpell("DP.ShadowProtection");
+                ShadowProt.Reset();
+                return;
+            }
+            if (Ability("Fear") && !Me.HasBuff(6346) && Me.Mana > .3 && FearWard.IsReady && Interface.IsKeyReady("DP.FearWard") && IsKeyEnabled("DP.FearWard"))
+            {
+                Log("Buffing: Fear Ward");
+                if (IsShadowform())
+                    CastSpell("DP.Shadowform");
+                CastSpell("DP.FearWard");
+                FearWard.Reset();
+                if (UseShadowform && !IsShadowform())
+                    CastSpell("DP.Shadowform");
+                return;
+            };
+            if (UseInnerFire && !Me.HasBuff(INNERFIRE) && IsKeyEnabled("DP.InnerFire"))
+            {
+                CastSpell("DP.InnerFire");
+                return;
+            }
+            if (RecentFort.IsReady)
+                CheckFort();
         }
 
         #region CastSpell

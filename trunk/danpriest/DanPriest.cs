@@ -10,6 +10,7 @@ using System.Threading;
 using Glider.Common.Objects;
 using System.Reflection;
 using System.Timers;
+using System.Collections;
 #if PPather
 using Pather;
 #endif
@@ -39,7 +40,7 @@ namespace Glider.Common.Objects
         bool SkipLoot;
         public int healTCount = 0;
         public int oldHealTCount = 0;
-        public double[] myCalcMTD = new double[5];
+
         //Leave this next one as they are set.
         #endregion
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -138,7 +139,10 @@ namespace Glider.Common.Objects
         public Trinket Trinket1;
         public Trinket Trinket2;
         public static Friend[] friends = new Friend[FRIEND_SIZE];
-        public static double[] myHealthHistory = new double[20];
+
+        public Queue myHealthHistory = new Queue(20);
+        public Queue myCalcMTD = new Queue(40);
+        
         public static int healIndex = 0;
 
         #endregion
@@ -265,16 +269,15 @@ namespace Glider.Common.Objects
         string HandleRunners = "Nothing"; //"Nothing","Mind Blast", "Mind Flay", "Smite", "Holy Fire", "Shadow Word: Death", "Melee-chase", "Wand"
         bool MeleeFlay = false;
 
-        #region new variables
         double MindFlayRange = 20.0;
         int AddsToScream = 2;
 
         #region new variables  // Keep all variables that needs to be added to the config box here
         /*bool RandomPull = true;
         int PullLock = 1; */
+        bool SaveInnerFocus = false; //If true, saves it for emergency. Currently no emergency use
+        #endregion
 
-        #endregion
-        #endregion
         #endregion
 
 
@@ -984,15 +987,14 @@ namespace Glider.Common.Objects
             Context.Debug("OnStartGlide");
             if (!Interface.IsKeyReady("DP.Shadowfiend"))
                 Shadowfiend.Reset();
-
-            CheckShadowform();
-            if (ShadowProtection && ShadowProt.IsReady)
+            if (Me.IsDead || Me.IsInCombat)
             {
-                CastSpell("DP.ShadowProtection");
-                ShadowProt.Reset();
+                base.OnStartGlide();
+                return;
             }
-
-            CheckFort();
+                
+            
+            CheckBuffs();
             base.OnStartGlide();
 
         }
@@ -1003,21 +1005,10 @@ namespace Glider.Common.Objects
             //GotShadowform = false;
             CheckShadowform();
         }
-        public override bool Rest()
+        public override bool Rest()   // Must write own logic here soon
         {
-            if (RecentFort.IsReady)
-            {
-                CheckFort();
-            }
+            CheckBuffs();
             CheckHealth();
-            CheckShadowform();
-            if (ShadowProtection && ShadowProt.IsReady)
-            {
-                Log("Rebuffing Shadow Protection");
-                CastSpell("DP.ShadowProtection");
-                ShadowProt.Reset();
-            }
-
             return base.Rest();
         }
 
@@ -1027,61 +1018,16 @@ namespace Glider.Common.Objects
                 ActivePVP();
 
             CheckShadowform();
-            if (ActivePvP)
+            
+            if(ActivePvP)
                 ActivePVP();
-            //will only cast the spell if the key is ready, so there's no chance of running past something.
-            //Checks for Touch of Weakness and casts it if you'r Undead or BloodElfs
-            //Checks for Shadowguard (all ranks) and casts if it can't find anything.
-            if (Ability("Shadowguard"))
-            {
-                if (!HasBuff("Shadowguar"))
-                {
-                    CastSpell("DP.Shadowguard");
-                    return;
-                }
-            }
-            if (ActivePvP)
-                ActivePVP();
-            if (ShadowProtection && ShadowProt.IsReady)
-            {
-                Log("Rebuffing Shadow Protection");
-                CastSpell("DP.ShadowProtection");
-                ShadowProt.Reset();
-                return;
-            }
-            if (ActivePvP)
-                ActivePVP();
-
-            if (ActivePvP)
-                ActivePVP();
-            //Checks for Fear Ward if your a Dwarf or Draenei and enabled your race it will cast Fear Ward.
-            if (Ability("Fear") && !Me.HasBuff(6346) && Me.Mana > .3 && FearWard.IsReady && Interface.IsKeyReady("DP.FearWard"))
-            {
-                Log("Buffing: Fear Ward");
-                if (IsShadowform())
-                    CastSpell("DP.Shadowform");
-                CastSpell("DP.FearWard");
-                FearWard.Reset();
-                if (UseShadowform && !IsShadowform())
-                    CastSpell("DP.Shadowform");
-                return;
-            };
-            if (ActivePvP)
-                ActivePVP();
+            CheckBuffs();
             //Checks for Inner Fire and buffs it if it cant find anything.
-            if (UseInnerFire && !Me.HasBuff(INNERFIRE))
-            {
-                CastSpell("DP.InnerFire");
-                return;
-            }
-            if (ActivePvP)
-                ActivePVP();
+
             if (Context.RemoveDebuffs(GBuffType.Magic, "DP.Dispel", false))
                 return;
             if (ActivePvP)
                 ActivePVP();
-            if (RecentFort.IsReady)
-                CheckFort();
             if (Mount && !IsMounted() && !NearbyEnemy(MountDistance, ActivePvP) && /*!NearbyLoot(MountDistance) &&*/ MountTimer.IsReady && !Me.IsInCombat)
             {
                 Context.ReleaseSpinRun();
@@ -1105,11 +1051,7 @@ namespace Glider.Common.Objects
 
             Log("ApproachingTarget invoked");
 
-            if (UseInnerFocus && InnerFocus.IsReady)
-            {
-                CastSpell("DP.InnerFocus");
-                InnerFocus.Reset();
-            }
+
             CheckPWShield();
 
         }
@@ -1122,6 +1064,7 @@ using System;
 using System.Threading;
 using Glider.Common.Objects;
 using System.Reflection;
+using System.Collections;
 #endif 
 
 namespace Glider.Common.Objects
@@ -1129,6 +1072,9 @@ namespace Glider.Common.Objects
     partial class DanPriest
     {
         #region Helpers
+
+        
+
         bool IsMounted()
         {
 
@@ -1332,23 +1278,14 @@ namespace Glider.Common.Objects
 
         public void LogHealth()
         {
-            if (healIndex == 20)
+            // Keep logging new health till queue is full then replace the oldest values
+            if (myHealthHistory.Count < 20)
+                myHealthHistory.Enqueue(Me.Health);
+            else
             {
-                double savedHealth = myHealthHistory[18];
-                double savedHealth2 = myHealthHistory[19];
-
-                for (int i = 0; i < 20; i++) myHealthHistory[i] = 0;
-
-                healIndex = 0;
-                myHealthHistory[healIndex++] = savedHealth;
-                myHealthHistory[healIndex++] = savedHealth2;
-
-                Me.Refresh();
-                CheckHealthCombat(Me);
+                myHealthHistory.Dequeue();
+                myHealthHistory.Enqueue(Me.Health);
             }
-
-                myHealthHistory[healIndex++] = Me.Health;
-                
         }
 
         public double calculateMyMTD()
@@ -1361,22 +1298,26 @@ namespace Glider.Common.Objects
                 double totalSlope = 0,
                         avgSlope = 0,
                         count = 1;
-                double  b = myHealthHistory[0];
-                int j = 0;
+                double  b =0;
+                double []myHealth= new double[20];
+
+                Queue cloneHealth = new Queue();
+
+                cloneHealth=(Queue)myHealthHistory.Clone();
+
+                if(cloneHealth.Count!=0)
+                    b = Convert.ToDouble(myHealthHistory.Dequeue());
 
 
-                for (j = 0; j < 20; j++)
+                for (int i = 0; i < 20 && cloneHealth.Count != 0; i++)
+                    myHealth[i] = Convert.ToDouble(cloneHealth.Dequeue());
+
+                for (int i = 0; i < 20 && cloneHealth.Count != 0; i++)
                 {
-                    if (myHealthHistory[j] != 0)
-                    {
-                        if (j != 0)
-                            totalSlope += (myHealthHistory[j]-myHealthHistory[j-1]);
-                    }
-                    else
-                        break;
+                    if (i != 0)
+                        totalSlope += (myHealth[i] - myHealth[i - 1]);
+                }    
 
-                    count++;
-                }
                 avgSlope = totalSlope / count;
 
                 if (avgSlope == 0)
@@ -1385,62 +1326,67 @@ namespace Glider.Common.Objects
                 }
                 else
                 {
-                    int i = 0,
-                        panicCount = 0,
+                    int i = 0;
+                    int panicCount = 0,
                         moderateCount = 0,
                         nonSeriousCount = 0;
 
-                    // Clear contents if array is full
-                    if (myCalcMTD[4] != 0)
-                        for (i = 0; i < 5 ; i++ ) myCalcMTD[i] = 0;
+                    double[] calcMTD = new double[40];
 
-                    for (i = 0; i < 5 && myCalcMTD[i] != 0; i++)           // find first available area to place value
-                    {
-                        // while we're here we might as well see how often we're in what heal mode
-                        if (myCalcMTD[i] < panicMTD)
-                            panicCount++;
-                        else if (myCalcMTD[i] > nonSeriousMTD)
-                            nonSeriousCount++;
-                        else
-                            moderateCount++;
-                    }
+                    Queue cloneCalcMTD = new Queue(40);
 
-                    if (panicCount > 1) // if the past 5 times that we calculated our heal mode 2 of them were in panic
+                    cloneCalcMTD = (Queue)myCalcMTD.Clone();
+
+                    for (int k = 0; k < 40 && cloneCalcMTD.Count != 0; k++)
+                        calcMTD[k] = Convert.ToDouble(cloneCalcMTD.Dequeue());
+
+
+                        for (i=0; i < 40 && calcMTD[i] != 0; i++)           // find first available area to place value
+                        {
+                            // while we're here we might as well see how often we're in what heal mode
+                            if (calcMTD[i] < panicMTD)
+                                panicCount++;
+                            else if (calcMTD[i] > nonSeriousMTD)
+                                nonSeriousCount++;
+                            else
+                                moderateCount++;
+                        }
+
+                    if (panicCount > 8) // if the past 5 times that we calculated our heal mode 2 of them were in panic
                     {
                         moderateMTD++;  // then we need to enter moderate healing more often
                         nonSeriousMTD++;
                     }
 
-                    if (moderateCount > 2 && moderateMTD < nonSeriousMTD - 1) // same as above  but w/ 3 in mode
+                    if (moderateCount > 16 && moderateMTD < nonSeriousMTD - 1) // same as above  but w/ 3 in mode
                         nonSeriousMTD++;   // start healing small heal (renew) sooner
 
-                    if (nonSeriousCount > 4 && nonSeriousMTD > moderateMTD+1 && myCalcMTD[i] < (nonSeriousMTD*2)) // if we're constantly in nonserious (4 of 5 heals) we're healing too often
+                    if (nonSeriousCount > 36 && nonSeriousMTD > (moderateMTD+1) && calcMTD[i] < (nonSeriousMTD*2)) // if we're constantly in nonserious (4 of 5 heals) we're healing too often
                         nonSeriousMTD--;
 
-
-                    myCalcMTD[i]=Math.Ceiling((double)(0 - b) / avgSlope); // we have an approximation of death
+                    double calculatedMTD = Math.Ceiling((double)(0 - b) / avgSlope); //approximate death
+                    if (myCalcMTD.Count < 40)
+                        myHealthHistory.Enqueue(calculatedMTD);
+                    else
+                    {
+                        myHealthHistory.Dequeue();
+                        myHealthHistory.Enqueue(calculatedMTD);
+                    }
 
                     if (healTCount != oldHealTCount)
                     {
                         Log("Average Slope: " + avgSlope + "y-axis: " + b);
-                        Log("Calculated MTD: " + myCalcMTD[i]);
+                        Log("Calculated MTD: " + calcMTD[i]);
                         Log("nonSeriousMTD: " + nonSeriousMTD + "moderateMTD: " + moderateMTD);
                         Log("Health: " + Me.Health);
+                        oldHealTCount = healTCount;
                     }
 
                     /* Something fishy happened full reset */
-                    if (myCalcMTD[i] <= 0)
-                    {
-                        for (int k = 0; k < 20; k++) myHealthHistory[k] = 0;
-                        for (int k = 0; k < 4; k++) myCalcMTD[k] = 0;
-
-                        HealingLogTimer.Reset();
-                        healTCount = 1;
-                        healIndex = 0;
-                    }
-                        
-                    
-                    return (myCalcMTD[i]);
+                    if (calculatedMTD <= 0)
+                        return 0;
+                    else
+                        return (calculatedMTD);
                 }
             }
             catch
@@ -1464,11 +1410,9 @@ namespace Glider.Common.Objects
             // Do we even need to be healed?
             myMTD = calculateMyMTD();
             if (myMTD == 0)
-                myMTD = 1000; // extraordinarily high for the purposeof using the health checks
+                myMTD = 1000; // extraordinarily high for the purpose of using the health checks
 
-                /*
-                return CheckHealthCombat(Target); // No history we'll have to work w/ standard algorithms
-                */
+
             if (myMTD < panicMTD || Me.Health < .20) // Oh noes, shield and flash heal we are certainly dead (recommended 3-5)
             {
 
@@ -1509,7 +1453,7 @@ namespace Glider.Common.Objects
                 }
 
                 // Always slap on a renew.. if we're being hit hard we'll hopefully be back in this section again soon
-                if (Renew.IsReady && IsKeyEnabled("DP.Renew"))
+                if (Renew.IsReady && IsKeyEnabled("DP.Renew") && !HasBuff("Renew"))
                 {
                     CastSpell("DP.Renew");
                     Renew.Reset();
@@ -1523,7 +1467,7 @@ namespace Glider.Common.Objects
                 }
 
                 // Finish off w/ a greater heal?? May need to be removed
-                if (RestHeal.IsReady && IsKeyEnabled("DP.RestHeal"))
+                if (RestHeal.IsReady && IsKeyEnabled("DP.RestHeal") && Me.Health <.5)
                 {
                     CastSpell("DP.RestHeal");
                     FlashHeal.Reset();
@@ -1531,7 +1475,7 @@ namespace Glider.Common.Objects
 
                 return true;
             }
-            else if (myMTD < moderateMTD && !IsShadowform())  
+            else if ((myMTD < moderateMTD || Me.Health < .8) && !IsShadowform() || Me.Health < .5)  
                                             // This is not immediate death but should start taking things into consideration
             {                               // I recommend taking panic's top end and adding 2 seconds (i.e. if PanicHeal is set to 4
                                             // then 2 seconds is 4 more so this would be 8
@@ -1557,9 +1501,14 @@ namespace Glider.Common.Objects
                         CastSpell("DP.RestHeal");
                         RestHeal.Reset();
                     }
+                    else if(FlashHeal.IsReady && IsKeyEnabled("DP.FlashHeal"))
+                    {
+                        CastSpell("DP.FlashHeal");
+                        Renew.Reset();
+                    }
 
                     // Always slap on a renew..
-                    if (Renew.IsReady && IsKeyEnabled("DP.Renew"))
+                    if (Renew.IsReady && IsKeyEnabled("DP.Renew") && !HasBuff("Renew"))
                     {
                         CastSpell("DP.Renew");
                         Renew.Reset();
@@ -1585,7 +1534,7 @@ namespace Glider.Common.Objects
 
 
                 // Always slap on a renew.. if ready
-                if (Renew.IsReady && IsKeyEnabled("DP.Renew"))
+                if (Renew.IsReady && IsKeyEnabled("DP.Renew") && !HasBuff("Renew"))
                 {
                     CastSpell("DP.Renew");
                     Renew.Reset();
@@ -1596,7 +1545,7 @@ namespace Glider.Common.Objects
             {
                 // Well we're hurt but there's no real reason for alarm quite yet
                 // so we'll skip the shield and slap on the renew immediately 
-                if (Renew.IsReady && IsKeyEnabled("DP.Renew"))
+                if (Renew.IsReady && IsKeyEnabled("DP.Renew") && !HasBuff("Renew"))
                 {
                     CastSpell("DP.Renew");
                     Renew.Reset();
@@ -1613,7 +1562,7 @@ namespace Glider.Common.Objects
             }
             else if (Me.Health < .85 && !IsShadowform())
             {
-                if (Renew.IsReady && IsKeyEnabled("DP.Renew"))
+                if (Renew.IsReady && IsKeyEnabled("DP.Renew") && !HasBuff("Renew"))
                 {
                     CastSpell("DP.Renew");
                     Renew.Reset();
@@ -1857,11 +1806,12 @@ namespace Glider.Common.Objects
                 switch (Spells[i])
                 {
                     case "Mind Blast":
-                        if (UseInnerFocus && InnerFocus.IsReady)
+                        if (!SaveInnerFocus && UseInnerFocus && InnerFocus.IsReady)
                         {
-                            CastPull("DP.InnerFocus", Fast);
+                            Log("Using Inner Focus for shielding (mana saving)");
+                            Context.SendKey("DP.InnerFocus");
                             InnerFocus.Reset();
-                            Fast = false;
+                            Fast = true;
                         }
                         Charge(Target, false);
                         if (UseManaBurn && Target.Mana >= ManaBurnPercent)
@@ -2054,9 +2004,10 @@ namespace Glider.Common.Objects
             {
                 if (!Me.HasBuff(PW_FORTITUDE))
                 {
-                    if (UseInnerFocus && InnerFocus.IsReady)
+                    if (!SaveInnerFocus && UseInnerFocus && InnerFocus.IsReady)
                     {
-                        CastSpell("DP.InnerFocus");
+                        Log("Using Inner Focus for PW:Fortitude (mana saving)");
+                        Context.SendKey("DP.InnerFocus");
                         InnerFocus.Reset();
                     }
 
@@ -2153,13 +2104,14 @@ namespace Glider.Common.Objects
         bool CheckPWShield(GUnit Target, bool InCombat)
         {
             if (((InCombat && (RecastShield || Me.Health < 0.2) && UsePWShield) || (!InCombat && UsePWShield)
-                 || GotExtraAttacker(Target)) && (Target.Health >= MinHPShieldRecast || GotExtraAttacker(Target)))
+                 || GotExtraAttacker(Target)) && (Target.Health >= MinHPShieldRecast || GotExtraAttacker(Target)) && IsKeyEnabled("DP.Shield"))
             {
                 if (!Me.HasBuff(PW_SHIELD) && !Me.HasBuff(WEAKENEDSOUL))
                 {
-                    if (UseInnerFocus && InnerFocus.IsReady)
+                    if (!SaveInnerFocus && UseInnerFocus && InnerFocus.IsReady)
                     {
-                        CastSpell("DP.InnerFocus");
+                        Log("Using Inner Focus for shielding (mana saving)");
+                        Context.SendKey("DP.InnerFocus");
                         InnerFocus.Reset();
                     }
                     CastSpell("DP.Shield");
@@ -2209,13 +2161,14 @@ namespace Glider.Common.Objects
 
         bool CheckPWShield()
         {
-            if (UsePWShield && !Me.HasBuff(PW_SHIELD) && !Me.HasBuff(WEAKENEDSOUL))
+            if (UsePWShield && !Me.HasBuff(PW_SHIELD) && !Me.HasBuff(WEAKENEDSOUL) && IsKeyEnabled("DP.Shield"))
             {
-                    if (UseInnerFocus && InnerFocus.IsReady)
-                    {
-                        CastSpell("DP.InnerFocus");
-                        InnerFocus.Reset();
-                    }
+                if (!SaveInnerFocus && UseInnerFocus && InnerFocus.IsReady)
+                {
+                    Log("Using Inner Focus for shielding (mana saving)");
+                    Context.SendKey("DP.InnerFocus");
+                    InnerFocus.Reset();
+                }
  
                     CastSpell("DP.Shield");
                     return true;
@@ -2300,6 +2253,46 @@ namespace Glider.Common.Objects
                     CheckShadowform();
                 }
             }
+        }
+
+        void CheckBuffs()
+        {
+            if (Me.IsInCombat || Me.IsDead)
+                return;
+            CheckShadowform();
+            if (Ability("Shadowguard") && IsKeyEnabled("DP.Shadowguard"))
+            {
+                if (!HasBuff("Shadowguar"))
+                {
+                    CastSpell("DP.Shadowguard");
+                    return;
+                }
+            }
+            if (ShadowProtection && ShadowProt.IsReady && IsKeyEnabled("DP.ShadowProtection"))
+            {
+                Log("Rebuffing Shadow Protection");
+                CastSpell("DP.ShadowProtection");
+                ShadowProt.Reset();
+                return;
+            }
+            if (Ability("Fear") && !Me.HasBuff(6346) && Me.Mana > .3 && FearWard.IsReady && Interface.IsKeyReady("DP.FearWard") && IsKeyEnabled("DP.FearWard"))
+            {
+                Log("Buffing: Fear Ward");
+                if (IsShadowform())
+                    CastSpell("DP.Shadowform");
+                CastSpell("DP.FearWard");
+                FearWard.Reset();
+                if (UseShadowform && !IsShadowform())
+                    CastSpell("DP.Shadowform");
+                return;
+            };
+            if (UseInnerFire && !Me.HasBuff(INNERFIRE) && IsKeyEnabled("DP.InnerFire"))
+            {
+                CastSpell("DP.InnerFire");
+                return;
+            }
+            if (RecentFort.IsReady)
+                CheckFort();
         }
 
         #region CastSpell
@@ -2617,6 +2610,11 @@ namespace Glider.Common.Objects
 
             if (Monster.IsTagged && !Monster.IsMine && !IsAmbush)
                 return GCombatResult.OtherPlayerTag;
+
+
+            /*if(BetterTarget)
+                return KillTarget(BetterTarget)   */
+
             if (UseShadowfiend && Shadowfiend.IsReady && Me.Mana <= ShadowfiendAtPercent)
             {
 
@@ -2658,8 +2656,10 @@ namespace Glider.Common.Objects
             // Start the healing process hehe
             HealingLogTimer.Reset();
             healTCount = 1;
-            for(int i=0; i < 5; i++) myCalcMTD[i]=0;
-            for(int i=0; i < 20; i++) myHealthHistory[i]=0;
+            while (myCalcMTD.Count != 0)
+                myCalcMTD.Dequeue();
+            while (myHealthHistory.Count != 0)
+                myHealthHistory.Dequeue();
 
             while (true)
             {
@@ -2680,12 +2680,20 @@ namespace Glider.Common.Objects
 
                 if (CommonResult != GCombatResult.Unknown)
                 {
-                    for (int i = 0; i < 20; i++) myHealthHistory[i] = 0; //Clear health
+                    while (myHealthHistory.Count != 0)
+                        myHealthHistory.Dequeue(); //Clear health
+                    while (myCalcMTD.Count != 0)
+                        myCalcMTD.Dequeue();
+
                     return CommonResult;
                 }
                 if (Monster.IsDead)
                 {
-                    for (int i = 0; i < 20; i++) myHealthHistory[i] = 0; //Clear health
+                    while (myHealthHistory.Count != 0)
+                        myHealthHistory.Dequeue(); //Clear health
+                    while (myCalcMTD.Count != 0)
+                        myCalcMTD.Dequeue();
+
                     if (Added)
                         return GCombatResult.SuccessWithAdd;
                     return GCombatResult.Success;
@@ -2708,7 +2716,7 @@ namespace Glider.Common.Objects
                 if (!Interface.IsKeyFiring("DP.Wand") && !Me.IsMeleeing && UseMelee)
                     Context.SendKey("DP.Melee");
 
-                if (LowManaScream && PsychicScream.IsReady && Me.Mana < LowManaScreamAt && Monster.DistanceToSelf < 8 && Monster.Health > .18)
+                if (LowManaScream && PsychicScream.IsReady && Me.Mana < LowManaScreamAt && Monster.DistanceToSelf < 8 && Monster.Health > .18 && IsKeyEnabled("DP.PsychicScream"))
                 {
                     Log("Low on mana, screaming!");
                     Context.CastSpell("DP.PsychicScream");
@@ -2844,7 +2852,6 @@ namespace Glider.Common.Objects
                 CheckPWShield(Target, true);
 
 
-
                 if (UseVampiricEmbrace && !HasBuff("Vampiric Embrace", true, Target) && Target.Health >= LowestHpToCast)
                 {
                     Charge(Target, false);
@@ -2872,7 +2879,7 @@ namespace Glider.Common.Objects
                 }
 
 
-                if (UseSWPain && !HasBuff("Shadow Word: Pain", true, Target) && (bahbah == true || bahbah == false) && Target.Health >= LowestHpToCast)
+                if (UseSWPain && !HasBuff("Shadow Word: Pain", true, Target) && (bahbah == true || bahbah == false) && Target.Health >= LowestHpToCast && Me.Mana > MinManaToCast && IsKeyEnabled("DP.SWPain"))
                 {
                     CastSpell("DP.SWPain");
                     bahbah = true;
@@ -2901,7 +2908,12 @@ namespace Glider.Common.Objects
                 if (CommonResult == GCombatResult.Success && Added)
                 {
                     GUnit Add = GObjectList.FindUnit(AddedGUID);
-                    for (int i = 0; i < 20; i++) myHealthHistory[i] = 0; //Clear health
+
+                    while (myCalcMTD.Count != 0)
+                        myCalcMTD.Dequeue();
+                    while (myHealthHistory.Count != 0)
+                        myHealthHistory.Dequeue(); //Clear health
+
                     if (Add == null)
                     {
                         Log(DateTime.Now.ToString() + ": " + "! Could not find add after combat, id = " + AddedGUID.ToString("x"));
