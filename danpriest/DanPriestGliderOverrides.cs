@@ -112,15 +112,14 @@ namespace Glider.Common.Objects
             Context.Debug("OnStartGlide");
             if (!Interface.IsKeyReady("DP.Shadowfiend"))
                 Shadowfiend.Reset();
-
-            CheckShadowform();
-            if (ShadowProtection && ShadowProt.IsReady)
+            if (Me.IsDead || Me.IsInCombat)
             {
-                CastSpell("DP.ShadowProtection");
-                ShadowProt.Reset();
+                base.OnStartGlide();
+                return;
             }
-
-            CheckFort();
+                
+            
+            CheckBuffs();
             base.OnStartGlide();
 
         }
@@ -131,21 +130,10 @@ namespace Glider.Common.Objects
             //GotShadowform = false;
             CheckShadowform();
         }
-        public override bool Rest()
+        public override bool Rest()   // Must write own logic here soon
         {
-            if (RecentFort.IsReady)
-            {
-                CheckFort();
-            }
+            CheckBuffs();
             CheckHealth();
-            CheckShadowform();
-            if (ShadowProtection && ShadowProt.IsReady)
-            {
-                Log("Rebuffing Shadow Protection");
-                CastSpell("DP.ShadowProtection");
-                ShadowProt.Reset();
-            }
-
             return base.Rest();
         }
 
@@ -155,61 +143,16 @@ namespace Glider.Common.Objects
                 ActivePVP();
 
             CheckShadowform();
-            if (ActivePvP)
+            
+            if(ActivePvP)
                 ActivePVP();
-            //will only cast the spell if the key is ready, so there's no chance of running past something.
-            //Checks for Touch of Weakness and casts it if you'r Undead or BloodElfs
-            //Checks for Shadowguard (all ranks) and casts if it can't find anything.
-            if (Ability("Shadowguard"))
-            {
-                if (!HasBuff("Shadowguar"))
-                {
-                    CastSpell("DP.Shadowguard");
-                    return;
-                }
-            }
-            if (ActivePvP)
-                ActivePVP();
-            if (ShadowProtection && ShadowProt.IsReady)
-            {
-                Log("Rebuffing Shadow Protection");
-                CastSpell("DP.ShadowProtection");
-                ShadowProt.Reset();
-                return;
-            }
-            if (ActivePvP)
-                ActivePVP();
-
-            if (ActivePvP)
-                ActivePVP();
-            //Checks for Fear Ward if your a Dwarf or Draenei and enabled your race it will cast Fear Ward.
-            if (Ability("Fear") && !Me.HasBuff(6346) && Me.Mana > .3 && FearWard.IsReady && Interface.IsKeyReady("DP.FearWard"))
-            {
-                Log("Buffing: Fear Ward");
-                if (IsShadowform())
-                    CastSpell("DP.Shadowform");
-                CastSpell("DP.FearWard");
-                FearWard.Reset();
-                if (UseShadowform && !IsShadowform())
-                    CastSpell("DP.Shadowform");
-                return;
-            };
-            if (ActivePvP)
-                ActivePVP();
+            CheckBuffs();
             //Checks for Inner Fire and buffs it if it cant find anything.
-            if (UseInnerFire && !Me.HasBuff(INNERFIRE))
-            {
-                CastSpell("DP.InnerFire");
-                return;
-            }
-            if (ActivePvP)
-                ActivePVP();
+
             if (Context.RemoveDebuffs(GBuffType.Magic, "DP.Dispel", false))
                 return;
             if (ActivePvP)
                 ActivePVP();
-            if (RecentFort.IsReady)
-                CheckFort();
             if (Mount && !IsMounted() && !NearbyEnemy(MountDistance, ActivePvP) && /*!NearbyLoot(MountDistance) &&*/ MountTimer.IsReady && !Me.IsInCombat)
             {
                 Context.ReleaseSpinRun();
@@ -233,11 +176,7 @@ namespace Glider.Common.Objects
 
             Log("ApproachingTarget invoked");
 
-            if (UseInnerFocus && InnerFocus.IsReady)
-            {
-                CastSpell("DP.InnerFocus");
-                InnerFocus.Reset();
-            }
+
             CheckPWShield();
 
         }

@@ -269,16 +269,15 @@ namespace Glider.Common.Objects
         string HandleRunners = "Nothing"; //"Nothing","Mind Blast", "Mind Flay", "Smite", "Holy Fire", "Shadow Word: Death", "Melee-chase", "Wand"
         bool MeleeFlay = false;
 
-        #region new variables
         double MindFlayRange = 20.0;
         int AddsToScream = 2;
 
         #region new variables  // Keep all variables that needs to be added to the config box here
         /*bool RandomPull = true;
         int PullLock = 1; */
+        bool SaveInnerFocus = false; //If true, saves it for emergency. Currently no emergency use
+        #endregion
 
-        #endregion
-        #endregion
         #endregion
 
 
