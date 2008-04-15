@@ -276,6 +276,7 @@ namespace Glider.Common.Objects
         /*bool RandomPull = true;
         int PullLock = 1; */
         bool SaveInnerFocus = false; //If true, saves it for emergency. Currently no emergency use
+        bool UseDivineSpirit = true;
         #endregion
 
         #endregion
