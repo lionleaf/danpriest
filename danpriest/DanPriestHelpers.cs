@@ -1208,6 +1208,10 @@ namespace Glider.Common.Objects
                     return;
                 }
             }
+            if (UseDivineSpirit && (!HasBuff("Divine Spirit") && !HasBuff("Prayer of Spirit")) && IsKeyEnabled("DP.DivineSpirit"))
+            {
+                CastSpell("DP.DivineSpirit");
+            }
             if (ShadowProtection && ShadowProt.IsReady && IsKeyEnabled("DP.ShadowProtection"))
             {
                 Log("Rebuffing Shadow Protection");

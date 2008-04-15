@@ -276,6 +276,7 @@ namespace Glider.Common.Objects
         /*bool RandomPull = true;
         int PullLock = 1; */
         bool SaveInnerFocus = false; //If true, saves it for emergency. Currently no emergency use
+        bool UseDivineSpirit = true;
         #endregion
 
         #endregion
@@ -2267,6 +2268,10 @@ namespace Glider.Common.Objects
                     CastSpell("DP.Shadowguard");
                     return;
                 }
+            }
+            if (UseDivineSpirit && (!HasBuff("Divine Spirit") && !HasBuff("Prayer of Spirit")) && IsKeyEnabled("DP.DivineSpirit"))
+            {
+                CastSpell("DP.DivineSpirit");
             }
             if (ShadowProtection && ShadowProt.IsReady && IsKeyEnabled("DP.ShadowProtection"))
             {
