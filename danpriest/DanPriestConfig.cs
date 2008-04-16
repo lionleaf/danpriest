@@ -216,8 +216,20 @@ namespace Glider.Common.Objects
             MindFlayRange = Context.GetConfigDouble("DanPriest.MindFlayRange");
             UseDivineSpirit = Context.GetConfigBool("DanPriest.UseDivineSpirit");
             UseSimpleHeal = Context.GetConfigBool("DanPriest.UseSimpleHeal");
+            SaveInnerFocus = Context.GetConfigBool("DanPriest.SaveInnerFocus");
             /*HERE = Context.GetConfigBool("DanPriest.HERE");
-            HERE = Context.GetConfigBool("DanPriest.HERE");*/
+             HERE = Context.GetConfigBool("DanPriest.HERE");
+             HERE = Context.GetConfigBool("DanPriest.HERE");
+             HERE = Context.GetConfigBool("DanPriest.HERE");
+             HERE = Context.GetConfigBool("DanPriest.HERE");
+             HERE = Context.GetConfigBool("DanPriest.HERE");
+             HERE = Context.GetConfigBool("DanPriest.HERE");
+             HERE = Context.GetConfigBool("DanPriest.HERE");
+             HERE = Context.GetConfigBool("DanPriest.HERE");
+             HERE = Context.GetConfigBool("DanPriest.HERE");
+             HERE = Context.GetConfigBool("DanPriest.HERE");
+             HERE = Context.GetConfigBool("DanPriest.HERE");
+             */
 
             if (ShowVariables)
             {
