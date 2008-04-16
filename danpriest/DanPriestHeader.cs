@@ -27,6 +27,7 @@ namespace Glider.Common.Objects
         double Fear_Range = 8.0;
         Random ran = new Random();
         string version = "1.2 RC4"
+
 #if PPather
             +" PPather"
 #endif
@@ -40,6 +41,7 @@ namespace Glider.Common.Objects
         bool SkipLoot;
         public int healTCount = 0;
         public int oldHealTCount = 0;
+        public double greaterHealAvg = .20;
 
         //Leave this next one as they are set.
         #endregion
