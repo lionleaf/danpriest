@@ -103,8 +103,8 @@ namespace Glider.Common.Objects
             Context.SetConfigValue("DanPriest.MindFlayRange", MindFlayRange.ToString(), false);
             Context.SetConfigValue("DanPriest.UseDivineSpirit", UseDivineSpirit.ToString(), false);
             Context.SetConfigValue("DanPriest.SaveInnerFocus", SaveInnerFocus.ToString(), false);
+            Context.SetConfigValue("DanPriest.UseSimpleHeal", UseSimpleHeal.ToString(), false);
             /*Context.SetConfigValue("DanPriest.HERE", HERE.ToString(), false);
-            Context.SetConfigValue("DanPriest.HERE", HERE.ToString(), false);
             Context.SetConfigValue("DanPriest.HERE", HERE.ToString(), false);
             Context.SetConfigValue("DanPriest.HERE", HERE.ToString(), false);
             Context.SetConfigValue("DanPriest.HERE", HERE.ToString(), false);
@@ -215,8 +215,8 @@ namespace Glider.Common.Objects
             MeleeFlay = Context.GetConfigBool("DanPriest.MeleeFlay");
             MindFlayRange = Context.GetConfigDouble("DanPriest.MindFlayRange");
             UseDivineSpirit = Context.GetConfigBool("DanPriest.UseDivineSpirit");
+            UseSimpleHeal = Context.GetConfigBool("DanPriest.UseSimpleHeal");
             /*HERE = Context.GetConfigBool("DanPriest.HERE");
-            HERE = Context.GetConfigBool("DanPriest.HERE");
             HERE = Context.GetConfigBool("DanPriest.HERE");*/
 
             if (ShowVariables)
@@ -310,7 +310,7 @@ namespace Glider.Common.Objects
                 Context.Log("MindFlayRange: " + MindFlayRange.ToString());
                 Context.Log("UseDivineSpirit: " + UseDivineSpirit.ToString());
                 Context.Log("SaveInnerFocus: " + SaveInnerFocus.ToString());
-                //Context.Log("HERE: " + HERE.ToString());
+                Context.Log("UseSimpleHeal: " + UseSimpleHeal.ToString());
                 //Context.Log("HERE: " + HERE.ToString());
                 //Context.Log("HERE: " + HERE.ToString());
                 //Context.Log("HERE: " + HERE.ToString());
@@ -462,7 +462,7 @@ namespace Glider.Common.Objects
                     SetConfigValue(configDialog, "DanPriest.MindFlayRange", Context.GetConfigString("DanPriest.MindFlayRange"));
                     SetConfigValue(configDialog, "DanPriest.UseDivineSpirit", Context.GetConfigString("DanPriest.UseDivineSpirit"));
                     SetConfigValue(configDialog, "DanPriest.SaveInnerFocus", Context.GetConfigString("DanPriest.SaveInnerFocus"));
-                    //SetConfigValue(configDialog, "DanPriest.HERE", Context.GetConfigString("DanPriest.HERE"));
+                    SetConfigValue(configDialog, "DanPriest.UseSimpleHeal", Context.GetConfigString("DanPriest.UseSimpleHeal"));
                     //SetConfigValue(configDialog, "DanPriest.HERE", Context.GetConfigString("DanPriest.HERE"));
                     //SetConfigValue(configDialog, "DanPriest.HERE", Context.GetConfigString("DanPriest.HERE"));
                     //SetConfigValue(configDialog, "DanPriest.HERE", Context.GetConfigString("DanPriest.HERE"));
@@ -563,9 +563,9 @@ namespace Glider.Common.Objects
                         Context.SetConfigValue("DanPriest.MeleeFlay", GetConfigValue(configDialog, "DanPriest.MeleeFlay"), true);
                         Context.SetConfigValue("DanPriest.MindFlayRange", GetConfigValue(configDialog, "DanPriest.MindFlayRange"), true);
                         Context.SetConfigValue("DanPriest.UseDivineSpirit", GetConfigValue(configDialog, "DanPriest.UseDivineSpirit"), true);
-                        /*Context.SetConfigValue("DanPriest.HERE", GetConfigValue(configDialog, "DanPriest.HERE"), true);
+                        Context.SetConfigValue("DanPriest.UseSimpleHeal", GetConfigValue(configDialog, "DanPriest.UseSimpleHeal"), true);
                         Context.SetConfigValue("DanPriest.SaveInnerFocus", GetConfigValue(configDialog, "DanPriest.SaveInnerFocus"), true);
-                        Context.SetConfigValue("DanPriest.HERE", GetConfigValue(configDialog, "DanPriest.HERE"), true);
+                        /*Context.SetConfigValue("DanPriest.HERE", GetConfigValue(configDialog, "DanPriest.HERE"), true);
                         Context.SetConfigValue("DanPriest.HERE", GetConfigValue(configDialog, "DanPriest.HERE"), true);
                         Context.SetConfigValue("DanPriest.HERE", GetConfigValue(configDialog, "DanPriest.HERE"), true);
                         Context.SetConfigValue("DanPriest.HERE", GetConfigValue(configDialog, "DanPriest.HERE"), true);

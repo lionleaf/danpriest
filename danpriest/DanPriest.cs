@@ -153,7 +153,7 @@ namespace Glider.Common.Objects
 
         #region Spell Timers
         GSpellTimer MindBlast;      // Duration is set by config
-        GSpellTimer SWDeath;        // Duration is set by config
+        GSpellTimer SWDeath = new GSpellTimer(12*1000,true);        // Duration is set by config
         GSpellTimer SWPain;         // Duration is set by config
         GSpellTimer VampiricTouch;  // Duration is set by config
         GSpellTimer Item1;          // --------- || ------------
@@ -277,6 +277,11 @@ namespace Glider.Common.Objects
         int PullLock = 1; */
         bool SaveInnerFocus = false; //If true, saves it for emergency. Currently no emergency use
         bool UseDivineSpirit = true;
+        bool UseSimpleHeal = true;
+        double Simple_RestHeal = 0;
+        double Simple_FlashHeal = 0.5;
+        double Simple_HealTo = 0.8;
+        double Simple_Renew = 0.75;
         #endregion
 
         #endregion
@@ -390,10 +395,10 @@ namespace Glider.Common.Objects
             Context.SetConfigValue("DanPriest.HandleRunners", HandleRunners.ToString(), false);
             Context.SetConfigValue("DanPriest.MeleeFlay", MeleeFlay.ToString(), false);
             Context.SetConfigValue("DanPriest.MindFlayRange", MindFlayRange.ToString(), false);
+            Context.SetConfigValue("DanPriest.UseDivineSpirit", UseDivineSpirit.ToString(), false);
+            Context.SetConfigValue("DanPriest.SaveInnerFocus", SaveInnerFocus.ToString(), false);
+            Context.SetConfigValue("DanPriest.UseSimpleHeal", UseSimpleHeal.ToString(), false);
             /*Context.SetConfigValue("DanPriest.HERE", HERE.ToString(), false);
-            Context.SetConfigValue("DanPriest.HERE", HERE.ToString(), false);
-            Context.SetConfigValue("DanPriest.HERE", HERE.ToString(), false);
-            Context.SetConfigValue("DanPriest.HERE", HERE.ToString(), false);
             Context.SetConfigValue("DanPriest.HERE", HERE.ToString(), false);
             Context.SetConfigValue("DanPriest.HERE", HERE.ToString(), false);
             Context.SetConfigValue("DanPriest.HERE", HERE.ToString(), false);
@@ -503,9 +508,9 @@ namespace Glider.Common.Objects
             HandleRunners = Context.GetConfigString("DanPriest.HandleRunners");
             MeleeFlay = Context.GetConfigBool("DanPriest.MeleeFlay");
             MindFlayRange = Context.GetConfigDouble("DanPriest.MindFlayRange");
+            UseDivineSpirit = Context.GetConfigBool("DanPriest.UseDivineSpirit");
+            UseSimpleHeal = Context.GetConfigBool("DanPriest.UseSimpleHeal");
             /*HERE = Context.GetConfigBool("DanPriest.HERE");
-            HERE = Context.GetConfigBool("DanPriest.HERE");
-            HERE = Context.GetConfigBool("DanPriest.HERE");
             HERE = Context.GetConfigBool("DanPriest.HERE");*/
 
             if (ShowVariables)
@@ -597,9 +602,9 @@ namespace Glider.Common.Objects
                 Context.Log("HandleRunners: " + HandleRunners.ToString());
                 Context.Log("MeleeFlay: " + MeleeFlay.ToString());
                 Context.Log("MindFlayRange: " + MindFlayRange.ToString());
-                //Context.Log("HERE: " + HERE.ToString());
-                //Context.Log("HERE: " + HERE.ToString());
-                //Context.Log("HERE: " + HERE.ToString());
+                Context.Log("UseDivineSpirit: " + UseDivineSpirit.ToString());
+                Context.Log("SaveInnerFocus: " + SaveInnerFocus.ToString());
+                Context.Log("UseSimpleHeal: " + UseSimpleHeal.ToString());
                 //Context.Log("HERE: " + HERE.ToString());
                 //Context.Log("HERE: " + HERE.ToString());
                 //Context.Log("HERE: " + HERE.ToString());
@@ -749,9 +754,9 @@ namespace Glider.Common.Objects
                     SetConfigValue(configDialog, "DanPriest.HandleRunners", Context.GetConfigString("DanPriest.HandleRunners"));
                     SetConfigValue(configDialog, "DanPriest.MeleeFlay", Context.GetConfigString("DanPriest.MeleeFlay"));
                     SetConfigValue(configDialog, "DanPriest.MindFlayRange", Context.GetConfigString("DanPriest.MindFlayRange"));
-                    //SetConfigValue(configDialog, "DanPriest.HERE", Context.GetConfigString("DanPriest.HERE"));
-                    //SetConfigValue(configDialog, "DanPriest.HERE", Context.GetConfigString("DanPriest.HERE"));
-                    //SetConfigValue(configDialog, "DanPriest.HERE", Context.GetConfigString("DanPriest.HERE"));
+                    SetConfigValue(configDialog, "DanPriest.UseDivineSpirit", Context.GetConfigString("DanPriest.UseDivineSpirit"));
+                    SetConfigValue(configDialog, "DanPriest.SaveInnerFocus", Context.GetConfigString("DanPriest.SaveInnerFocus"));
+                    SetConfigValue(configDialog, "DanPriest.UseSimpleHeal", Context.GetConfigString("DanPriest.UseSimpleHeal"));
                     //SetConfigValue(configDialog, "DanPriest.HERE", Context.GetConfigString("DanPriest.HERE"));
                     //SetConfigValue(configDialog, "DanPriest.HERE", Context.GetConfigString("DanPriest.HERE"));
                     //SetConfigValue(configDialog, "DanPriest.HERE", Context.GetConfigString("DanPriest.HERE"));
@@ -851,10 +856,10 @@ namespace Glider.Common.Objects
                         Context.SetConfigValue("DanPriest.HandleRunners", GetConfigValue(configDialog, "DanPriest.HandleRunners"), true);
                         Context.SetConfigValue("DanPriest.MeleeFlay", GetConfigValue(configDialog, "DanPriest.MeleeFlay"), true);
                         Context.SetConfigValue("DanPriest.MindFlayRange", GetConfigValue(configDialog, "DanPriest.MindFlayRange"), true);
+                        Context.SetConfigValue("DanPriest.UseDivineSpirit", GetConfigValue(configDialog, "DanPriest.UseDivineSpirit"), true);
+                        Context.SetConfigValue("DanPriest.UseSimpleHeal", GetConfigValue(configDialog, "DanPriest.UseSimpleHeal"), true);
+                        Context.SetConfigValue("DanPriest.SaveInnerFocus", GetConfigValue(configDialog, "DanPriest.SaveInnerFocus"), true);
                         /*Context.SetConfigValue("DanPriest.HERE", GetConfigValue(configDialog, "DanPriest.HERE"), true);
-                        Context.SetConfigValue("DanPriest.HERE", GetConfigValue(configDialog, "DanPriest.HERE"), true);
-                        Context.SetConfigValue("DanPriest.HERE", GetConfigValue(configDialog, "DanPriest.HERE"), true);
-                        Context.SetConfigValue("DanPriest.HERE", GetConfigValue(configDialog, "DanPriest.HERE"), true);
                         Context.SetConfigValue("DanPriest.HERE", GetConfigValue(configDialog, "DanPriest.HERE"), true);
                         Context.SetConfigValue("DanPriest.HERE", GetConfigValue(configDialog, "DanPriest.HERE"), true);
                         Context.SetConfigValue("DanPriest.HERE", GetConfigValue(configDialog, "DanPriest.HERE"), true);
@@ -1401,6 +1406,8 @@ namespace Glider.Common.Objects
         // If we're in shadowform then we don't do a thing until specified time.. defaulted to panicMTD
         public bool checkMyHealing(GUnit Target)
         {
+            if (UseSimpleHeal)
+                return SimpleHeal(Target);
 
             double myMTD=0;
 
@@ -1583,6 +1590,26 @@ namespace Glider.Common.Objects
 
         }
  */
+
+        bool SimpleHeal(GUnit Target)
+        {
+            Refresh();
+            if (Me.Health <= Simple_FlashHeal && IsKeyEnabled("DP.FlashHeal"))
+            {
+                CastSpell("DP.FlashHeal");
+                Refresh();
+                if (Me.Health <= Simple_HealTo && IsKeyEnabled("DP.FlashHeal"))
+                    CastSpell("DP.FlashHeal");
+                return true;
+            }
+            Refresh();
+            if (Me.Health <= Simple_Renew && IsKeyEnabled("DP.Renew"))
+            {
+                CastSpell("DP.Renew");
+                return true;
+            }
+            return false;
+        }
         public bool isCaster(GUnit Target)
         {
             if (!Target.IsPlayer)
@@ -2104,12 +2131,13 @@ namespace Glider.Common.Objects
 
         bool CheckPWShield(GUnit Target, bool InCombat)
         {
-            if (((InCombat && (RecastShield || Me.Health < 0.2) && UsePWShield) || (!InCombat && UsePWShield)
+            Refresh();
+            if (( (InCombat && (RecastShield || Me.Health < 0.2) && UsePWShield) || (!InCombat && UsePWShield)
                  || GotExtraAttacker(Target)) && (Target.Health >= MinHPShieldRecast || GotExtraAttacker(Target)) && IsKeyEnabled("DP.Shield"))
             {
-                if (!Me.HasBuff(PW_SHIELD) && !Me.HasBuff(WEAKENEDSOUL))
+                if (!Me.HasBuff(PW_SHIELD) && !Me.HasBuff(WEAKENEDSOUL) && (IsKeyEnabled("DP.Shield") || (UseInnerFocus && InnerFocus.IsReady)))
                 {
-                    if (!SaveInnerFocus && UseInnerFocus && InnerFocus.IsReady)
+                    if ((!IsKeyEnabled("DP.Shield") || !SaveInnerFocus) && UseInnerFocus && InnerFocus.IsReady)
                     {
                         Log("Using Inner Focus for shielding (mana saving)");
                         Context.SendKey("DP.InnerFocus");
@@ -2160,13 +2188,22 @@ namespace Glider.Common.Objects
             return null;   // Never found it.
         }
 
+        void Refresh()
+        {
+            Me.Refresh(true);
+            GObjectList.SetCacheDirty();
+            Me.Refresh(true);
+        }
+
         bool CheckPWShield()
         {
-            if (UsePWShield && !Me.HasBuff(PW_SHIELD) && !Me.HasBuff(WEAKENEDSOUL) && IsKeyEnabled("DP.Shield"))
+            Refresh();
+            
+            if (UsePWShield && !Me.HasBuff(PW_SHIELD) && !Me.HasBuff(WEAKENEDSOUL) && (IsKeyEnabled("DP.Shield")||(UseInnerFocus && InnerFocus.IsReady)))
             {
-                if (!SaveInnerFocus && UseInnerFocus && InnerFocus.IsReady)
+                if ((!IsKeyEnabled("DP.Shield") || !SaveInnerFocus) && UseInnerFocus && InnerFocus.IsReady)
                 {
-                    Log("Using Inner Focus for shielding (mana saving)");
+                    Log("Using Inner Focus");
                     Context.SendKey("DP.InnerFocus");
                     InnerFocus.Reset();
                 }

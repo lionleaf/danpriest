@@ -48,6 +48,7 @@
     <Compile Include="DanPriestKillTarget.cs" />
     <Compile Include="DanPriestPvP.cs" />
     <Compile Include="DanPriestThreads.cs" />
+    <Compile Include="Test.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
