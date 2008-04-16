@@ -294,7 +294,7 @@
 
     <checkbox>
       <label>Save Inner Focus for emergencies</label>
-      <target>DanPriest.UseDivineSpirit</target>
+      <target>DanPriest.SaveInnerFocus</target>
     </checkbox>
 
     <checkbox>
