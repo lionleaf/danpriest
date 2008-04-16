@@ -153,7 +153,7 @@ namespace Glider.Common.Objects
 
         #region Spell Timers
         GSpellTimer MindBlast;      // Duration is set by config
-        GSpellTimer SWDeath;        // Duration is set by config
+        GSpellTimer SWDeath = new GSpellTimer(12*1000,true);        // Duration is set by config
         GSpellTimer SWPain;         // Duration is set by config
         GSpellTimer VampiricTouch;  // Duration is set by config
         GSpellTimer Item1;          // --------- || ------------
@@ -277,6 +277,11 @@ namespace Glider.Common.Objects
         int PullLock = 1; */
         bool SaveInnerFocus = false; //If true, saves it for emergency. Currently no emergency use
         bool UseDivineSpirit = true;
+        bool UseSimpleHeal = true;
+        double Simple_RestHeal = 0;
+        double Simple_FlashHeal = 0.5;
+        double Simple_HealTo = 0.8;
+        double Simple_Renew = 0.75;
         #endregion
 
         #endregion

@@ -340,6 +340,8 @@ namespace Glider.Common.Objects
         // If we're in shadowform then we don't do a thing until specified time.. defaulted to panicMTD
         public bool checkMyHealing(GUnit Target)
         {
+            if (UseSimpleHeal)
+                return SimpleHeal(Target);
 
             double myMTD=0;
 
@@ -522,6 +524,26 @@ namespace Glider.Common.Objects
 
         }
  */
+
+        bool SimpleHeal(GUnit Target)
+        {
+            Refresh();
+            if (Me.Health <= Simple_FlashHeal && IsKeyEnabled("DP.FlashHeal"))
+            {
+                CastSpell("DP.FlashHeal");
+                Refresh();
+                if (Me.Health <= Simple_HealTo && IsKeyEnabled("DP.FlashHeal"))
+                    CastSpell("DP.FlashHeal");
+                return true;
+            }
+            Refresh();
+            if (Me.Health <= Simple_Renew && IsKeyEnabled("DP.Renew"))
+            {
+                CastSpell("DP.Renew");
+                return true;
+            }
+            return false;
+        }
         public bool isCaster(GUnit Target)
         {
             if (!Target.IsPlayer)
@@ -1043,12 +1065,13 @@ namespace Glider.Common.Objects
 
         bool CheckPWShield(GUnit Target, bool InCombat)
         {
-            if (((InCombat && (RecastShield || Me.Health < 0.2) && UsePWShield) || (!InCombat && UsePWShield)
+            Refresh();
+            if (( (InCombat && (RecastShield || Me.Health < 0.2) && UsePWShield) || (!InCombat && UsePWShield)
                  || GotExtraAttacker(Target)) && (Target.Health >= MinHPShieldRecast || GotExtraAttacker(Target)) && IsKeyEnabled("DP.Shield"))
             {
-                if (!Me.HasBuff(PW_SHIELD) && !Me.HasBuff(WEAKENEDSOUL))
+                if (!Me.HasBuff(PW_SHIELD) && !Me.HasBuff(WEAKENEDSOUL) && (IsKeyEnabled("DP.Shield") || (UseInnerFocus && InnerFocus.IsReady)))
                 {
-                    if (!SaveInnerFocus && UseInnerFocus && InnerFocus.IsReady)
+                    if ((!IsKeyEnabled("DP.Shield") || !SaveInnerFocus) && UseInnerFocus && InnerFocus.IsReady)
                     {
                         Log("Using Inner Focus for shielding (mana saving)");
                         Context.SendKey("DP.InnerFocus");
@@ -1099,13 +1122,22 @@ namespace Glider.Common.Objects
             return null;   // Never found it.
         }
 
+        void Refresh()
+        {
+            Me.Refresh(true);
+            GObjectList.SetCacheDirty();
+            Me.Refresh(true);
+        }
+
         bool CheckPWShield()
         {
-            if (UsePWShield && !Me.HasBuff(PW_SHIELD) && !Me.HasBuff(WEAKENEDSOUL) && IsKeyEnabled("DP.Shield"))
+            Refresh();
+            
+            if (UsePWShield && !Me.HasBuff(PW_SHIELD) && !Me.HasBuff(WEAKENEDSOUL) && (IsKeyEnabled("DP.Shield")||(UseInnerFocus && InnerFocus.IsReady)))
             {
-                if (!SaveInnerFocus && UseInnerFocus && InnerFocus.IsReady)
+                if ((!IsKeyEnabled("DP.Shield") || !SaveInnerFocus) && UseInnerFocus && InnerFocus.IsReady)
                 {
-                    Log("Using Inner Focus for shielding (mana saving)");
+                    Log("Using Inner Focus");
                     Context.SendKey("DP.InnerFocus");
                     InnerFocus.Reset();
                 }
