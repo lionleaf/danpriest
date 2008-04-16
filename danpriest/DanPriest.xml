@@ -401,8 +401,8 @@
     </checkbox>
 
     <checkbox>
-      <label>Renew (will not drop Shadowform)</label>
-      <target>DanPriest.UseRenew</target>
+      <label>Use simpleheal instead of super-awesome heal</label>
+      <target>DanPriest.UseSimpleHeal</target>
 
     </checkbox>
 
