@@ -121,7 +121,7 @@ namespace Glider.Common.Objects
         bool HasBuff(String buff, GUnit Target)
         {
 
-
+            Me.Refresh();
             Target.Refresh(true);
             GBuff[] Buffs = Target.GetBuffSnapshot();
             foreach (GBuff Buff in Buffs)
@@ -137,7 +137,7 @@ namespace Glider.Common.Objects
         bool HasBuff(String buff, bool exact, GUnit Target)
         {
 
-
+            Me.Refresh();
             Target.Refresh(true);
             if (!exact)
                 return HasBuff(buff, Target);
@@ -292,7 +292,7 @@ namespace Glider.Common.Objects
                                 moderateCount++;
                         }
 
-                    if (panicCount > 8) // if the past 5 times that we calculated our heal mode 2 of them were in panic
+                    if (panicCount > 8) // if the past 5 times that we calculated our heal mode 8 of them were in panic
                     {
                         moderateMTD++;  // then we need to enter moderate healing more often
                         nonSeriousMTD++;
@@ -370,7 +370,8 @@ namespace Glider.Common.Objects
                     Silence.Reset();
                 }
 
-                CheckPWShield();
+                if(Me.Mana > .15)  // Don't bother w/ the shield if it "may" not allow us to heal could be tweaked
+                    CheckPWShield();
                 
                 if ( (!HasBuff("WEAKENEDSOUL") && !IsKeyEnabled("DP.Shield")) && (Me.Mana < .15 && 
                         Potion.IsReady && Interface.GetActionInventory("DP.ManaPot") > 0))
@@ -409,10 +410,16 @@ namespace Glider.Common.Objects
                 }
 
                 // Finish off w/ a greater heal?? May need to be removed
-                if (RestHeal.IsReady && IsKeyEnabled("DP.RestHeal") && Me.Health <.5)
+                Me.Refresh();
+                if (RestHeal.IsReady && IsKeyEnabled("DP.RestHeal") && Me.Health <.5 && (Me.Health + greaterHealAvg) < 1.10)
                 {
+                    double lastHealth = Me.Health;
+
                     CastSpell("DP.RestHeal");
-                    FlashHeal.Reset();
+                    RestHeal.Reset();
+
+                    Me.Refresh();
+                    greaterHealAvg = ((Me.Health - lastHealth) + greaterHealAvg) / 2;
                 }
 
                 return true;
@@ -436,17 +443,25 @@ namespace Glider.Common.Objects
                 else
                 {
                     //If we can't fear/silence, then it's time to switch strategies to more panicky
-                    CheckPWShield();
+                    if(Me.Mana > .15)
+                        CheckPWShield();
 
-                    if (RestHeal.IsReady && Me.Health < .5 && IsKeyEnabled("DP.RestHeal"))
+                    Me.Refresh();
+                    if (RestHeal.IsReady && IsKeyEnabled("DP.RestHeal") && Me.Health < .5 && (Me.Health + greaterHealAvg) < 1.10)
                     {
+                        double lastHealth = Me.Health;
+
                         CastSpell("DP.RestHeal");
                         RestHeal.Reset();
+
+                        Me.Refresh();
+                        greaterHealAvg = ((Me.Health - lastHealth) + greaterHealAvg) / 2;
                     }
-                    else if(FlashHeal.IsReady && IsKeyEnabled("DP.FlashHeal"))
+
+                    else if (FlashHeal.IsReady && IsKeyEnabled("DP.FlashHeal"))
                     {
                         CastSpell("DP.FlashHeal");
-                        Renew.Reset();
+                        FlashHeal.Reset();
                     }
 
                     // Always slap on a renew..
@@ -461,17 +476,22 @@ namespace Glider.Common.Objects
 
                 // We have successfully feared/or silenced our attacker save the shield for panic
                 // and only do a big ole heal if we're low on health
+                Me.Refresh();
+                if (RestHeal.IsReady && IsKeyEnabled("DP.RestHeal") && Me.Health < .5 && (Me.Health + greaterHealAvg) < 1.10)
+                {
+                    double lastHealth = Me.Health;
 
-
-                 if (RestHeal.IsReady && Me.Health < .5 && IsKeyEnabled("DP.RestHeal"))
-                 {
                     CastSpell("DP.RestHeal");
                     RestHeal.Reset();
-                 }
-                 else if(FlashHeal.IsReady && IsKeyEnabled("DP.FlashHeal"))
+
+                    Me.Refresh();
+                    greaterHealAvg = ((Me.Health - lastHealth) + greaterHealAvg) / 2;
+                }
+
+                else if (FlashHeal.IsReady && IsKeyEnabled("DP.FlashHeal"))
                 {
                     CastSpell("DP.FlashHeal");
-                    Renew.Reset();
+                    FlashHeal.Reset();
                 }
 
 
