@@ -394,9 +394,10 @@ namespace Glider.Common.Objects
                     CastSpell("DP.FlashHeal");
                     FlashHeal.Reset();
                 }
+                Me.Refresh();
 
                 // Always slap on a renew.. if we're being hit hard we'll hopefully be back in this section again soon
-                if (Renew.IsReady && IsKeyEnabled("DP.Renew") && !HasBuff("Renew"))
+                if (Me.Health < .8 && Renew.IsReady && IsKeyEnabled("DP.Renew") && !HasBuff("Renew"))
                 {
                     CastSpell("DP.Renew");
                     Renew.Reset();
@@ -410,7 +411,6 @@ namespace Glider.Common.Objects
                 }
 
                 // Finish off w/ a greater heal?? May need to be removed
-                Me.Refresh();
                 if (RestHeal.IsReady && IsKeyEnabled("DP.RestHeal") && Me.Health <.5 && (Me.Health + greaterHealAvg) < 1.10)
                 {
                     double lastHealth = Me.Health;
@@ -465,7 +465,7 @@ namespace Glider.Common.Objects
                     }
 
                     // Always slap on a renew..
-                    if (Renew.IsReady && IsKeyEnabled("DP.Renew") && !HasBuff("Renew"))
+                    if (Me.Health < .8 && Renew.IsReady && IsKeyEnabled("DP.Renew") && !HasBuff("Renew"))
                     {
                         CastSpell("DP.Renew");
                         Renew.Reset();
@@ -496,7 +496,7 @@ namespace Glider.Common.Objects
 
 
                 // Always slap on a renew.. if ready
-                if (Renew.IsReady && IsKeyEnabled("DP.Renew") && !HasBuff("Renew"))
+                if (Me.Health < .8 && Renew.IsReady && IsKeyEnabled("DP.Renew") && !HasBuff("Renew"))
                 {
                     CastSpell("DP.Renew");
                     Renew.Reset();
@@ -513,16 +513,9 @@ namespace Glider.Common.Objects
                     Renew.Reset();
                 }
 
-                if (FlashHeal.IsReady && IsKeyEnabled("DP.FlashHeal"))
-                {
-                    CastSpell("DP.FlashHeal");
-                    Renew.Reset();
-                }
-
-
                 return true;
             }
-            else if (Me.Health < .85 && !IsShadowform())
+            else if (Me.Health < .80 && !IsShadowform())
             {
                 if (Renew.IsReady && IsKeyEnabled("DP.Renew") && !HasBuff("Renew"))
                 {
