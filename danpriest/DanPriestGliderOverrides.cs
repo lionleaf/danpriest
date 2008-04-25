@@ -112,23 +112,15 @@ namespace Glider.Common.Objects
             Context.Debug("OnStartGlide");
             if (!Interface.IsKeyReady("DP.Shadowfiend"))
                 Shadowfiend.Reset();
-            if (Me.IsDead || Me.IsInCombat)
-            {
-                base.OnStartGlide();
-                return;
-            }
-                
             
-            CheckBuffs();
+            CheckBuffs(true);
             base.OnStartGlide();
 
         }
 
         public override void OnResurrect()
         {
-            CheckFort();
-            //GotShadowform = false;
-            CheckShadowform();
+            CheckBuffs(true);
         }
         public override bool Rest()   // Must write own logic here soon
         {
@@ -146,7 +138,7 @@ namespace Glider.Common.Objects
             
             if(ActivePvP)
                 ActivePVP();
-            CheckBuffs();
+            CheckBuffs(false);
             //Checks for Inner Fire and buffs it if it cant find anything.
 
             if (Context.RemoveDebuffs(GBuffType.Magic, "DP.Dispel", false))
@@ -175,8 +167,6 @@ namespace Glider.Common.Objects
             }
 
             Log("ApproachingTarget invoked");
-
-
             CheckPWShield();
 
         }

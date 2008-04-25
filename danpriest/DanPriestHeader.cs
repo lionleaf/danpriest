@@ -157,7 +157,7 @@ namespace Glider.Common.Objects
         GSpellTimer MindBlast;      // Duration is set by config
         GSpellTimer SWDeath = new GSpellTimer(12*1000,true);        // Duration is set by config
         GSpellTimer SWPain;         // Duration is set by config
-        GSpellTimer VampiricTouch;  // Duration is set by config
+        GSpellTimer VampiricTouch = new GSpellTimer(10 * 1000, true);
         GSpellTimer Item1;          // --------- || ------------
         GSpellTimer Item2;          // --------- || ------------
         GSpellTimer AddBackup = new GSpellTimer(4 * 1000);
