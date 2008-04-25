@@ -1063,7 +1063,7 @@ namespace Glider.Common.Objects
             }
 
             Log("ApproachingTarget invoked");
-            CheckPWShield();
+            CheckPWShield(true);
 
         }
         #endregion
@@ -1146,6 +1146,21 @@ namespace Glider.Common.Objects
             }
             return false;
 
+        }
+        bool HasBuff(int buff)
+        {
+            Refresh();
+            if (Me.HasBuff(buff))
+                return true;
+            return false;
+
+        }
+        bool HasBuff(int[] buffs)
+        {
+            foreach (int buff in buffs)
+                if (HasBuff(buff))
+                    return true;
+            return false;
         }
 
         // Want to know the index into the debuff array to see if the item is dispellable
@@ -2210,16 +2225,20 @@ namespace Glider.Common.Objects
         {
             Me.Refresh(true);
             Thread.Sleep(20);
+            Me.SetBuffsDirty();
             GObjectList.SetCacheDirty();
+            Me.SetBuffsDirty();
             Thread.Sleep(20);
             Me.Refresh(true);
         }
         void Refresh(GUnit Target)
         {
             Target.Refresh(true);
+            Target.SetBuffsDirty();
             Thread.Sleep(20);
             GObjectList.SetCacheDirty();
             Thread.Sleep(20);
+            Target.SetBuffsDirty();
             Target.Refresh(true);
         }
 
@@ -2227,7 +2246,7 @@ namespace Glider.Common.Objects
         {
             Refresh();
 
-            if (UsePWShield && !Me.HasBuff(PW_SHIELD) && !Me.HasBuff(WEAKENEDSOUL) && (IsKeyEnabled("DP.Shield") || (UseInnerFocus && InnerFocus.IsReady)))
+            if (UsePWShield && !HasBuff(PW_SHIELD) && !HasBuff(WEAKENEDSOUL) && (IsKeyEnabled("DP.Shield") || (UseInnerFocus && InnerFocus.IsReady)))
             {
                 if ((!IsKeyEnabled("DP.Shield") || !SaveInnerFocus) && UseInnerFocus && InnerFocus.IsReady)
                 {
@@ -2237,6 +2256,30 @@ namespace Glider.Common.Objects
                 }
 
                 CastSpell("DP.Shield");
+                return true;
+
+
+            }
+            return false;
+        }
+
+
+        bool CheckPWShield(bool Running)
+        {
+            Refresh();
+            if (!Running)
+                return CheckPWShield();
+
+            if (UsePWShield && !HasBuff(PW_SHIELD) && !HasBuff(WEAKENEDSOUL) && (IsKeyEnabled("DP.Shield") || (UseInnerFocus && InnerFocus.IsReady)))
+            {
+                if ((!IsKeyEnabled("DP.Shield") || !SaveInnerFocus) && UseInnerFocus && InnerFocus.IsReady)
+                {
+                    Log("Using Inner Focus");
+                    Context.SendKey("DP.InnerFocus");
+                    InnerFocus.Reset();
+                }
+
+                Context.SendKey("DP.Shield");
                 return true;
 
 

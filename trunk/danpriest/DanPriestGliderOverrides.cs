@@ -167,7 +167,7 @@ namespace Glider.Common.Objects
             }
 
             Log("ApproachingTarget invoked");
-            CheckPWShield();
+            CheckPWShield(true);
 
         }
         #endregion
