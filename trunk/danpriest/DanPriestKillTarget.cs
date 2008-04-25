@@ -170,7 +170,12 @@ namespace Glider.Common.Objects
                     PanicHeal(Target);
                     continue;
                 }
-
+                if (CastSWDeath(Target))
+                {
+                    CastSpell("DP.SWDeath");
+                    SWDeath.Reset();
+                    continue;
+                }
                 if (Target.DistanceToSelf > Context.MeleeDistance && IsClose && HandleRunners != "Nothing")
                 {
                     Log("We got a runner, dealing with it");
@@ -179,24 +184,20 @@ namespace Glider.Common.Objects
                     switch (HandleRunners)
                     {
                         case "Mind Flay":
-                            StopWand();
                             CastSpell("DP.MindFlay", Target);
                             break;
                         case "Mind Blast":
-                            StopWand();
                             CastSpell("DP.MindBlast", Target);
                             break;
                         case "Smite":
-                            StopWand();
                             CastSpell("DP.Smite", Target);
                             break;
                         case "Holy Fire":
-                            StopWand();
                             CastSpell("DP.HolyFire", Target);
                             break;
                         case "Shadow Word: Death":
-                            StopWand();
-                            CastSpell("DP.SWDeath", Target);
+                            if (CastSWDeath(Target))
+                                CastSpell("DP.SWDeath", Target);
                             break;
                         case "Melee-chase":
                             Target.Approach(Context.MeleeDistance);
@@ -221,12 +222,7 @@ namespace Glider.Common.Objects
                 if (Target.Health > .2 && AvoidAdds)
                     ConsiderAvoidAdds();
 
-                if (UseSWDeath && Monster.Health <= SWDeathAtPercent && Monster.Health > SWDeathAtPercent)
-                {
-                    CastSpell("DP.SWDeath");
-                    SWDeath.Reset();
-                    continue;
-                }
+                
 
                 if (UseSilence && Silence.IsReady && Monster.IsCasting && Target.DistanceToSelf <= 24)
                 {

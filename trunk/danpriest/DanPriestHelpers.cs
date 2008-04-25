@@ -66,7 +66,7 @@ namespace Glider.Common.Objects
         {
 
 
-            Me.Refresh(true);
+            Refresh();
             GBuff[] Buffs = Me.GetBuffSnapshot();
             foreach (GBuff Buff in Buffs)
             {
@@ -82,7 +82,7 @@ namespace Glider.Common.Objects
         {
 
 
-            Me.Refresh(true);
+            Refresh();
             GBuff[] Buffs = Me.GetBuffSnapshot();
             int count = 0;
             foreach (GBuff Buff in Buffs)
@@ -104,7 +104,7 @@ namespace Glider.Common.Objects
         {
 
 
-            Me.Refresh(true);
+            Refresh();
             if (!exact)
                 return HasBuff(buff);
 
@@ -121,7 +121,7 @@ namespace Glider.Common.Objects
         bool HasBuff(String buff, GUnit Target)
         {
 
-            Me.Refresh();
+            Refresh(Target);
             Target.Refresh(true);
             GBuff[] Buffs = Target.GetBuffSnapshot();
             foreach (GBuff Buff in Buffs)
@@ -137,7 +137,7 @@ namespace Glider.Common.Objects
         bool HasBuff(String buff, bool exact, GUnit Target)
         {
 
-            Me.Refresh();
+            Refresh(Target);
             Target.Refresh(true);
             if (!exact)
                 return HasBuff(buff, Target);
@@ -1138,8 +1138,18 @@ namespace Glider.Common.Objects
         void Refresh()
         {
             Me.Refresh(true);
+            Thread.Sleep(20);
             GObjectList.SetCacheDirty();
+            Thread.Sleep(20);
             Me.Refresh(true);
+        }
+        void Refresh(GUnit Target)
+        {
+            Target.Refresh(true);
+            Thread.Sleep(20);
+            GObjectList.SetCacheDirty();
+            Thread.Sleep(20);
+            Target.Refresh(true);
         }
 
         bool CheckPWShield()
@@ -1302,6 +1312,16 @@ namespace Glider.Common.Objects
             Thread.Sleep(SleepAfterReady);
             Log("Casting - " + Spell.ToString());
             Context.CastSpell(Spell, false, false);
+        }
+
+        bool CastSWDeath(GUnit Target)
+        {
+            if (UseSWDeath && 
+                (!Interface.IsKeyFiring("DP.Wand") && Target.Health <= SWDeathAtPercent 
+                || Interface.IsKeyFiring("DP.Wand") && Target.Health <= (SWDeathAtPercent + WandStopPercentage))
+                && Target.Health > 0.01 && SWDeath.IsReady)
+                return true;
+            return false;
         }
 
         void CastSpell(string Spell, GUnit Target)

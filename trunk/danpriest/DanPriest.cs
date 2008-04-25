@@ -284,6 +284,7 @@ namespace Glider.Common.Objects
         double Simple_FlashHeal = 0.5;
         double Simple_HealTo = 0.8;
         double Simple_Renew = 0.75;
+        double WandStopPercentage = 0.05;
         #endregion
 
         #endregion
@@ -1136,7 +1137,7 @@ namespace Glider.Common.Objects
         {
 
 
-            Me.Refresh(true);
+            Refresh();
             GBuff[] Buffs = Me.GetBuffSnapshot();
             foreach (GBuff Buff in Buffs)
             {
@@ -1152,7 +1153,7 @@ namespace Glider.Common.Objects
         {
 
 
-            Me.Refresh(true);
+            Refresh();
             GBuff[] Buffs = Me.GetBuffSnapshot();
             int count = 0;
             foreach (GBuff Buff in Buffs)
@@ -1174,7 +1175,7 @@ namespace Glider.Common.Objects
         {
 
 
-            Me.Refresh(true);
+            Refresh();
             if (!exact)
                 return HasBuff(buff);
 
@@ -1191,7 +1192,7 @@ namespace Glider.Common.Objects
         bool HasBuff(String buff, GUnit Target)
         {
 
-            Me.Refresh();
+            Refresh(Target);
             Target.Refresh(true);
             GBuff[] Buffs = Target.GetBuffSnapshot();
             foreach (GBuff Buff in Buffs)
@@ -1207,7 +1208,7 @@ namespace Glider.Common.Objects
         bool HasBuff(String buff, bool exact, GUnit Target)
         {
 
-            Me.Refresh();
+            Refresh(Target);
             Target.Refresh(true);
             if (!exact)
                 return HasBuff(buff, Target);
@@ -2208,8 +2209,18 @@ namespace Glider.Common.Objects
         void Refresh()
         {
             Me.Refresh(true);
+            Thread.Sleep(20);
             GObjectList.SetCacheDirty();
+            Thread.Sleep(20);
             Me.Refresh(true);
+        }
+        void Refresh(GUnit Target)
+        {
+            Target.Refresh(true);
+            Thread.Sleep(20);
+            GObjectList.SetCacheDirty();
+            Thread.Sleep(20);
+            Target.Refresh(true);
         }
 
         bool CheckPWShield()
@@ -2372,6 +2383,16 @@ namespace Glider.Common.Objects
             Thread.Sleep(SleepAfterReady);
             Log("Casting - " + Spell.ToString());
             Context.CastSpell(Spell, false, false);
+        }
+
+        bool CastSWDeath(GUnit Target)
+        {
+            if (UseSWDeath && 
+                (!Interface.IsKeyFiring("DP.Wand") && Target.Health <= SWDeathAtPercent 
+                || Interface.IsKeyFiring("DP.Wand") && Target.Health <= (SWDeathAtPercent + WandStopPercentage))
+                && Target.Health > 0.01 && SWDeath.IsReady)
+                return true;
+            return false;
         }
 
         void CastSpell(string Spell, GUnit Target)
@@ -2792,7 +2813,12 @@ namespace Glider.Common.Objects
                     PanicHeal(Target);
                     continue;
                 }
-
+                if (CastSWDeath(Target))
+                {
+                    CastSpell("DP.SWDeath");
+                    SWDeath.Reset();
+                    continue;
+                }
                 if (Target.DistanceToSelf > Context.MeleeDistance && IsClose && HandleRunners != "Nothing")
                 {
                     Log("We got a runner, dealing with it");
@@ -2801,24 +2827,20 @@ namespace Glider.Common.Objects
                     switch (HandleRunners)
                     {
                         case "Mind Flay":
-                            StopWand();
                             CastSpell("DP.MindFlay", Target);
                             break;
                         case "Mind Blast":
-                            StopWand();
                             CastSpell("DP.MindBlast", Target);
                             break;
                         case "Smite":
-                            StopWand();
                             CastSpell("DP.Smite", Target);
                             break;
                         case "Holy Fire":
-                            StopWand();
                             CastSpell("DP.HolyFire", Target);
                             break;
                         case "Shadow Word: Death":
-                            StopWand();
-                            CastSpell("DP.SWDeath", Target);
+                            if (CastSWDeath(Target))
+                                CastSpell("DP.SWDeath", Target);
                             break;
                         case "Melee-chase":
                             Target.Approach(Context.MeleeDistance);
@@ -2843,12 +2865,7 @@ namespace Glider.Common.Objects
                 if (Target.Health > .2 && AvoidAdds)
                     ConsiderAvoidAdds();
 
-                if (UseSWDeath && Monster.Health <= SWDeathAtPercent && Monster.Health > SWDeathAtPercent)
-                {
-                    CastSpell("DP.SWDeath");
-                    SWDeath.Reset();
-                    continue;
-                }
+                
 
                 if (UseSilence && Silence.IsReady && Monster.IsCasting && Target.DistanceToSelf <= 24)
                 {
