@@ -1636,7 +1636,7 @@ namespace Glider.Common.Objects
                 return true;
             }
             Refresh();
-            if (Me.Health <= Simple_Renew && IsKeyEnabled("DP.Renew"))
+            if (Me.Health <= Simple_Renew && IsKeyEnabled("DP.Renew") && !HasBuff("Renew"))
             {
                 CastSpell("DP.Renew");
                 return true;
