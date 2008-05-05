@@ -8,17 +8,17 @@ Version 1.2 will soon be released, and is supposed to be the stable version to f
 = List =
 
 *Bold* means important. _italic_ means not so important
-  * *OOM checks!*   //Use IsKeyEnabled ??
+  * *OOM checks!*   //Use IsKeyEnabled
   * *GSpellTimer for SW: P, to prevent double-cast*
-  * *Simple-healing*
-  * Fix our super awesome healing-algorithm
+  * Improve simple-healing
+  * Fix our super awesome healing-algorithm to be less heal-loving
   * _Add code to detect chance of getting add on pull (look at Parrior)_
   * More Log()
   * _Random cast sequence_
   * _Handle mutliple adds_
   * *When done with add, must kill the next one insta, no pausing!*
-  *
-  *
-  *
-  *
+  * *Right before getting aggro on pull, check for anything else closer*
+  * *Improve Inner Focus*
+  * *Add Pain Suppression and Power Infusion (on pull and or while healing?)*
+  * 
   * More to come
