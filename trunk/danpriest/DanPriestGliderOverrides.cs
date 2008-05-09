@@ -163,7 +163,7 @@ namespace Glider.Common.Objects
             if (Ability("Touch of Weakness"))
             {
                 if (!HasBuff("Touch of Weakness"))
-                    CastSpell("DP.TouchOfWeakness");
+                    Context.SendKey("DP.TouchOfWeakness");
             }
 
             Log("ApproachingTarget invoked");
