@@ -1639,7 +1639,7 @@ namespace Glider.Common.Objects
                 return true;
             }
             Refresh();
-            if (Me.Health <= Simple_Renew && IsKeyEnabled("DP.Renew") && !HasBuff("Renew"))
+            if (Me.Health <= Simple_Renew && IsKeyEnabled("DP.Renew") && !HasBuff("Renew") && !IsShadowform())
             {
                 CastSpell("DP.Renew");
                 return true;
@@ -3111,6 +3111,7 @@ namespace Glider.Common.Objects
     partial class DanPriest
     {
         //Add PvP variables here!
+        bool PvP_UseMindFlay, PvP_UseVampiricTouch = true;
 
     }
 }
