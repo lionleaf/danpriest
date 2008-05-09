@@ -14,6 +14,8 @@ namespace Glider.Common.Objects
         #region KillTarget
         public override GCombatResult KillTarget(GUnit Target, bool IsAmbush)
         {
+            if (Target.IsPlayer)
+                return KillPlayer((GPlayer)Target, Me.Location);
             #region pull
             Log("KillTarget invoked");
 
@@ -26,8 +28,7 @@ namespace Glider.Common.Objects
 
             Added = false;
 
-            if (Target.IsPlayer)
-                return KillPlayer((GPlayer)Target, Me.Location);
+            
 
             GMonster Monster = (GMonster)Target;
             Context.ReleaseSpin();

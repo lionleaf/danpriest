@@ -1067,6 +1067,9 @@ namespace Glider.Common.Objects
             Log("ApproachingTarget invoked");
             CheckPWShield(true);
 
+
+
+
         }
         #endregion
 
@@ -1091,8 +1094,43 @@ namespace Glider.Common.Objects
         bool IsMounted()
         {
 
-
+            Refresh();
             GBuff[] buffs = Me.GetBuffSnapshot();
+            for (int i = 0; i < buffs.Length; i++)
+            {
+                GBuff b = buffs[i];
+                string s = b.SpellName;
+                if (s.Contains("Horse") || s.Contains("Warhorse") ||
+                   s.Contains("Raptor") ||
+                   s.Contains("Kodo") ||
+                   s.Contains("Wolf") ||
+                   s.Contains("Saber") ||
+                   s.Contains("Ram") ||
+                   s.Contains("Mechanostrider") ||
+                   s.Contains("Hawkstrider") ||
+                   s.Contains("Elekk") ||
+                   s.Contains("Steed") ||
+                   s.Contains("Tiger") ||
+                   s.Contains("Frostwolf Howler") ||
+                   s.Contains("Talbuk") ||
+                   s.Contains("Frostsaber") ||
+                   s.Contains("Battle Tank") ||
+                   s.Contains("Reins") || // yeah right
+                   s.Contains("Turtle")  // lol
+                    )
+                {
+                    return true;
+                }
+            }
+            return false;
+
+        }
+
+        bool IsMounted(GUnit Target)
+        {
+
+            Refresh(Target);
+            GBuff[] buffs = Target.GetBuffSnapshot();
             for (int i = 0; i < buffs.Length; i++)
             {
                 GBuff b = buffs[i];
@@ -2021,30 +2059,6 @@ namespace Glider.Common.Objects
             return false;
         }
 
-        void ActivePVP()
-        {
-            //Find all nearby players
-            GPlayer[] Players = GObjectList.GetPlayers();
-            if (Players.Length < 1) return; //No players
-            foreach (GPlayer Player in Players) //Check every player...
-            {
-                //Check if player is targeting me and if player is opposite faction
-                if (Player != Me && Player.Refresh(true) && Player.DistanceToSelf < 40 && !Player.IsSameFaction)
-                {
-                    if (Player.Level < Me.Level + 7 && Player.Level > Me.Level - 1)
-                    {
-                        Player.Approach(PullDistance, false);
-                        TargetUnit(Player, false);
-                        if (Me.Target == Player)
-                        {
-                            Log("Initiating Combat");
-                            KillTarget(Player, false);
-                            return;
-                        }
-                    }
-                }
-            }
-        }
         //Target a specified unit if not already targeted
         void TargetUnit(GUnit Target, bool FirstTarget)
         {
@@ -2700,6 +2714,8 @@ namespace Glider.Common.Objects
         #region KillTarget
         public override GCombatResult KillTarget(GUnit Target, bool IsAmbush)
         {
+            if (Target.IsPlayer)
+                return KillPlayer((GPlayer)Target, Me.Location);
             #region pull
             Log("KillTarget invoked");
 
@@ -2712,8 +2728,7 @@ namespace Glider.Common.Objects
 
             Added = false;
 
-            if (Target.IsPlayer)
-                return KillPlayer((GPlayer)Target, Me.Location);
+            
 
             GMonster Monster = (GMonster)Target;
             Context.ReleaseSpin();
@@ -3111,8 +3126,30 @@ namespace Glider.Common.Objects
     partial class DanPriest
     {
         //Add PvP variables here!
-        bool PvP_UseMindFlay, PvP_UseVampiricTouch = true;
+        
+#region Bool Use variables
+#region Default true
+        bool PvP_UseMindFlay = true;
+        bool PvP_UseSWDeath = true;
+        bool PvP_UsePWShield = true;
+        bool PvP_UseSWPain = true;
+        bool PvP_UseMindBlast = true;
+        bool PvP_UseSmite = true;
+        bool PvP_UseSWDeathAsDps = true;
+        bool PvP_UseVampiricEmbrace = true;
+#endregion
+#region Default false
+        bool PvP_UseVampiricTouch = false;
 
+#endregion
+        #region misc variables
+        int MaxZDifference = 30;
+        #endregion
+#endregion
+
+        #region Variables for future use, commented
+
+        #endregion
     }
 }
 
@@ -3132,7 +3169,7 @@ namespace Glider.Common.Objects
         GCombatResult KillPlayer(GPlayer Target, GLocation Anchor)
         {
             GCombatResult result;
-            Context.Log("Attempting to kill player: " + Target.Name + " a lvl " + Target.Level + " " + Target.PlayerClass + " " + Target.PlayerRace);
+            Context.Log("Attempting to kill player: " + Target.Name + " a lvl " + Target.Level + " " + Target.PlayerRace + " " + Target.PlayerClass);
             bool Moved = false;
             bool Fast = false;
             GSpellTimer FutileCombat = new GSpellTimer(2 * 60 * 1000, false);
@@ -3285,7 +3322,7 @@ namespace Glider.Common.Objects
                 }
 
                 Target.Face();
-                if (UseMindFlay && MindFlayPC.IsReady)
+                if (UseMindFlay && MindFlayPC.IsReady && Target.DistanceToSelf <= MindFlayRange)
                 {
                     CastSpell("DP.MindFlay", Fast, Target);
                     MindFlayPC.Reset();
@@ -3364,6 +3401,44 @@ namespace Glider.Common.Objects
 
             return GCombatResult.Unknown;
 
+        }
+        bool IsOutOfReach(GUnit Target)
+        {
+            if (Me.Location.Z - Target.Location.Z < MaxZDifference && Me.Location.Z - Target.Location.Z > MaxZDifference)
+                return true;
+            return false;
+        }
+
+        bool OkToAttack(GPlayer Target)
+        {
+            if (IsMounted(Target) || IsOutOfReach(Target))
+                return false;
+            return true;
+        }
+
+        void ActivePVP()
+        {
+            //Find all nearby players
+            GPlayer[] Players = GObjectList.GetPlayers();
+            if (Players.Length < 1) return; //No players
+            foreach (GPlayer Player in Players) //Check every player...
+            {
+                //Check if player is targeting me and if player is opposite faction
+                if (Player != Me && Player.Refresh(true) && Player.DistanceToSelf < 40 && !Player.IsSameFaction)
+                {
+                    if (Player.Level < Me.Level + 7 && Player.Level > Me.Level - 1 && OkToAttack(Player))
+                    {
+                        Player.Approach(PullDistance, false);
+                        TargetUnit(Player, false);
+                        if (Me.Target == Player)
+                        {
+                            Log("Initiating Combat");
+                            KillTarget(Player, false);
+                            return;
+                        }
+                    }
+                }
+            }
         }
         GUnit BestTarget(GUnit Target)
         {

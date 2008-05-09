@@ -18,8 +18,43 @@ namespace Glider.Common.Objects
         bool IsMounted()
         {
 
-
+            Refresh();
             GBuff[] buffs = Me.GetBuffSnapshot();
+            for (int i = 0; i < buffs.Length; i++)
+            {
+                GBuff b = buffs[i];
+                string s = b.SpellName;
+                if (s.Contains("Horse") || s.Contains("Warhorse") ||
+                   s.Contains("Raptor") ||
+                   s.Contains("Kodo") ||
+                   s.Contains("Wolf") ||
+                   s.Contains("Saber") ||
+                   s.Contains("Ram") ||
+                   s.Contains("Mechanostrider") ||
+                   s.Contains("Hawkstrider") ||
+                   s.Contains("Elekk") ||
+                   s.Contains("Steed") ||
+                   s.Contains("Tiger") ||
+                   s.Contains("Frostwolf Howler") ||
+                   s.Contains("Talbuk") ||
+                   s.Contains("Frostsaber") ||
+                   s.Contains("Battle Tank") ||
+                   s.Contains("Reins") || // yeah right
+                   s.Contains("Turtle")  // lol
+                    )
+                {
+                    return true;
+                }
+            }
+            return false;
+
+        }
+
+        bool IsMounted(GUnit Target)
+        {
+
+            Refresh(Target);
+            GBuff[] buffs = Target.GetBuffSnapshot();
             for (int i = 0; i < buffs.Length; i++)
             {
                 GBuff b = buffs[i];
@@ -948,30 +983,6 @@ namespace Glider.Common.Objects
             return false;
         }
 
-        void ActivePVP()
-        {
-            //Find all nearby players
-            GPlayer[] Players = GObjectList.GetPlayers();
-            if (Players.Length < 1) return; //No players
-            foreach (GPlayer Player in Players) //Check every player...
-            {
-                //Check if player is targeting me and if player is opposite faction
-                if (Player != Me && Player.Refresh(true) && Player.DistanceToSelf < 40 && !Player.IsSameFaction)
-                {
-                    if (Player.Level < Me.Level + 7 && Player.Level > Me.Level - 1)
-                    {
-                        Player.Approach(PullDistance, false);
-                        TargetUnit(Player, false);
-                        if (Me.Target == Player)
-                        {
-                            Log("Initiating Combat");
-                            KillTarget(Player, false);
-                            return;
-                        }
-                    }
-                }
-            }
-        }
         //Target a specified unit if not already targeted
         void TargetUnit(GUnit Target, bool FirstTarget)
         {

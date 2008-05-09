@@ -14,7 +14,7 @@ namespace Glider.Common.Objects
         GCombatResult KillPlayer(GPlayer Target, GLocation Anchor)
         {
             GCombatResult result;
-            Context.Log("Attempting to kill player: " + Target.Name + " a lvl " + Target.Level + " " + Target.PlayerClass + " " + Target.PlayerRace);
+            Context.Log("Attempting to kill player: " + Target.Name + " a lvl " + Target.Level + " " + Target.PlayerRace + " " + Target.PlayerClass);
             bool Moved = false;
             bool Fast = false;
             GSpellTimer FutileCombat = new GSpellTimer(2 * 60 * 1000, false);
@@ -167,7 +167,7 @@ namespace Glider.Common.Objects
                 }
 
                 Target.Face();
-                if (UseMindFlay && MindFlayPC.IsReady)
+                if (UseMindFlay && MindFlayPC.IsReady && Target.DistanceToSelf <= MindFlayRange)
                 {
                     CastSpell("DP.MindFlay", Fast, Target);
                     MindFlayPC.Reset();
