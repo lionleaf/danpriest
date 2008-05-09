@@ -58,6 +58,44 @@ namespace Glider.Common.Objects
             return GCombatResult.Unknown;
 
         }
+        bool IsOutOfReach(GUnit Target)
+        {
+            if (Me.Location.Z - Target.Location.Z < MaxZDifference && Me.Location.Z - Target.Location.Z > MaxZDifference)
+                return true;
+            return false;
+        }
+
+        bool OkToAttack(GPlayer Target)
+        {
+            if (IsMounted(Target) || IsOutOfReach(Target))
+                return false;
+            return true;
+        }
+
+        void ActivePVP()
+        {
+            //Find all nearby players
+            GPlayer[] Players = GObjectList.GetPlayers();
+            if (Players.Length < 1) return; //No players
+            foreach (GPlayer Player in Players) //Check every player...
+            {
+                //Check if player is targeting me and if player is opposite faction
+                if (Player != Me && Player.Refresh(true) && Player.DistanceToSelf < 40 && !Player.IsSameFaction)
+                {
+                    if (Player.Level < Me.Level + 7 && Player.Level > Me.Level - 1 && OkToAttack(Player))
+                    {
+                        Player.Approach(PullDistance, false);
+                        TargetUnit(Player, false);
+                        if (Me.Target == Player)
+                        {
+                            Log("Initiating Combat");
+                            KillTarget(Player, false);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
         GUnit BestTarget(GUnit Target)
         {
 
