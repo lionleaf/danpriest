@@ -11,6 +11,7 @@ namespace Glider.Common.Objects
     partial class DanPriest
     {
         //Add PvP variables here!
+        bool PvP_UseMindFlay, PvP_UseVampiricTouch = true;
 
     }
 }
