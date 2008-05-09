@@ -566,7 +566,7 @@ namespace Glider.Common.Objects
                 return true;
             }
             Refresh();
-            if (Me.Health <= Simple_Renew && IsKeyEnabled("DP.Renew") && !HasBuff("Renew"))
+            if (Me.Health <= Simple_Renew && IsKeyEnabled("DP.Renew") && !HasBuff("Renew") && !IsShadowform)
             {
                 CastSpell("DP.Renew");
                 return true;
