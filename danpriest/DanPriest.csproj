@@ -45,9 +45,12 @@
     <Compile Include="DanPriestGliderOverrides.cs" />
     <Compile Include="DanPriestHeader.cs" />
     <Compile Include="DanPriestHelpers.cs" />
+    <Compile Include="DanPriestPvPKillPlayer.cs" />
     <Compile Include="DanPriestKillTarget.cs" />
-    <Compile Include="DanPriestPvP.cs" />
+    <Compile Include="DanPriestPvPHeader.cs" />
+    <Compile Include="DanPriestPvPHelpers.cs" />
     <Compile Include="DanPriestThreads.cs" />
+    <Compile Include="Tendencies.cs" />
     <Compile Include="Test.cs" />
   </ItemGroup>
   <ItemGroup>

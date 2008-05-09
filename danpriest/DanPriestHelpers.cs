@@ -556,6 +556,7 @@ namespace Glider.Common.Objects
         bool SimpleHeal(GUnit Target)
         {
             Refresh();
+            CheckPWShield();
             if (Me.Health <= Simple_FlashHeal && IsKeyEnabled("DP.FlashHeal"))
             {
                 CastSpell("DP.FlashHeal");
@@ -1323,12 +1324,8 @@ namespace Glider.Common.Objects
             if (Ability("Fear") && !Me.HasBuff(6346) && Me.Mana > .3 && FearWard.IsReady && Interface.IsKeyReady("DP.FearWard") && IsKeyEnabled("DP.FearWard"))
             {
                 Log("Buffing: Fear Ward");
-                if (IsShadowform())
-                    CastSpell("DP.Shadowform");
                 CastSpell("DP.FearWard");
                 FearWard.Reset();
-                if (UseShadowform && !IsShadowform())
-                    CastSpell("DP.Shadowform");
                 if (!ForceAll)
                     return;
             };
@@ -1592,7 +1589,7 @@ namespace Glider.Common.Objects
            }*/
         }
 
-        void Log(string text)
+        public void Log(string text)
         {
             string TimeStamp = DateTime.Now.Hour + ":" + DateTime.Now.Minute + ":" + DateTime.Now.Second + "." + DateTime.Now.Millisecond + ": ";
             Context.Log(TimeStamp + text);
@@ -1613,3 +1610,4 @@ namespace Glider.Common.Objects
         #endregion
     }
 }
+
