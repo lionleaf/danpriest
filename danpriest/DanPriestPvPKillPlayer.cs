@@ -25,7 +25,10 @@ namespace Glider.Common.Objects
                 Refresh();
                 GPlayer Player = (GPlayer)BestTarget(Target);
                 if (Player.Name != Target.Name)
+                {
+                    Log("Killing " + Player.Name + " instead of " + Target.Name);
                     return KillPlayer(Player, Me.Location);
+                }
                     
                 result = CheckCombatStuff(Target);
                 if (result != GCombatResult.Unknown)
