@@ -23,7 +23,7 @@ I will now look at how DanPriest behaves in PvP and write a list of things it do
   * Should start with Mind Blast for instance
   * _Does not detect stuns_
   * Does not use SW: Death on players
-  * 
+  * *Sometimes he is really slow to react*
   *
   *
   *
