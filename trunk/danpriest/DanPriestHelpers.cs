@@ -984,6 +984,68 @@ namespace Glider.Common.Objects
             Target.Face();
             Target.SetAsTarget(FirstTarget);
         }
+
+        bool TargetFriend(GUnit Friend)  //Taken from Djragect, no point in reinventing the wheel. Thanks! :)
+        {
+
+
+            if (Friend == null) return false;
+            if (!Friend.IsValid) return false;
+            Friend.Refresh(true);
+            if (Friend.IsDead) return false;
+            GSpellTimer Timeout = new GSpellTimer(3000, false);
+            long FirstUnit = 0;
+            while (!Timeout.IsReady)
+            {
+                Me.Refresh(true);
+                if (Me.TargetGUID == Friend.GUID) return true;
+                if (FirstUnit == 0)
+                {
+                    FirstUnit = Me.TargetGUID;
+                }
+                else
+                {
+                    if (Me.TargetGUID == FirstUnit && Me.TargetGUID != 0) return false; //Went through all friendlies
+                }
+                Context.SendKey("DP.TargetFriend");
+                Thread.Sleep(20);
+            }
+            return false;
+
+        }
+
+        void BuffFriends()
+        {
+
+
+            GPlayer[] Friends = GObjectList.GetPlayers();
+            foreach (GPlayer Friend in Friends)
+            {
+                if (Friend.DistanceToSelf > 28 || HasBuff("Power Word: Fortitude", true, Friend) ||
+                    !Friend.IsSameFaction || Friend.GUID == Me.GUID)
+                    continue;
+
+                if (Me.Mana > .6)
+                {
+                    Log("Buffing friend: " + Friend.Name);
+                    if (FriendBuffing && (!BGMode ||HasBuff("Preparation")) )
+                    {
+                        Context.ReleaseSpinRun();
+                        Friend.Face();
+                        if (TargetFriend(Friend))
+                        {
+                            CastSpell("DP.PWFortOther");
+                            CastSpell("DP.RenewOther");
+                        }
+                        Context.ClearTarget();
+                    }
+
+                }
+            }
+
+        }
+
+
         void WaitForPlayerDeath()
         {
             GSpellTimer WaitTime = new GSpellTimer(60 * 1000);
