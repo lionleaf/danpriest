@@ -74,6 +74,12 @@ namespace Glider.Common.Objects
 
         void ActivePVP()
         {
+            if (BGMode && PvP_HealMode)
+            {
+                PvPHealing();
+                return;
+            }
+        
             Refresh();
             if (Me.IsInCombat)
             {

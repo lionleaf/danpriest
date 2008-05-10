@@ -133,7 +133,9 @@ namespace Glider.Common.Objects
         {
             if (ActivePvP)
                 ActivePVP();
-
+            BuffFriends();
+            if (ActivePvP)
+                ActivePVP();
             CheckShadowform();
             
             if(ActivePvP)

@@ -288,6 +288,7 @@ namespace Glider.Common.Objects
         double Simple_Renew = 0.75;
         double WandStopPercentage = 0.05;
         bool BGMode = true;
+        bool FriendBuffing = true;
         #endregion
 
         #endregion
