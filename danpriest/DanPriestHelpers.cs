@@ -54,33 +54,29 @@ namespace Glider.Common.Objects
         {
 
             Refresh(Target);
-            GBuff[] buffs = Target.GetBuffSnapshot();
-            for (int i = 0; i < buffs.Length; i++)
-            {
-                GBuff b = buffs[i];
-                string s = b.SpellName;
-                if (s.Contains("Horse") || s.Contains("Warhorse") ||
-                   s.Contains("Raptor") ||
-                   s.Contains("Kodo") ||
-                   s.Contains("Wolf") ||
-                   s.Contains("Saber") ||
-                   s.Contains("Ram") ||
-                   s.Contains("Mechanostrider") ||
-                   s.Contains("Hawkstrider") ||
-                   s.Contains("Elekk") ||
-                   s.Contains("Steed") ||
-                   s.Contains("Tiger") ||
-                   s.Contains("Frostwolf Howler") ||
-                   s.Contains("Talbuk") ||
-                   s.Contains("Frostsaber") ||
-                   s.Contains("Battle Tank") ||
-                   s.Contains("Reins") || // yeah right
-                   s.Contains("Turtle")  // lol
+
+            if (HasBuff("Horse", false, Target) || HasBuff("Warhorse", false, Target) ||
+                   HasBuff("Raptor", false, Target) ||
+                   HasBuff("Kodo", false, Target) ||
+                   HasBuff("Wolf", false, Target) ||
+                   HasBuff("Saber", false, Target) ||
+                   HasBuff("Ram", false, Target) ||
+                   HasBuff("Mechanostrider", false, Target) ||
+                   HasBuff("Hawkstrider", false, Target) ||
+                   HasBuff("Elekk", false, Target) ||
+                   HasBuff("Steed", false, Target) ||
+                   HasBuff("Tiger", false, Target) ||
+                   HasBuff("Frostwolf Howler", false, Target) ||
+                   HasBuff("Talbuk", false, Target) ||
+                   HasBuff("Frostsaber", false, Target) ||
+                   HasBuff("Battle Tank", false, Target) ||
+                   HasBuff("Reins", false, Target) || // yeah right
+                   HasBuff("Turtle", false, Target)  // lol
                     )
                 {
                     return true;
                 }
-            }
+            
             return false;
 
         }
@@ -685,9 +681,6 @@ namespace Glider.Common.Objects
                 (Me.Health < .25 && Target.Health > .1) || Me.Health < .15)
             {
 
-
-                Context.CastSpell("DP.Shadowform");
-
                 if (Me.Health < .2 && Potion.IsReady && Interface.GetActionInventory("DP.Potion") > 0)
                 {
 
@@ -719,8 +712,8 @@ namespace Glider.Common.Objects
                         Potion.Reset();
                     }
 
-                    if (Me.Mana >= .50)
-                        CastSpell("DP.Shadowform");
+                    if (Me.Mana >= .50 && !IsShadowform())
+                        CheckShadowform();
 
                     return true;
                 }
@@ -749,13 +742,13 @@ namespace Glider.Common.Objects
                 }
                 else if (Me.Mana > .3)
                 {
-                    CastSpell("DP.Shadowform");
+                   
                     CastSpell("DP.RestHeal");
                     if (Me.Health < 0.7 && Me.Mana > 0.2)
                         CastSpell("DP.Renew");
 
                     if (UseShadowform && !IsShadowform())
-                        CastSpell("DP.Shadowform");
+                        CheckShadowform();
                 }
             }
             else
@@ -1082,10 +1075,6 @@ namespace Glider.Common.Objects
         {
             if (Me.Mana > Context.RestMana && Me.Health < Context.RestHealth)
             {
-                if (IsShadowform())
-                {
-                    CastSpell("DP.Shadowform");
-                }
 
                 if (Ability("Desperate") && DesperatePrayer.IsReady)
                 {
@@ -1096,8 +1085,6 @@ namespace Glider.Common.Objects
                 {
                     CastSpell("DP.RestHeal");
                 }
-                if (!IsShadowform() && UseShadowform)
-                    CastSpell("DP.Shadowform");
             }
 
         }
@@ -1293,11 +1280,6 @@ namespace Glider.Common.Objects
             {
                 if (Context.RemoveDebuffs(GBuffType.Disease, "DP.CureDisease", false))
                 {
-                    if (IsShadowform())
-                    {
-                        CastSpell("DP.Shadowform");
-
-                    }
                     if (Context.RemoveDebuffs(GBuffType.Disease, "DP.CureDisease", false))
                         return;
                     CheckShadowform();

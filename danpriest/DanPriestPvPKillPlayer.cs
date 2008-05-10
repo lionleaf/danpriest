@@ -13,20 +13,11 @@ namespace Glider.Common.Objects
         #region KillPlayer
         GCombatResult KillPlayer(GPlayer Target, GLocation Anchor)
         {
-            GCombatResult result;
+            double StartHealth = Me.Health;
+            GCombatResult result = GCombatResult.Bugged;
             Context.Log("Attempting to kill player: " + Target.Name + " a lvl " + Target.Level + " " + Target.PlayerRace + " " + Target.PlayerClass);
-            bool Moved = false;
             bool Fast = false;
-            GSpellTimer FutileCombat = new GSpellTimer(2 * 60 * 1000, false);
-            GSpellTimer MindFlayPC = new GSpellTimer(3 * 1000, true);
-            GSpellTimer MindBlastPC = new GSpellTimer(8 * 1010, true);
-            GSpellTimer SWDeathPC = new GSpellTimer(12 * 1000, true);
-            GSpellTimer SWPainPC = new GSpellTimer(20 * 1000, true);
-            GSpellTimer VampiricEmbracePC = new GSpellTimer(60 * 1000, true);
-            GSpellTimer VampiricTouchPC = new GSpellTimer(15 * 1000, true);
-            GSpellTimer HealSpam = new GSpellTimer(9 * 1000, true);
-            GCombatResult Result = GCombatResult.Bugged;
-            bool MoveNoMore = false;
+
             Target.SetAsTarget(false);
 
             while (!FutileCombat.IsReadySlow)
@@ -37,7 +28,10 @@ namespace Glider.Common.Objects
                     return result;
 
                 // Check heal:
-                CheckPWShield();
+                if (PvP_StartShield)
+                    CheckPWShield();
+                else if (Me.Health < StartHealth)
+                    CheckPWShield();
                 if (UseRenew && Me.Health < .70 && Renew.IsReady && !IsShadowform())
                 {
                     CastSpell("DP.Renew", Fast);
@@ -178,7 +172,7 @@ namespace Glider.Common.Objects
 
             }
 
-            return Result;
+            return result;
 
         }
 
