@@ -287,6 +287,7 @@ namespace Glider.Common.Objects
         double Simple_HealTo = 0.8;
         double Simple_Renew = 0.75;
         double WandStopPercentage = 0.05;
+        bool BGMode = true;
         #endregion
 
         #endregion

@@ -11,7 +11,7 @@ namespace Glider.Common.Objects
     partial class DanPriest
     {
         #region KillPlayer
-        GCombatResult KillPlayer(GPlayer Target, GLocation Anchor)
+        GCombatResult KillPlayer(GPlayer Target,GLocation Anchor)
         {
             double StartHealth = Me.Health;
             GCombatResult result = GCombatResult.Bugged;
@@ -22,7 +22,11 @@ namespace Glider.Common.Objects
 
             while (!FutileCombat.IsReadySlow)
             {
-
+                Refresh();
+                GPlayer Player = (GPlayer)BestTarget(Target);
+                if (Player.Name != Target.Name)
+                    return KillPlayer(Player, Me.Location);
+                    
                 result = CheckCombatStuff(Target);
                 if (result != GCombatResult.Unknown)
                     return result;

@@ -74,6 +74,25 @@ namespace Glider.Common.Objects
 
         void ActivePVP()
         {
+            Refresh();
+            if (Me.IsInCombat)
+            {
+                GUnit[] Attackers = GObjectList.GetAttackers();
+                if (Attackers.Length >= 1)
+                {
+                    foreach (GUnit Attacker in Attackers)
+                    {
+                        if (Attacker.IsPlayer)
+                        {
+                            KillTarget(Attacker,true);
+                            break;
+                        }
+                    }
+                }
+                
+                
+            }
+
             //Find all nearby players
             GPlayer[] Players = GObjectList.GetPlayers();
             if (Players.Length < 1) return; //No players
@@ -82,7 +101,7 @@ namespace Glider.Common.Objects
                 //Check if player is targeting me and if player is opposite faction
                 if (Player != Me && Player.Refresh(true) && Player.DistanceToSelf < 40 && !Player.IsSameFaction)
                 {
-                    if (Player.Level < Me.Level + 7 && Player.Level > Me.Level - 1 && OkToAttack(Player))
+                    if (Player.Level < Me.Level + 7 && Player.Level > Me.Level - 1 && OkToAttack(Player) && Player.Health > .01)
                     {
                         Player.Approach(PullDistance, false);
                         TargetUnit(Player, false);
