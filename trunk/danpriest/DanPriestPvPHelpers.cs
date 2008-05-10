@@ -60,7 +60,7 @@ namespace Glider.Common.Objects
         }
         bool IsOutOfReach(GUnit Target)
         {
-            if (Me.Location.Z - Target.Location.Z < MaxZDifference && Me.Location.Z - Target.Location.Z > MaxZDifference)
+            if (Me.Location.Z - Target.Location.Z < (0-MaxZDifference) && Me.Location.Z - Target.Location.Z > MaxZDifference)
                 return true;
             return false;
         }

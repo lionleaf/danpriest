@@ -28,9 +28,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="GRefs, Version=0.1.5.8, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="GRefs 1.5.9, Version=0.1.5.9, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\GRefs.dll</HintPath>
+      <HintPath>.\GRefs 1.5.9.dll</HintPath>
     </Reference>
     <Reference Include="PPather, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
