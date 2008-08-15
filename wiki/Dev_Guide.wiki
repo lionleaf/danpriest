@@ -23,6 +23,6 @@ When you got visual studio installed you can open the project file DanPriest.csp
 Something I've done personally is make a personal version of the .bat file which not only merges the files to DanPriest.cs, but also copies the newly merged file to my /classes directory and overrides the one that's there. So I can test right away.
 
 
-Now, what are you going to do with DanPriest? Read this first: 
+Now, what are you going to do with DanPriest? Read this first: ToDo
 
 What I usually do is to run DanPriest and just sit and watch it, and note everything I feel it's doing wrong. Then try to understand why, and then make it work like I want. 
