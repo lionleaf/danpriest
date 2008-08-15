@@ -14,3 +14,5 @@ DanPriest should be easy to get to work in a basic manner, but still contain a l
 The fundamental part of DanPriest is the customizable casting-sequence, and I wish to maintain a fully configurable combat sequence!
 
 DanPriest is focused around effeciency, and is to be kept that way.
+
+One of my future goals of DanPriest was to make it very effiecient in PvP. But not untill the PvE part is rock solid. My goal is to do very well in BGs, even capture flags and do objectives, and analyze the situation and generally play well.
