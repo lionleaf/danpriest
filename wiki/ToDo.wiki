@@ -1,14 +1,17 @@
 #summary Stuff to to and ideas for future releases. Feel free to comment
+#labels Phase-Implementation
 = Introduction =
 
-This is a list of ideas / changes / fixes in all sizes which we might implement in future releases
+This is some stuff for the new developers to do. Any of the devs can add more stuff if you please.
 
+Please remember that I'm currently not working with DanPriest even though I'm writing this. It's just to get you started, and I will follow the development. But atm I'm writing other programs and doing other stuff. I'm even using Vista 64 so I can't install glider.
 
 = Details =
 
-  * Check whether activated keys is populated
-  * Check for silence
-  * 
+  * I hear that the is some compatibility issues with DanPriest and the newest glider version, this has to be looked into right away.
+  * Make DanPriest compatible with the new keys system
+  * Fix any bugs you might find or know about
+  * Implement features if you please, but if it's a big thing, you should ask me first.
   *
   *
   *
@@ -17,7 +20,3 @@ This is a list of ideas / changes / fixes in all sizes which we might implement 
   *
   *
   *
-  *
-  *
-  *
-  * List will be populated soon
