@@ -1,0 +1,16 @@
+#summary How to download the project using tortoiseSVN
+
+= Introduction =
+
+First thing you have to do is to download TortoiseSVN, which can be done here http://tortoisesvn.tigris.org/ 
+
+Install it and I think you have to reboot aswell.
+
+
+= Details =
+
+ * First thing, you have to make a new folder. Doesn't matter where or what you name it, this is the folder in which the project will be downloaded
+ * Rightclick the folder and choose SVN checkout
+ * Now it will prompt you for an url along with some settings, enter https://danpriest.googlecode.com/svn/trunk/danpriest as the url.
+ * You will now be prompted for username and password. Your username is your google account, mine is gwethir. But the password is not your gmail password, but rather a generated password you get here: http://code.google.com/hosting/settings
+ * If you done it all correctly it should now download all of the project files.
