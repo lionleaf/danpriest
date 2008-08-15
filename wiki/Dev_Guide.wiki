@@ -5,6 +5,7 @@
 
 So, DanPriest have a good team developers now. But it seems noone has begun, and I realise you all need to know what to do and where to start. So here is a guide how to get started along with some words on what I'd like you to do. If there is anything, you can always contact me on mail, msn or a pm on the forum. I'd be happy to help.
 
+Please remember that I'm currently not working with DanPriest? even though I'm writing this. It's just to get you started, and I will follow the development. But atm I'm writing other programs and doing other stuff. I'm even using Vista 64 so I can't install glider.
 
 = Details =
 
@@ -26,3 +27,12 @@ Something I've done personally is make a personal version of the .bat file which
 Now, what are you going to do with DanPriest? Read this first: ToDo
 
 What I usually do is to run DanPriest and just sit and watch it, and note everything I feel it's doing wrong. Then try to understand why, and then make it work like I want. 
+
+
+*A few notes on the current status of the project:*'
+DanPriests PPather compability is decided by the "#define PPather" in the beginning of the file "DanPriestHeader.cs". If this does not say "PPather", but anything else, like "PPathe" PPather compability will not be compiled. Only if it says "PPather" will DanPries be PPather compatible.
+
+*IMPORTANT about healing*
+There is currently two healing-algorithms in DanPriest. The advanced one written by wicked.tilted, but it is a bit shacky still and very heal-happy. There is therefore an algorithm named Simple-Heal. They both need some work, but don't touch advanced heal function unless you know what you're doing, as it's pretty advanced.  
+
+That's it for now, happy coding, and please contact me if there is anything.
