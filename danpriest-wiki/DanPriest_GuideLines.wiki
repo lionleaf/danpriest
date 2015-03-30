@@ -1,0 +1,18 @@
+#summary A few words about what I want with DanPriest
+
+= Introduction =
+
+A few guidelines to follow for the developers, and my goal with DanPriest
+
+
+= Details =
+
+DanPriest should be a flexible class, where the user can make it fit every need.
+
+DanPriest should be easy to get to work in a basic manner, but still contain a lot of advanced options to tweak your xp/hour, meaning that all the advanced options should have sensible defaults and should not be needed to adjusted.
+
+The fundamental part of DanPriest is the customizable casting-sequence, and I wish to maintain a fully configurable combat sequence!
+
+DanPriest is focused around effeciency, and is to be kept that way.
+
+One of my future goals of DanPriest was to make it very effiecient in PvP. But not untill the PvE part is rock solid. My goal is to do very well in BGs, even capture flags and do objectives, and analyze the situation and generally play well.

@@ -1,0 +1,28 @@
+#summary List of all the observations where DanPriest does something wrong in PvP.
+
+= Introduction =
+
+I will now look at how DanPriest behaves in PvP and write a list of things it does wrong, then I will try to come with solutions.
+
+
+= Details =
+
+*Major fault, can not have this happening* Pretty big problem, should be fixed _Not big problem, but is a good idea to add at some point. Might be a big thing_:
+  * *Shields before initating combat even though I stand behind and only dots*
+  * *Doting at low hp(target)*
+  * *Attacking mounted people running by*
+  * Obsessed with keeping the DoTs up
+  * _Does not run in and fear ranged_
+  * _Does not buff or heal friends (Maybe buff only in the start?)_
+  * Still not to happy to change target
+  * *Keep following target for to long (Should compare my starting-location instead of current location with target location)*
+  * _Always running back to start location_
+  * *Does not check MindFlay range I think*
+  * Attacks immune players
+  * Should start with Mind Blast for instance
+  * _Does not detect stuns_
+  * Does not use SW: Death on players
+  * *Sometimes he is really slow to react*
+  *
+  *
+  *
